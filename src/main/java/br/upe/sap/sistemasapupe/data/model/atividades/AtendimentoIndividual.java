@@ -21,4 +21,5 @@ public class AtendimentoIndividual extends Atividade {
         this.ficha = ficha;
         this.funcionario = funcionario;
     }
+
 }

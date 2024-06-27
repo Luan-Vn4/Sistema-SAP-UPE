@@ -9,6 +9,7 @@ import java.util.UUID;
 
 @Getter @Setter
 @ToString
+@NoArgsConstructor
 public class Atividade {
 
     private int id;
@@ -20,7 +21,8 @@ public class Atividade {
     private LocalDateTime tempoFim;
     private StatusAtividade statusAtividade;
 
-    public Atividade(int id, UUID uid, Sala sala, LocalDateTime tempoInicio,
+
+    public Atividade( int id, UUID uid, Sala sala, LocalDateTime tempoInicio,
                      LocalDateTime tempoFim, StatusAtividade statusAtividade) {
         this.setId(id);
         this.setUid(uid);

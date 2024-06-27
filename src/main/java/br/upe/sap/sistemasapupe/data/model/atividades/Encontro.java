@@ -13,6 +13,7 @@ import java.util.UUID;
 @ToString
 @Getter @Setter
 public class Encontro extends Atividade {
+
     private GrupoEstudo grupoEstudo;
     private List<Funcionario> presentes;
 

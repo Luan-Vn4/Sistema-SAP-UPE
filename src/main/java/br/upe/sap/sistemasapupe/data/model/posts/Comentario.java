@@ -6,11 +6,10 @@ import lombok.*;
 @AllArgsConstructor
 @ToString
 public class Comentario {
+
     private int id;
     private int post;
     private int autor;
     private String conteudo;
-
-
 
 }
