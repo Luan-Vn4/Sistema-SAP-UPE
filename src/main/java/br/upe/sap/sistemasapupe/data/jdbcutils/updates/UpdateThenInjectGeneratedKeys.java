@@ -1,8 +1,6 @@
 package br.upe.sap.sistemasapupe.data.jdbcutils.updates;
 
-import org.postgresql.util.PSQLException;
 import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 
