@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-public interface AtividadeSalaRepository extends Repository<Atividade, UUID> {
+public interface AtividadeSalaRepository extends BasicRepository<Atividade, UUID> {
 
     List<Atividade> findBySala(UUID uidSala);
 

@@ -4,7 +4,7 @@ import br.upe.sap.sistemasapupe.data.model.pacientes.Ficha;
 
 import java.util.UUID;
 
-public interface FichaRepository extends Repository<Ficha, UUID> {
+public interface FichaRepository extends BasicRepository<Ficha, UUID> {
 
     Ficha findByFuncionario(UUID uidFuncionario);
 

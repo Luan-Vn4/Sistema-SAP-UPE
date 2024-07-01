@@ -5,7 +5,7 @@ import br.upe.sap.sistemasapupe.data.model.grupos.GrupoTerapeutico;
 import java.util.List;
 import java.util.UUID;
 
-public interface GrupoTerapeuticoRepository extends Repository<GrupoTerapeutico, UUID> {
+public interface GrupoTerapeuticoRepository extends BasicRepository<GrupoTerapeutico, UUID> {
 
     GrupoTerapeutico create(GrupoTerapeutico grupoTerapeutico);
 

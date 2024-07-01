@@ -5,7 +5,7 @@ import br.upe.sap.sistemasapupe.data.model.grupos.GrupoEstudo;
 
 import java.util.UUID;
 
-public interface GrupoEstudoRepository extends Repository<GrupoEstudo, UUID> {
+public interface GrupoEstudoRepository extends BasicRepository<GrupoEstudo, UUID> {
 
     GrupoEstudo findById(int idGrupoEstudo);
 

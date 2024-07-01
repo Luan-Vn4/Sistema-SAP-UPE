@@ -3,7 +3,7 @@ package br.upe.sap.sistemasapupe.data.repositories.interfaces;
 import java.io.Serializable;
 import java.util.List;
 
-public interface Repository<Entity, Key extends Serializable> {
+public interface BasicRepository<Entity, Key extends Serializable> {
 
     Entity create(Entity entity);
 

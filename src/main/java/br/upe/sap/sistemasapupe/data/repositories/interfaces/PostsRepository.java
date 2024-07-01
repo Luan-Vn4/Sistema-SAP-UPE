@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-public interface PostsRepository extends Repository<Post, UUID> {
+public interface PostsRepository extends BasicRepository<Post, UUID> {
 
     Post create(Post novoPosto);
 
