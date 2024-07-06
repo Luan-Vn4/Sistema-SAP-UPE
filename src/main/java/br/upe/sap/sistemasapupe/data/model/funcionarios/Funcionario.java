@@ -1,18 +1,22 @@
 package br.upe.sap.sistemasapupe.data.model.funcionarios;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.*;
 import java.util.UUID;
 
 @ToString
-@Getter @Setter @Builder
+@Getter @Setter
 @AllArgsConstructor @NoArgsConstructor
 @Table(name = "funcionarios")
-public class Funcionario {
+@Entity
+public abstract class Funcionario {
 
+    @Id
     @Column(name = "id")
-    private Integer id;
+    protected Integer id;
 
     @Column(name = "uid")
     private UUID uid;
@@ -32,14 +36,13 @@ public class Funcionario {
     @Column(name = "imagem")
     private String urlImagem;
 
-    @Column(name="is_tecnico")
-    private boolean isTecnico = false;
-
     @Column(name="is_ativo")
     private boolean isAtivo = true;
 
     public String getNomeCompleto() {
         return this.nome + " " + this.sobrenome;
     }
+
+    public abstract Cargo getCargo();
 
 }

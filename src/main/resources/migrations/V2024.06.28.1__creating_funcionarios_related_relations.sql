@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS funcionarios (
     email VARCHAR(255) NOT NULL,
     senha CHAR(60) NOT NULL,
     is_tecnico BOOL NOT NULL DEFAULT FALSE,
-    imagem VARCHAR(255),
+    url_imagem VARCHAR(255),
     is_ativo BOOL NOT NULL DEFAULT TRUE
 );
 
