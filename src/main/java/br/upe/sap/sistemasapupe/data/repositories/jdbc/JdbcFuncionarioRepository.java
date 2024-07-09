@@ -7,6 +7,7 @@ import br.upe.sap.sistemasapupe.data.model.funcionarios.Cargo;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Estagiario;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Funcionario;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Tecnico;
+import br.upe.sap.sistemasapupe.data.model.posts.Post;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.FuncionarioRepository;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;

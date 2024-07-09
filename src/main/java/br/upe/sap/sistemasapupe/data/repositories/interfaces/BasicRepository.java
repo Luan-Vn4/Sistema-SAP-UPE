@@ -1,7 +1,10 @@
 package br.upe.sap.sistemasapupe.data.repositories.interfaces;
 
+import br.upe.sap.sistemasapupe.data.model.posts.Post;
+
 import java.io.Serializable;
 import java.util.List;
+import java.util.Optional;
 
 public interface BasicRepository<Entity, Key extends Serializable> {
 

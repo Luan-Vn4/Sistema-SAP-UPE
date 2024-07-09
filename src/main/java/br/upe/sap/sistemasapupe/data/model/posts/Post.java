@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter @Setter
-@AllArgsConstructor
+@NoArgsConstructor
 @ToString
 public class Post {
 
@@ -18,4 +18,14 @@ public class Post {
     private String imagem;
     private List<Comentario> comentarios;
 
+    @Builder(builderMethodName = "postBuilder")
+    public Post(Funcionario autor, String titulo, LocalDateTime dataPublicacao,
+                String conteudo, String imagem, List<Comentario> comentarios) {
+        this.autor = autor;
+        this.titulo = titulo;
+        this.dataPublicacao = dataPublicacao;
+        this.conteudo = conteudo;
+        this.imagem = imagem;
+        this.comentarios = comentarios;
+    }
 }

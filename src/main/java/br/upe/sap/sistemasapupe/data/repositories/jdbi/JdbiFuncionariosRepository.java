@@ -3,12 +3,14 @@ package br.upe.sap.sistemasapupe.data.repositories.jdbi;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Estagiario;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Funcionario;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Tecnico;
+import br.upe.sap.sistemasapupe.data.model.posts.Post;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.FuncionarioRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.reflect.BeanMapper;
 import org.springframework.stereotype.Repository;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -101,6 +103,7 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
                 BeanMapper.of(Tecnico.class).map(rs, ctx) :
                 BeanMapper.of(Estagiario.class).map(rs, ctx)
             ).first());
+        //findFirst()
 
         if (funcionario instanceof Estagiario estagiario) {
             estagiario.setSupervisor(findSupervisor(estagiario.getUid()));

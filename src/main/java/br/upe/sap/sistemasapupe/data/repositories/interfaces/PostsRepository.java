@@ -5,9 +5,9 @@ import br.upe.sap.sistemasapupe.data.model.posts.Post;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
+import java.util.Optional;
 
-public interface PostsRepository extends BasicRepository<Post, UUID> {
+public interface PostsRepository extends BasicRepository<Post, Integer> {
 
     Post create(Post novoPosto);
 
@@ -15,16 +15,16 @@ public interface PostsRepository extends BasicRepository<Post, UUID> {
 
     List<Post> findAll();
 
-    Post findById(UUID idPost);
+    Post findById(Integer idPost);
 
-    Post findByTempo(LocalDateTime tempoInicio, LocalDateTime tempoFim);
+    Post findByTempo(LocalDateTime data_publicacao);
 
-    List<Comentario> findComentariosByPost(UUID idPost);
+    List<Comentario> findComentariosByPost(Integer idPost);
 
     Post update(Post postAtualizado);
 
-    void delete(UUID idPost);
+    void delete(Integer idPost);
 
-    void deleteComentario(UUID idComentario);
+    void deleteComentario(Integer idComentario);
 
 }
