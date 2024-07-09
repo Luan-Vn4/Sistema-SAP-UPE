@@ -34,7 +34,8 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
     public Estagiario createEstagiario(Estagiario estagiario) {
         final String CREATE = createFuncionarioSQL(false);
 
-        return jdbi.withHandle(handle -> handle.createUpdate(CREATE)
+        return jdbi.withHandle(handle -> handle
+            .createUpdate(CREATE)
             .bindBean(estagiario)
             .executeAndReturnGeneratedKeys()
             .mapToBean(Estagiario.class)
@@ -59,7 +60,7 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
     }
 
     @Override
-    public List<Funcionario> create(List<Funcionario> funcionarios) {
+    public List<Funcionario> create(List<Funcionario> funcionarios)  {
         return List.of();
     }
 
