@@ -1,5 +1,6 @@
 package br.upe.sap.sistemasapupe.data.jdbcutils.updates;
 
+import br.upe.sap.sistemasapupe.data.jdbcutils.ReflectionsUtils;
 import jakarta.persistence.Column;
 import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.support.KeyHolder;
@@ -64,6 +65,7 @@ public class UpdateUtils {
     @SafeVarargs
     public static <T> void injectKeys(KeyHolder keyHolder, T... entities) {
         Class<?> targetClass = entities[0].getClass();
+        List<Class<?>> targetAscendants = ReflectionsUtils.getAllAscendants(targetClass);
         List<Map<String, Object>> mapList = keyHolder.getKeyList();
 
         for (int i = 0; i < entities.length; i++) {
@@ -71,12 +73,16 @@ public class UpdateUtils {
             T entity = entities[i];
 
             for (String key : mapList.get(i).keySet()) {
-                for (Field field : targetClass.getDeclaredFields()) {
-                    if (verifyThenInsertKey(field, key, entity, mapping)) break;
+                for (Class<?> clazz : targetAscendants) {
+                    for (Field field : clazz.getDeclaredFields()) {
+                        if (verifyThenInsertKey(field, key, entity, mapping)) break;
+                    }
                 }
             }
         }
     }
+
+
 
 
     /**
@@ -88,15 +94,18 @@ public class UpdateUtils {
      */
     public static <T> void injectKeys(KeyHolder keyHolder, List<T> entities) {
         Class<?> targetClass = entities.get(0).getClass();
+        List<Class<?>> targetAscendants = ReflectionsUtils.getAllAscendants(targetClass);
         List<Map<String, Object>> mapList = keyHolder.getKeyList();
 
         for (int i = 0; i < entities.size(); i++) {
             Map<String, Object> mapping = mapList.get(i);
             T entity = entities.get(i);
 
-            for (String key : mapList.get(i).keySet()) {
-                for (Field field : targetClass.getDeclaredFields()) {
-                    if (verifyThenInsertKey(field, key, entity, mapping)) break;
+            for (Class<?> clazz : targetAscendants) {
+                for (String key : mapList.get(i).keySet()) {
+                    for (Field field : targetClass.getDeclaredFields()) {
+                        if (verifyThenInsertKey(field, key, entity, mapping)) break;
+                    }
                 }
             }
         }
