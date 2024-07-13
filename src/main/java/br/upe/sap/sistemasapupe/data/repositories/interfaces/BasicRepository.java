@@ -1,10 +1,7 @@
 package br.upe.sap.sistemasapupe.data.repositories.interfaces;
 
-import br.upe.sap.sistemasapupe.data.model.posts.Post;
-
 import java.io.Serializable;
 import java.util.List;
-import java.util.Optional;
 
 public interface BasicRepository<Entity, Key extends Serializable> {
 
@@ -22,8 +19,8 @@ public interface BasicRepository<Entity, Key extends Serializable> {
 
     List<Entity> findById(List<Key> ids);
 
-    void delete(Key id);
+    int delete(Key id);
 
-    void delete(List<Key> keys);
+    int delete(List<Key> keys);
 
 }

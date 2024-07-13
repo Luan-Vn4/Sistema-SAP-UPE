@@ -1,10 +1,8 @@
 package br.upe.sap.sistemasapupe.data.repositories.interfaces;
 
 import br.upe.sap.sistemasapupe.data.model.grupos.GrupoTerapeutico;
-import br.upe.sap.sistemasapupe.data.model.posts.Post;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public interface GrupoTerapeuticoRepository extends BasicRepository<GrupoTerapeutico, UUID> {
@@ -23,6 +21,6 @@ public interface GrupoTerapeuticoRepository extends BasicRepository<GrupoTerapeu
 
     GrupoTerapeutico update(GrupoTerapeutico grupoTerapeutico);
 
-    void delete(UUID uidGrupoTerapeutico);
+    int delete(UUID uidGrupoTerapeutico);
 
 }

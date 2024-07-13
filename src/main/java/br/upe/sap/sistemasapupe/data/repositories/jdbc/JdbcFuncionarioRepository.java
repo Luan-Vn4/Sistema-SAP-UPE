@@ -220,13 +220,13 @@ public class JdbcFuncionarioRepository implements FuncionarioRepository {
 
     // DELETE
     @Override
-    public void delete(UUID id) {
-
+    public int delete(UUID id) {
+        return 0;
     }
 
     @Override
-    public void delete(List<UUID> uuids) {
-
+    public int delete(List<UUID> uuids) {
+        return 0;
     }
 
 }

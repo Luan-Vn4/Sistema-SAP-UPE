@@ -3,6 +3,7 @@ import br.upe.sap.sistemasapupe.configuration.EmbeddedDatabaseConfiguration;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Estagiario;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Funcionario;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Tecnico;
+import br.upe.sap.sistemasapupe.data.repositories.jdbi.JdbiFuncionariosRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -23,7 +24,7 @@ import java.util.List;
 public class JdbcFuncionarioRepositoryTest {
 
     @Autowired
-    private JdbcFuncionarioRepository repository;
+    private JdbiFuncionariosRepository repository;
 
     @Autowired
     private JdbcTemplate jdbc;
