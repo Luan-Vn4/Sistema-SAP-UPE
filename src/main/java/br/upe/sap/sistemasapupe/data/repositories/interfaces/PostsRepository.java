@@ -23,8 +23,8 @@ public interface PostsRepository extends BasicRepository<Post, UUID> {
 
     Post update(Post postAtualizado);
 
-    void delete(UUID idPost);
+    int delete(UUID idPost);
 
-    void deleteComentario(UUID idComentario);
+    int deleteComentario(UUID idComentario);
 
 }

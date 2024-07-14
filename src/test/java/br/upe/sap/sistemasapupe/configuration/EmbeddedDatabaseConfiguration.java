@@ -15,7 +15,6 @@ import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.List;
 
-
 @Configuration
 @ComponentScan(basePackages = {"br.upe.sap.sistemasapupe.data"})
 public class EmbeddedDatabaseConfiguration {
