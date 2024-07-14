@@ -80,7 +80,6 @@ public class JdbiFichaRepository implements FichaRepository {
                 .createQuery(QUERY)
                 .mapTo(Ficha.class)
                 .list());
-
     }
 
     @Override
@@ -90,6 +89,7 @@ public class JdbiFichaRepository implements FichaRepository {
 
     @Override
     public void delete(UUID id) {
+
 
     }
 
