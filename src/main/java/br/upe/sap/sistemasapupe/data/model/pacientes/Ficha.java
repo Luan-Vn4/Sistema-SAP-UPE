@@ -16,4 +16,9 @@ public class Ficha {
     private Funcionario responsavel;
     private GrupoTerapeutico grupoTerapeutico;
 
+    public Ficha(Funcionario funcionario, GrupoTerapeutico grupoTerapeutico){
+        this.responsavel = funcionario;
+        this.grupoTerapeutico = grupoTerapeutico;
+    }
+
 }

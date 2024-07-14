@@ -3,8 +3,12 @@ package br.upe.sap.sistemasapupe.data.repositories.jdbi;
 import br.upe.sap.sistemasapupe.data.model.pacientes.Ficha;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.FichaRepository;
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.mapper.reflect.BeanMapper;
+import org.jdbi.v3.core.statement.StatementContext;
 import org.springframework.stereotype.Repository;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -13,9 +17,11 @@ import java.util.UUID;
 public class JdbiFichaRepository implements FichaRepository {
 
     Jdbi jdbi;
+    JdbiFuncionariosRepository funcionariosRepository;
 
-    public JdbiFichaRepository(Jdbi jdbi) {
+    public JdbiFichaRepository(Jdbi jdbi, JdbiFuncionariosRepository funcionariosRepository) {
         this.jdbi = jdbi;
+        this.funcionariosRepository = funcionariosRepository;
     }
 
     @Override
@@ -31,11 +37,17 @@ public class JdbiFichaRepository implements FichaRepository {
                 .bind("id_responsavel", ficha.getResponsavel().getId())
                 .bind("id_grupo", ficha.getGrupoTerapeutico().getId())
                 .executeAndReturnGeneratedKeys()
-                .mapToBean(Ficha.class)
+                .map(this::mapFicha)
                 .findFirst()
         );
 
         return  resultado.orElse(null);
+    }
+
+    private Ficha mapFicha(ResultSet rs, StatementContext ctx) throws SQLException {
+        Ficha ficha = BeanMapper.of(Ficha.class).map(rs,ctx);
+        ficha.setResponsavel(funcionariosRepository.findById((UUID) rs.getObject("resp_uid")));
+        return ficha;
     }
 
     @Override
@@ -56,15 +68,17 @@ public class JdbiFichaRepository implements FichaRepository {
     @Override
     public Ficha findById(UUID uid) {
         final String QUERY = """
-            SELECT id, uid, id_responsavel, id_grupo_terapeutico
+            SELECT id, uid, funcionarios.uid as resp_uid, id_grupo_terapeutico
             FROM fichas
+            INNER JOIN funcionarios ON id_responsavel = funcionarios.id
             WHERE uid = :uid
             """;
+
 
         Optional<Ficha> resultado = jdbi.withHandle(handle -> handle
             .createQuery(QUERY)
             .bind("uid", uid)
-            .mapToBean(Ficha.class)
+            .map(this::mapFicha)
             .findFirst());
 
         return resultado.orElse(null);
@@ -88,14 +102,16 @@ public class JdbiFichaRepository implements FichaRepository {
     }
 
     @Override
-    public void delete(UUID id) {
+    public int delete(UUID id) {
 
 
+        return 0;
     }
 
     @Override
-    public void delete(List<UUID> uuids) {
+    public int delete(List<UUID> uuids) {
 
+        return 0;
     }
 
     @Override

@@ -15,11 +15,17 @@ public interface AtividadeSalaRepository extends BasicRepository<Atividade, UUID
 
     List<Atividade> findByTempo(LocalDateTime tempoInicio, LocalDateTime tempoFim);
 
-    List<AtendimentoIndividual> updateAtendimentosIndividuais(UUID uidFicha, UUID uidfuncionario,
-                                                              LocalDateTime tempoInicio,
-                                                              LocalDateTime tempoFim);
+    AtendimentoIndividual createAtendimentoIndividual(AtendimentoIndividual atendimentoIndividual);
+    AtendimentoGrupo createAtendimentoGrupo(AtendimentoGrupo atendimentoGrupo);
+    Encontro createEncontroEstudo(Encontro encontroEstudo);
+
+    AtendimentoIndividual updateAtendimentoIndividual(AtendimentoIndividual atendimentoIndividual);
+    AtendimentoGrupo updateAtendimentoGrupo(AtendimentoGrupo atendimentoGrupo);
+    Encontro updateEncontroEstudo(Encontro encontroEstudo);
 
     Atividade updateStatusAtividade(UUID uidAtividade, StatusAtividade statusAtividade);
+
+    public Sala createSala(Sala sala);
 
 
 }
