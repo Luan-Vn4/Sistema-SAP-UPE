@@ -86,15 +86,36 @@ public class JdbiAtividadeSalaRepository implements AtividadeSalaRepository {
     @Override
     public AtendimentoGrupo createAtendimentoGrupo(AtendimentoGrupo atendimentoGrupo) {
         final String CREATE = """
-                INSERT INTO
+                INSERT INTO coordenacao_atendimento_grupo (id_funcionario, id_atendimento_grupo)
+                VALUES (:id_funcionario, :id_atendimento_grupo)
+                RETURNING *
                 """;
         atendimentoGrupo.setId(createAtividade(atendimentoGrupo).getId());
-        return null;
+        return jdbi.withHandle(handle -> handle
+                .createUpdate(CREATE)
+                .bind("id_funcionario", atendimentoGrupo.getGrupoTerapeutico().getCoordenadores())
+                .bind("id_atendimento_grupo", atendimentoGrupo.getGrupoTerapeutico().getId())
+                .executeAndReturnGeneratedKeys()
+                .mapToBean(AtendimentoGrupo.class)
+                .first());
     }
 
     @Override
     public Encontro createEncontroEstudo(Encontro encontroEstudo) {
-        return null;
+
+        final String CREATE = """
+                INSERT INTO participacao_grupos_estudo (id_grupo_estudo, id_participante)
+                VALUES (:id_grupo_estudo, :id_participante)
+                RETURNING *
+                """;
+        encontroEstudo.setId(createAtividade(encontroEstudo).getId());
+        return jdbi.withHandle(handle -> handle
+                .createUpdate(CREATE)
+                .bind("id_grupo_estudo", encontroEstudo.getGrupoEstudo().getId())
+                .bind("id_participante", encontroEstudo.getGrupoEstudo().getParticipantes())
+                .executeAndReturnGeneratedKeys()
+                .mapToBean(Encontro.class)
+                .first());
     }
 
     @Override
@@ -137,11 +158,17 @@ public class JdbiAtividadeSalaRepository implements AtividadeSalaRepository {
 
     @Override
     public Atividade create(Atividade atividade) {
-
+        return null;
     }
 
     @Override
     public List<Atividade> create(List<Atividade> atividades) {
+        final String CREATE = """
+                INSERT INTO atividades (id, uid, id_sala, tempo_inicio, tempo_fim)
+                VALUES (:id_sala, :tempo_inicio, :tempo_fim)
+                RETURNING *
+                """
+                List<Atividade> resultado = null;
         return null;
     }
 
