@@ -1,5 +1,5 @@
 package br.upe.sap.sistemasapupe.data.repositories.jdbc;
-import br.upe.sap.sistemasapupe.configuration.EmbeddedDatabaseConfiguration;
+import br.upe.sap.sistemasapupe.configuration.DataSourceTestConfiguration;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Estagiario;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Funcionario;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Tecnico;
@@ -18,7 +18,7 @@ import org.springframework.test.context.ContextConfiguration;
 import java.util.List;
 
 @JdbcTest
-@ContextConfiguration(classes = {EmbeddedDatabaseConfiguration.class})
+@ContextConfiguration(classes = {DataSourceTestConfiguration.class})
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @EntityScan(basePackages = {"br.upe.sap.sistemasapupe.data"})
 public class JdbcFuncionarioRepositoryTest {

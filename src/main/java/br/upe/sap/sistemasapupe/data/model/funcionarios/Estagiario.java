@@ -1,11 +1,11 @@
 package br.upe.sap.sistemasapupe.data.model.funcionarios;
 
 import lombok.*;
-
 import java.util.UUID;
 
 @Getter @Setter
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class Estagiario extends Funcionario{
 
     private Tecnico supervisor;

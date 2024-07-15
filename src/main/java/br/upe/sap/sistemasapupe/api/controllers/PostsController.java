@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/v1/posts")
+@RequestMapping("/api/v1/posts")
 public class PostsController {
 
     private final PostsService postsService;
@@ -43,7 +43,7 @@ public class PostsController {
         return deleted ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<List<Post>> getAllPosts() {
         List<Post> posts = postsService.getAllPosts();
         return ResponseEntity.ok(posts);
