@@ -14,6 +14,7 @@ public interface AtividadeSalaRepository extends BasicRepository<Atividade, UUID
     List<Atividade> findByFuncionario(UUID uidFuncionario);
 
     List<Atividade> findByTempo(LocalDateTime tempoInicio, LocalDateTime tempoFim);
+    List<Atividade> findByStatus(StatusAtividade statusAtividade);
 
     AtendimentoIndividual createAtendimentoIndividual(AtendimentoIndividual atendimentoIndividual);
     AtendimentoGrupo createAtendimentoGrupo(AtendimentoGrupo atendimentoGrupo);

@@ -48,7 +48,32 @@ public class JdbiAtividadeSalaRepository implements AtividadeSalaRepository {
 
     @Override
     public List<Atividade> findByTempo(LocalDateTime tempoInicio, LocalDateTime tempoFim) {
-        return null;
+        final String QUERY = """
+                SELECT *
+                FROM atividades
+                WHERE tempo_inicio = :tempo_inicio AND tempo_fim = :tempo_fim
+                """;
+        return jdbi.withHandle(handle -> handle
+                .createQuery(QUERY)
+                .bind("tempo_inicio", tempoInicio)
+                .bind("tempo_fim", tempoFim)
+                .mapToBean(Atividade.class)
+                .list());
+
+    }
+
+    @Override
+    public List<Atividade> findByStatus(StatusAtividade statusAtividade) {
+        final String QUERY = """
+                SELECT *
+                FROM atividades
+                WHERE status = :status
+                """;
+        return jdbi.withHandle(handle -> handle
+                .createQuery(QUERY)
+                .bind("status", statusAtividade)
+                .mapToBean(Atividade.class)
+                .list());
     }
 
     private Atividade createAtividade (Atividade atividade){
@@ -121,6 +146,7 @@ public class JdbiAtividadeSalaRepository implements AtividadeSalaRepository {
     @Override
     public AtendimentoIndividual updateAtendimentoIndividual(AtendimentoIndividual atendimentoIndividual) {
         return null;
+
     }
 
     @Override
@@ -163,18 +189,23 @@ public class JdbiAtividadeSalaRepository implements AtividadeSalaRepository {
 
     @Override
     public List<Atividade> create(List<Atividade> atividades) {
-        final String CREATE = """
-                INSERT INTO atividades (id, uid, id_sala, tempo_inicio, tempo_fim)
-                VALUES (:id_sala, :tempo_inicio, :tempo_fim)
-                RETURNING *
-                """
-                List<Atividade> resultado = null;
-        return null;
+        return atividades.stream().map(this::createAtividade).toList();
     }
 
     @Override
     public Atividade update(Atividade atividade) {
-        return null;
+        final String UPDATE = """
+                UPDATE atividades
+                SET id_sala = :id_sala, 
+                tempo_inicio = :tempo_inicio,
+                tempo_fim = :tempo_fim,
+                status = :status
+                WHERE id = :id
+                """;
+        return jdbi.withHandle(handle -> handle
+                .createUpdate(UPDATE)
+                .bindBean(atividade)
+        );
     }
 
     @Override
