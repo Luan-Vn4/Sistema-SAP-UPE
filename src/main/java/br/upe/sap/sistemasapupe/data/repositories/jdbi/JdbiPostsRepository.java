@@ -16,9 +16,7 @@ import java.util.stream.Collectors;
 public class JdbiPostsRepository implements PostsRepository {
 
     Jdbi jdbi;
-    public JdbiPostsRepository(Jdbi jdbi) {
-        this.jdbi = jdbi;
-    }
+    public JdbiPostsRepository(Jdbi jdbi) {this.jdbi = jdbi;}
 
     @Override
     public List<Post> create(List<Post> posts) {
@@ -76,16 +74,19 @@ public class JdbiPostsRepository implements PostsRepository {
     @Override
     public Post create(Post post) {
         String CREATE_POST = """
-                    INSERT INTO posts (id_autor, titulo, imagem_post, data_publicacao, conteudo) VALUES
-                        (:id_autor, :titulo, :imagem_post, :data_publicacao, :conteudo)
-                    RETURNING *;
-                """;
+             INSERT INTO posts (id_autor, titulo, imagem_post, data_publicacao, conteudo)
+             VALUES (:id_autor, :titulo, :imagem_post, :data_publicacao, :conteudo)
+             RETURNING *;
+            """;
 
-        return jdbi.withHandle(handle -> handle.createUpdate(CREATE_POST)
-                .bindBean(post)
-                .executeAndReturnGeneratedKeys()
-                .mapToBean(Post.class))
-                .findFirst().orElseThrow(EntityNotFoundException::new);
+        return jdbi.withHandle(handle -> {
+            return handle.createUpdate(CREATE_POST)
+                    .bindBean(post)  // Bind the Post object directly
+                    .executeAndReturnGeneratedKeys()
+                    .mapToBean(Post.class)
+                    .findFirst()
+                    .orElseThrow(EntityNotFoundException::new);
+        });
     }
 
     @Override

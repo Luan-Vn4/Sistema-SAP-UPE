@@ -90,30 +90,39 @@
             <artifactId>jakarta.persistence-api</artifactId>
             <version>3.2.0</version>
         </dependency>
+        <!-- JDBI -->
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-spring5</artifactId>
+            <artifactId>jdbi3-bom</artifactId>
             <version>3.45.2</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-core</artifactId>
+            <version>3.45.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-postgres</artifactId>
+            <version>3.45.2</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-sqlobject</artifactId>
             <version>3.45.2</version>
         </dependency>
+        <!-- JWT -->
         <dependency>
-            <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-jpa</artifactId>
-            <version>3.45.2</version>
+            <groupId>com.auth0</groupId>
+            <artifactId>java-jwt</artifactId>
+            <version>4.4.0</version>
         </dependency>
         <dependency>
             <groupId>io.github.cdimascio</groupId>
             <artifactId>dotenv-java</artifactId>
             <version>3.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.auth0</groupId>
-            <artifactId>java-jwt</artifactId>
-            <version>4.4.0</version>
         </dependency>
     </dependencies>
 

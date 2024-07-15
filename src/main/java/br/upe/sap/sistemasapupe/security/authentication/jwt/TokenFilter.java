@@ -1,5 +1,6 @@
 package br.upe.sap.sistemasapupe.security.authentication.jwt;
 
+import br.upe.sap.sistemasapupe.data.repositories.jdbi.JdbiFuncionariosRepository;
 import br.upe.sap.sistemasapupe.security.authentication.services.UserDetailsServiceImpl;
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.FilterChain;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @Component
 public class TokenFilter extends OncePerRequestFilter {
@@ -23,9 +25,12 @@ public class TokenFilter extends OncePerRequestFilter {
 
     UserDetailsService userDetailsService;
 
-    public TokenFilter(TokenService tokenService, UserDetailsServiceImpl userDetailsService) {
+    JdbiFuncionariosRepository funcionariosRepository;
+
+    public TokenFilter(TokenService tokenService, UserDetailsServiceImpl userDetailsService, JdbiFuncionariosRepository funcionariosRepository) {
         this.tokenService = tokenService;
         this.userDetailsService = userDetailsService;
+        this.funcionariosRepository = funcionariosRepository;
     }
 
     @Override
@@ -34,7 +39,8 @@ public class TokenFilter extends OncePerRequestFilter {
         String token = extractToken(request);
         if (token != null) {
             String subject = this.tokenService.validateToken(token).subject();
-            UserDetails user = this.userDetailsService.loadUserByUsername(subject);
+            String email = funcionariosRepository.findById(UUID.fromString(subject)).getEmail();
+            UserDetails user = this.userDetailsService.loadUserByUsername(email);
 
             var authentication = new UsernamePasswordAuthenticationToken(
                     user, null, user.getAuthorities());
