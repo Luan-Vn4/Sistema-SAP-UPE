@@ -1,20 +1,20 @@
 CREATE TABLE IF NOT EXISTS grupos_estudo(
     id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    uid UUID DEFAULT uuid_generate_v4(),
+    uid UUID DEFAULT uuid_generate_v4() UNIQUE,
     tema VARCHAR(100) NOT NULL
 );
 
 CREATE OR REPLACE function pode_participar_grupo_estudo(id_funcionario INT, id_encontro INT)
     RETURNS boolean AS $$
     declare is_participante boolean;
-    declare id_grupo_estudo INT;
+    declare id_grupo INT;
 BEGIN
-    SELECT id_grupo_estudo FROM encontros WHERE id = id_encontro
-    LIMIT 1 INTO id_grupo_estudo;
+    SELECT id, id_grupo_estudo FROM encontros WHERE id = id_encontro
+    LIMIT 1 INTO id_grupo;
     SELECT id_funcionario IN (SELECT id_participante FROM participacao_grupos_estudo
-        WHERE participacao_grupos_estudo.id_grupo_estudo=id_grupo_estudo) INTO is_participante;
+        WHERE participacao_grupos_estudo.id_grupo_estudo=id_grupo) INTO is_participante;
     RETURN is_participante;
-END;
+END
 $$ LANGUAGE plpgsql;
 
 CREATE TABLE IF NOT EXISTS participacao_grupos_estudo(

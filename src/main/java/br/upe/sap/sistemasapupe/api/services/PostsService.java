@@ -1,4 +1,4 @@
-package br.upe.sap.sistemasapupe.data.services;
+package br.upe.sap.sistemasapupe.api.services;
 
 import br.upe.sap.sistemasapupe.data.model.posts.Comentario;
 import br.upe.sap.sistemasapupe.data.model.posts.Post;

@@ -9,6 +9,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.reflect.BeanMapper;
 import org.jdbi.v3.core.statement.StatementContext;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
@@ -16,6 +17,7 @@ import java.sql.SQLException;
 import java.util.*;
 
 @Repository
+@Primary
 public class JdbiFuncionariosRepository implements FuncionarioRepository {
 
     Jdbi jdbi;

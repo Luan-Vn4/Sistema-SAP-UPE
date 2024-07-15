@@ -1,10 +1,9 @@
-package br.upe.sap.sistemasapupe.data.controllers;
+package br.upe.sap.sistemasapupe.api.controllers;
 
 import br.upe.sap.sistemasapupe.data.model.posts.Comentario;
 import br.upe.sap.sistemasapupe.data.model.posts.Post;
-import br.upe.sap.sistemasapupe.data.services.PostsService;
+import br.upe.sap.sistemasapupe.api.services.PostsService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,7 +12,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/posts")
+@RequestMapping("api/v1/posts")
 public class PostsController {
 
     private final PostsService postsService;
