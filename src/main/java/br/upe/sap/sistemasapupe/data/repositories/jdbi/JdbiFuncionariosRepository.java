@@ -36,6 +36,7 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
 
     @Override
     public Estagiario createEstagiario(Estagiario estagiario) {
+        verifyIdsBeforeCreation(estagiario);
         validateSupervisor(estagiario);
 
         final String CREATE_ESTAGIARIO = createFuncionarioSQL(false);
@@ -63,6 +64,12 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
         });
     }
 
+    private void verifyIdsBeforeCreation(Funcionario funcionario) {
+        if (funcionario.getId() != null || funcionario.getUid() != null)
+            throw new IllegalArgumentException(
+                    "O funcionario fornecido não deve ter suas chaves preenchidas");
+    }
+
     private void validateSupervisor(Estagiario estagiario) {
         Tecnico supervisor = estagiario.getSupervisor();
 
@@ -76,20 +83,18 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
 
     @Override
     public Tecnico createTecnico(Tecnico tecnico) {
+        verifyIdsBeforeCreation(tecnico);
         final String CREATE = createFuncionarioSQL(true);
 
         return jdbi.withHandle(handle -> handle.createUpdate(CREATE)
             .bindBean(tecnico)
             .executeAndReturnGeneratedKeys()
-            .mapToBean(Tecnico.class))
-            .first();
+            .mapToBean(Tecnico.class)
+            .findFirst().orElse(null));
     }
 
     @Override
     public Funcionario create(Funcionario funcionario) {
-        if (funcionario.getId() != null || funcionario.getUid() != null)
-            throw new IllegalArgumentException(
-                    "O funcionario fornecido não deve ter suas chaves preenchidas");
         return funcionario instanceof Tecnico ? createTecnico((Tecnico) funcionario) :
                                                 createEstagiario((Estagiario) funcionario);
     }
@@ -131,10 +136,10 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
         return jdbi.withHandle(handle -> handle
             .createUpdate(UPDATE)
             .bind("uid", uidFuncionario)
-            .executeAndReturnGeneratedKeys())
+            .executeAndReturnGeneratedKeys()
             .mapTo(Boolean.class)
             .findFirst().orElseThrow(() ->
-                new EntityNotFoundException("Não existe funcionário com o uid: " + uidFuncionario));
+                new EntityNotFoundException("Não existe funcionário com o uid: " + uidFuncionario)));
     }
 
     private String createUpdateQuery(boolean isTecnico) {
@@ -153,11 +158,11 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
         return jdbi.withHandle(handle -> handle
             .createUpdate(UPDATE)
             .bindBean(funcionario)
-            .executeAndReturnGeneratedKeys())
+            .executeAndReturnGeneratedKeys()
             .map(this::mapByCargo)
             .findFirst().orElseThrow(() ->
                 new EntityNotFoundException("Não foi encontrado funcionário com uid: "
-                                            + funcionario.getUid()));
+                                            + funcionario.getUid())));
     }
 
     @Override
@@ -181,17 +186,21 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
                 WHERE uid = CAST(:uid AS UUID) LIMIT 1;
         """;
 
-        Optional<Funcionario> funcionario = jdbi.withHandle(handle -> handle
+        Funcionario funcionario = jdbi.withHandle(handle -> handle
             .createQuery(QUERY)
             .bind("uid", uid)
             .map(this::mapByCargo)
-            .findFirst());
+            .findFirst().orElse(null));
 
-        if (funcionario.isPresent() && funcionario.get() instanceof Estagiario estagiario) {
+        setSupervisorIfEstagiario(funcionario);
+
+        return funcionario;
+    }
+
+    private void setSupervisorIfEstagiario(Funcionario funcionario) {
+        if (funcionario instanceof Estagiario estagiario) {
             estagiario.setSupervisor(findSupervisor(estagiario.getUid()));
         }
-
-        return funcionario.orElse(null);
     }
 
     private Funcionario mapByCargo(ResultSet rs, StatementContext ctx) throws SQLException {
@@ -212,11 +221,7 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
             .map(this::mapByCargo)
             .collectIntoList());
 
-        for (Funcionario funcionario : results) {
-            if (funcionario instanceof Estagiario estagiario) {
-                estagiario.setSupervisor(findSupervisor(estagiario.getUid()));
-            }
-        }
+        for (Funcionario funcionario : results) setSupervisorIfEstagiario(funcionario);
 
         return results;
     }
@@ -286,14 +291,15 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
                    (SELECT * FROM funcionarios) sp ON id = id_supervisor
            """;
 
-        return jdbi.withHandle(handle -> handle.createQuery(QUERY))
+        return jdbi.withHandle(handle -> handle
+            .createQuery(QUERY)
             .bind("uid", uidEstagiario)
             .map((rs, ctx) -> {
                if (rs.getInt("id_estagiario") == 0)
                    throw new EntityNotFoundException("Não foi possível identificar um " +
                                                      "estagiário com o uid: " + uidEstagiario);
                return BeanMapper.of(Tecnico.class).map(rs, ctx);
-            }).findFirst().orElse(null);
+            }).findFirst().orElse(null));
     }
 
     @Override
@@ -330,6 +336,23 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
             .collectIntoList());
     }
 
+    @Override
+    public Funcionario findByEmail(String email) {
+        final String QUERY = """
+            SELECT uid, id, nome, sobrenome, email, senha, url_imagem, is_tecnico, is_ativo
+                FROM funcionarios WHERE email = :email
+            """;
+
+        Funcionario funcionario = jdbi.withHandle(handle -> handle
+            .createQuery(QUERY)
+            .bind("email", email)
+            .map(this::mapByCargo)
+            .findFirst().orElse(null));
+
+        setSupervisorIfEstagiario(funcionario);
+
+        return funcionario;
+    }
 
     // DELETE
     @Override

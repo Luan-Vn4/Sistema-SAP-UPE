@@ -50,6 +50,8 @@ public interface FuncionarioRepository extends BasicRepository<Funcionario, UUID
 
     List<Tecnico> findTecnicos();
 
+    Funcionario findByEmail(String email);
+
     Estagiario updateSupervisao(UUID uidEstagiario, UUID uidSupervisor);
 
     boolean updateAtivo(UUID uidFuncionario, boolean isAtivo);

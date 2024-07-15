@@ -1,6 +1,6 @@
 package br.upe.sap.sistemasapupe.data.repositories.jdbi;
 
-import br.upe.sap.sistemasapupe.configuration.EmbeddedDatabaseConfiguration;
+import br.upe.sap.sistemasapupe.configuration.DataSourceTestConfiguration;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Estagiario;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Funcionario;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Tecnico;
@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.test.context.ContextConfiguration;
@@ -20,9 +19,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @JdbcTest
-@ContextConfiguration(classes = {EmbeddedDatabaseConfiguration.class})
+@ContextConfiguration(classes = {DataSourceTestConfiguration.class})
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@EntityScan(basePackages = {"br.upe.sap.sistemasapupe.data"})
 public class JdbiFuncionariosRepositoryTest {
 
     @Autowired
@@ -280,6 +278,26 @@ public class JdbiFuncionariosRepositoryTest {
         Assertions.assertEquals(supervisor.getId(), result.getId(), "Ids não iguais");
         Assertions.assertEquals(supervisor.getUid(), result.getUid(), "Uids não iguais");
         assertEqualsWithoutIds(result, supervisor);
+    }
+
+    @Test
+    @DisplayName("Dado um email, quando procurar por email, retornar funcionário")
+    public void givenEmail_whenFindByEmail_thenReturnFuncionario() {
+        Tecnico tecnico = (Tecnico) repository.create(getTecnicos().get(0));
+
+        Estagiario estagiario = getEstagiarios().get(0);
+        estagiario.setSupervisor(tecnico);
+        estagiario = (Estagiario) repository.create(estagiario);
+
+        Estagiario resultEstagiario = (Estagiario) repository.findByEmail(estagiario.getEmail());
+        Tecnico resultTecnico = (Tecnico) repository.findByEmail(tecnico.getEmail());
+
+        Assertions.assertNotNull(resultTecnico, "Técnico nulo");
+        Assertions.assertNotNull(resultEstagiario, "Estagiário nulo");
+        assertIdsAreNotNull(resultTecnico);
+        assertIdsAreNotNull(resultEstagiario);
+        Assertions.assertEquals(tecnico, resultTecnico, "O técnico não é igual ao funcionário esperado");
+        Assertions.assertEquals(estagiario, resultEstagiario, "O estagiário não é igual ao funcionário esperado");
     }
 
 
