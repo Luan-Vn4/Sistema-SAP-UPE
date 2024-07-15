@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS grupos_terapeuticos(
     id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    uid UUID DEFAULT uuid_generate_v4(),
+    uid UUID DEFAULT uuid_generate_v4() UNIQUE,
     tema VARCHAR(50) NOT NULL
 );
 
@@ -13,13 +13,13 @@ CREATE TABLE IF NOT EXISTS fichas(
 CREATE OR REPLACE function pode_coordenar(id_funcionario INT,
     id_atendimento_grupo INT) RETURNS boolean AS $$
         declare is_participante boolean;
-        declare id_grupo_terapeutico INT;
+        declare id_grupo INT;
         BEGIN
             SELECT atendimentos_grupo.id_grupo_terapeutico FROM atendimentos_grupo
-            WHERE id = id_atendimento_grupo LIMIT 1 INTO id_grupo_terapeutico;
+            WHERE id = id_atendimento_grupo LIMIT 1 INTO id_grupo;
             SELECT id_funcionario IN (SELECT participacao_grupo_terapeutico.id_funcionario
                 FROM participacao_grupo_terapeutico
-                WHERE participacao_grupo_terapeutico.id_grupo_terapeutico=id_grupo_terapeutico)
+                WHERE participacao_grupo_terapeutico.id_grupo_terapeutico=id_grupo)
             INTO is_participante;
             RETURN is_participante;
         END;

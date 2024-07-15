@@ -1,18 +1,19 @@
 package br.upe.sap.sistemasapupe.data.model.funcionarios;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.userdetails.UserDetails;
+import java.util.Collection;
 import java.util.UUID;
 
 @ToString
 @Getter @Setter
 @AllArgsConstructor @NoArgsConstructor
-@Table(name = "funcionarios")
-@Entity
-public abstract class Funcionario {
+@EqualsAndHashCode
+public abstract class Funcionario implements UserDetails {
 
     @Id
     @Column(name = "id")
@@ -44,5 +45,20 @@ public abstract class Funcionario {
     }
 
     public abstract Cargo getCargo();
+
+    @Override
+    public final Collection<? extends GrantedAuthority> getAuthorities() {
+        return AuthorityUtils.createAuthorityList(this.getCargo().getPrefixedRole());
+    }
+
+    @Override
+    public String getPassword() {
+        return this.getSenha();
+    }
+
+    @Override
+    public String getUsername() {
+        return this.getEmail();
+    }
 
 }
