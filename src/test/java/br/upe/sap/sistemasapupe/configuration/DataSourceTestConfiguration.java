@@ -6,18 +6,18 @@ import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 import org.jdbi.v3.core.statement.Slf4JSqlLogger;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.List;
 
-@Configuration
+@TestConfiguration
 @ComponentScan(basePackages = {"br.upe.sap.sistemasapupe.data"})
-public class EmbeddedDatabaseConfiguration {
+public class DataSourceTestConfiguration {
 
     @Bean
     public DataSource dataSource() throws SQLException {

@@ -8,6 +8,7 @@ import java.util.UUID;
 
 @Getter @Setter
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class Tecnico extends Funcionario {
 
     private List<Estagiario> supervisionados = List.of();
@@ -18,6 +19,8 @@ public class Tecnico extends Funcionario {
         super(id, uid, nome, sobrenome, email, senha, urlImagem, isAtivo);
         this.supervisionados = supervisionados;
     }
+
+
 
     @Override
     public Cargo getCargo() {
