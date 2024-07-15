@@ -85,8 +85,8 @@ public class JdbiAtividadeSalaRepository implements AtividadeSalaRepository {
         return jdbi.withHandle(handle -> handle
                 .createUpdate(CREATE)
                 .bind("id_sala", atividade.getSala().getId())
-                .bind("tempo_inicio", atividade.getTempoInicio())
-                .bind("tempo_fim", atividade.getTempoFim())
+                .bind("tempo_inicio", atividade.getTempo_inicio())
+                .bind("tempo_fim", atividade.getTempo_fim())
                 .executeAndReturnGeneratedKeys()
                 .mapToBean(Atividade.class)
                 .first());
@@ -145,24 +145,77 @@ public class JdbiAtividadeSalaRepository implements AtividadeSalaRepository {
 
     @Override
     public AtendimentoIndividual updateAtendimentoIndividual(AtendimentoIndividual atendimentoIndividual) {
-        return null;
+        update(atendimentoIndividual);
+
+        final String UPDATE = """
+                UPDATE atendimentos_individuais
+                SET id_ficha = :id_ficha,
+                id_terapeuta = :id_terapeuta
+                WHERE id = :id
+                """;
+        jdbi.useHandle(handle -> handle
+                .createUpdate(UPDATE)
+                .bind("id_ficha", atendimentoIndividual.getFicha().getId())
+                .bind("id_terapeuta", atendimentoIndividual.getFuncionario().getId())
+                .execute()
+        );
+
+        final String SELECT = """
+            SELECT *
+            FROM atendimentos_individuais
+            WHERE id = :id
+            """;
+
+        return jdbi.withHandle(handle -> handle
+                .createQuery(SELECT)
+                .bind("id", atendimentoIndividual.getId())
+                .mapToBean(AtendimentoIndividual.class)
+                .findFirst()
+                .orElse(null));
+
 
     }
 
     @Override
     public AtendimentoGrupo updateAtendimentoGrupo(AtendimentoGrupo atendimentoGrupo) {
+        update(atendimentoGrupo);
         return null;
     }
 
     @Override
     public Encontro updateEncontroEstudo(Encontro encontroEstudo) {
+        update(encontroEstudo);
         return null;
     }
 
 
     @Override
     public Atividade updateStatusAtividade(UUID uidAtividade, StatusAtividade statusAtividade) {
-        return null;
+        final String UPDATE = """
+                UPDATE atividades
+                SET status = :status
+                WHERE uid = :uid
+                """;
+
+        jdbi.useHandle(handle -> handle
+                .createUpdate(UPDATE)
+                .bind("status", statusAtividade)
+                .bind("uid", uidAtividade)
+                .execute()
+        );
+
+        final String SELECT = """
+            SELECT *
+            FROM atividades
+            WHERE uid = :uid
+            """;
+
+        return jdbi.withHandle(handle -> handle
+                .createQuery(SELECT)
+                .bind("uid", uidAtividade)
+                .mapToBean(Atividade.class)
+                .findFirst()
+                .orElse(null));
     }
 
     @Override
@@ -202,15 +255,32 @@ public class JdbiAtividadeSalaRepository implements AtividadeSalaRepository {
                 status = :status
                 WHERE id = :id
                 """;
-        return jdbi.withHandle(handle -> handle
+        jdbi.useHandle(handle -> handle
                 .createUpdate(UPDATE)
-                .bindBean(atividade)
+                .bind("id_sala", atividade.getSala().getId())
+                .bind("tempo_inicio", atividade.getTempo_inicio())
+                .bind("tempo_fim", atividade.getTempo_fim())
+                .bind("status", atividade.getStatus())
+                .execute()
         );
+
+        final String SELECT = """
+            SELECT *
+            FROM atividades
+            WHERE id = :id
+            """;
+
+        return jdbi.withHandle(handle -> handle
+                .createQuery(SELECT)
+                .bind("id", atividade.getId())
+                .mapToBean(Atividade.class)
+                .findFirst()
+                .orElse(null));
     }
 
     @Override
     public List<Atividade> update(List<Atividade> atividades) {
-        return null;
+        throw new UnsupportedOperationException("Atualizações em lote não são suportadas.");
     }
 
     @Override

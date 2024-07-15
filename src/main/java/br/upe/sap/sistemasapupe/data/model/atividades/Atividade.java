@@ -16,27 +16,27 @@ public class Atividade {
     private UUID uid;
     private Sala sala;
     @Setter(AccessLevel.NONE)
-    private LocalDateTime tempoInicio;
+    private LocalDateTime tempo_inicio;
     @Setter(AccessLevel.NONE)
-    private LocalDateTime tempoFim;
-    private StatusAtividade statusAtividade;
+    private LocalDateTime tempo_fim;
+    private StatusAtividade status;
 
 
-    public Atividade( int id, UUID uid, Sala sala, LocalDateTime tempoInicio,
-                     LocalDateTime tempoFim, StatusAtividade statusAtividade) {
+    public Atividade( int id, UUID uid, Sala sala, LocalDateTime tempo_inicio,
+                     LocalDateTime tempo_fim, StatusAtividade status) {
         this.setId(id);
         this.setUid(uid);
         this.setSala(sala);
-        this.setTempo(tempoInicio, tempoFim);
-        this.setStatusAtividade(statusAtividade);
+        this.setTempo(tempo_inicio, tempo_fim);
+        this.setStatus(status);
     }
 
-    private void setTempo(LocalDateTime tempoInicio, LocalDateTime tempoFim) {
-        if (tempoInicio.isAfter(tempoFim) || tempoInicio.equals(tempoFim)) {
-            throw new ScheduleException(tempoInicio, tempoFim);
+    private void setTempo(LocalDateTime tempo_inicio, LocalDateTime tempo_fim) {
+        if (tempo_inicio.isAfter(tempo_fim) || tempo_inicio.equals(tempo_fim)) {
+            throw new ScheduleException(tempo_inicio, tempo_fim);
         }
-        this.tempoInicio = tempoInicio;
-        this.tempoFim = tempoFim;
+        this.tempo_inicio = tempo_inicio;
+        this.tempo_fim = tempo_fim;
     }
 
 }
