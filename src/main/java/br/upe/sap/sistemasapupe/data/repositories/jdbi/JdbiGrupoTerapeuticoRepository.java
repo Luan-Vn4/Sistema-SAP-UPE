@@ -2,6 +2,7 @@ package br.upe.sap.sistemasapupe.data.repositories.jdbi;
 
 import br.upe.sap.sistemasapupe.data.model.grupos.GrupoTerapeutico;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.GrupoTerapeuticoRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.jdbi.v3.core.Jdbi;
 
 import javax.swing.text.html.Option;
@@ -146,17 +147,44 @@ public class JdbiGrupoTerapeuticoRepository implements GrupoTerapeuticoRepositor
 
     @Override
     public GrupoTerapeutico addFuncionario(UUID uidFuncionario, UUID uidGrupoTerapeutico) {
-        return null;
+        final String query = """
+                WITH id_func AS (
+                    SELECT id FROM funcionarios WHERE uid = CAST(:uid_funcionario AS UUID) LIMIT 1),
+                id_grupo AS (
+                    SELECT id FROM grupos_terapeuticos WHERE uid = CAST(:uid_grupo AS UUID) LIMIT 1)
+                INSERT INTO participacao_grupo_terapeutico(id_funcionario, id_grupo_terapeutico)
+                VALUES ((SELECT id FROM id_func)), (SELECT id FROM id_grupo))
+                """;
+
+        return jdbi.withHandle(handle -> handle
+                .createUpdate(query)
+                .bind("uid_funcionario", uidFuncionario)
+                .bind("uid_grupo", uidGrupoTerapeutico)
+                .executeAndReturnGeneratedKeys()
+                .mapToBean(GrupoTerapeutico.class)
+                .findFirst().orElseThrow(EntityNotFoundException::new));
     }
 
+    // não sei oq fazer aqui
     @Override
     public GrupoTerapeutico addFicha(UUID uidFicha, UUID uidGrupoTerapeutico) {
         return null;
     }
 
+    public GrupoTerapeutico removeFuncionario(UUID uidFuncionario, UUID uidGrupoTerapeutico) {
+        return null;
+    }
+
     @Override
     public int delete(UUID uidGrupoTerapeutico) {
-        return 0;
+        final String Delete = """
+                DELETE FROM grupos_terapeuticos WHERE uid = CAST(:uid AS UUID)
+                """;
+
+        return jdbi.withHandle(handle -> handle
+                .createUpdate(Delete)
+                .bind("uid", uidGrupoTerapeutico)
+                .execute());
     }
 
     @Override
