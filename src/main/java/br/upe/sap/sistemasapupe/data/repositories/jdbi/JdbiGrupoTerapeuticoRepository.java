@@ -4,8 +4,10 @@ import br.upe.sap.sistemasapupe.data.model.grupos.GrupoTerapeutico;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.GrupoTerapeuticoRepository;
 import org.jdbi.v3.core.Jdbi;
 
+import javax.swing.text.html.Option;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class JdbiGrupoTerapeuticoRepository implements GrupoTerapeuticoRepository {
@@ -17,15 +19,9 @@ public class JdbiGrupoTerapeuticoRepository implements GrupoTerapeuticoRepositor
 
     private String createGrupoTerapeuticoSQL(){
         return """
-            INSERT INTO grupo_terapeutico(tema) VALUES
+            INSERT INTO grupos_terapeuticos(tema) VALUES
                 (:tema)
                 RETURNING *
-        """;
-    }
-
-    private String selectGrupoTerapeuticoSQL(){
-        return """
-            SELECT id, uid, tema FROM grupo_terapeutico WHERE uid = :uid LIMIT 1;
         """;
     }
 
@@ -42,57 +38,110 @@ public class JdbiGrupoTerapeuticoRepository implements GrupoTerapeuticoRepositor
 
     @Override
     public List<GrupoTerapeutico> create(List<GrupoTerapeutico> grupoTerapeuticos) {
-        final List<GrupoTerapeutico> list = new ArrayList<>();
-        for (int i = 0; i <= grupoTerapeuticos.size(); i++){
-            GrupoTerapeutico grupoTerapeutico = create(grupoTerapeuticos.get(i));
-            list.add(grupoTerapeutico);
-        }
-        return list;
+        return grupoTerapeuticos.stream().map(this::create).toList();
     }
 
     @Override
     public GrupoTerapeutico update(GrupoTerapeutico grupoTerapeutico) {
-        return null;
+        final String query = """
+                    UPDATE grupos_terapeuticos
+                    SET tema = :tema
+                    WHERE uid = CAST (:uid AS UUID)
+                """;
+
+        return jdbi.withHandle(handle -> handle
+                .createUpdate(query)
+                .bindBean(grupoTerapeutico)
+                .executeAndReturnGeneratedKeys()
+                .mapToBean(GrupoTerapeutico.class)
+                .first());
     }
 
     @Override
     public List<GrupoTerapeutico> update(List<GrupoTerapeutico> grupoTerapeuticos) {
-        return null;
+        return jdbi.inTransaction(handle -> {
+            List<GrupoTerapeutico> result = new ArrayList<>();
+            for (GrupoTerapeutico grupoTerapeutico : grupoTerapeuticos){ result.add(update(grupoTerapeutico));
+            }
+            return result;
+        });
     }
 
     // procurar o grupo pelo id dele mesmo
-//    @Override
-//    public GrupoTerapeutico findById(UUID uidGrupoTerapeutico) {
-//        final String SELECT = selectGrupoTerapeuticoSQL();
-//
-//        return jdbi.withHandle(handle -> handle.createQuery(SELECT)
-//                .)
-//
-//    }
+    @Override
+    public GrupoTerapeutico findById(UUID uid) {
+        final String query = """
+                SELECT * FROM grupos_terapeuticos
+                WHERE uid = :uid
+                """;
+
+        Optional<GrupoTerapeutico> result = jdbi.withHandle(handle -> handle
+                .createQuery(query)
+                .bind("uid", uid)
+                .mapToBean(GrupoTerapeutico.class)
+                .findFirst());
+
+        return result.orElse(null);
+    }
 
     @Override
-    public List<GrupoTerapeutico> findById(List<UUID> ids) {
-        return null;
+    public List<GrupoTerapeutico> findById(List<UUID> uids) {
+        final String query = """
+                SELECT * FROM grupos_terapeuticos
+                WHERE uid IN <uids>
+                """;
+        return jdbi.withHandle(handle -> handle
+                .createQuery(query)
+                .bind("uids",uids)
+                .mapToBean(GrupoTerapeutico.class)
+                .collectIntoList());
     }
 
     @Override
     public List<GrupoTerapeutico> findAll() {
-        return null;
+        final String query = """
+                SELECT * FROM grupos_terapeuticos
+                """;
+
+        return jdbi.withHandle(handle -> handle
+                .createQuery(query)
+                .mapToBean(GrupoTerapeutico.class)
+                .collectIntoList());
     }
 
     @Override
     public List<GrupoTerapeutico> findByFuncionario(UUID uidFuncionario) {
-        return null;
+        // Não tenho certeza
+        final String query = """
+                WITH id_func AS (
+                    SELECT id FROM funcionarios WHERE uid = CAST(:uid AS UUID) LIMIT 1),
+                id_participacao AS (
+                    SELECT id_grupo_terapeutico AS id_grupo FROM participacao_grupo_terapeutico
+                        WHERE id_funcionario = (SELECT id FROM id_func LIMIT 1))
+                SELECT * FROM grupos_terapeuticos WHERE id IN (select id_grupo from id_participacao);
+                """;
+
+        return jdbi.withHandle(handle -> handle
+                .createQuery(query)
+                .mapToBean(GrupoTerapeutico.class)
+                .collectIntoList());
     }
 
     @Override
     public List<GrupoTerapeutico> findByFicha(UUID idFicha) {
-        return null;
-    }
+        final String query = """
+                WITH id_fic AS (
+                    SELECT id FROM fichas WHERE uid = CAST(:uid AS UUID) LIMIT 1),
+                id_atendimento AS (
+                    SELECT id_atendimento_grupo AS id_grupo FROM ficha_atendimento_grupo 
+                        WHERE id_ficha = (SELECT id FROM id_fic LIMIT 1))
+                SELECT * FROM grupos_terapeuticos WHERE id = (SELECT id_grupo FROM id_atendimento)
+                """;
 
-    @Override
-    public void delete(List<UUID> uuids) {
-
+        return jdbi.withHandle(handle -> handle
+                .createQuery(query)
+                .mapToBean(GrupoTerapeutico.class)
+                .collectIntoList());
     }
 
     @Override
@@ -106,7 +155,12 @@ public class JdbiGrupoTerapeuticoRepository implements GrupoTerapeuticoRepositor
     }
 
     @Override
-    public void delete(UUID uidGrupoTerapeutico) {
+    public int delete(UUID uidGrupoTerapeutico) {
+        return 0;
+    }
 
+    @Override
+    public int delete(List<UUID> uuids) {
+        return 0;
     }
 }
