@@ -224,7 +224,7 @@ public class JdbiPostsRepositoryTest {
     @DisplayName("Dado um ID de post, quando buscar por ID, então retornar o post correspondente")
     public void givenPostId_whenFindById_thenReturnMatchingPost() {
         Post post = getPosts().get(0);
-        repository.create(post);
+        post = repository.create(post);
 
         Post foundPost = repository.findById(post.getId());
 
@@ -237,7 +237,7 @@ public class JdbiPostsRepositoryTest {
     @DisplayName("Dada uma data de publicação, quando buscar por data, então retornar o post correspondente")
     public void givenPublishDate_whenFindByTempo_thenReturnMatchingPost() {
         Post post = getPosts().get(0);
-        repository.create(post);
+        post = repository.create(post);
 
         Post foundPost = repository.findByTempo(post.getData_publicacao());
 

@@ -37,7 +37,7 @@ public class PostsService {
         postExistente.setTitulo(postAtualizado.getTitulo());
         postExistente.setImagem_post(postAtualizado.getImagem_post());
         postExistente.setData_publicacao(postAtualizado.getData_publicacao());
-        postExistente.setConteudo(postAtualizado.getConteudo());
+        postExistente. setConteudo(postAtualizado.getConteudo());
 
         return postsRepository.update(postExistente);
     }
@@ -46,15 +46,17 @@ public class PostsService {
         return postsRepository.create(posts);
     }
 
-    public Post updatePost(Post post) {
-        return postsRepository.update(post);
-    }
-
     public boolean deletePost(Integer id) {
+        if (postsRepository.findById(id) == null) {
+            throw new EntityNotFoundException("O post deve previamente existir no banco de dados");
+        }
         return postsRepository.delete(id) > 0;
     }
 
     public boolean deleteComentario(Integer id) {
+        if (postsRepository.findById(id) == null) {
+            throw new EntityNotFoundException("O comentário deve previamente existir no banco de dados");
+        }
         return postsRepository.deleteComentario(id) > 0;
     }
 
