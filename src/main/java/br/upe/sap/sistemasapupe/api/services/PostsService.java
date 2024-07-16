@@ -2,8 +2,10 @@ package br.upe.sap.sistemasapupe.api.services;
 
 import br.upe.sap.sistemasapupe.data.model.posts.Comentario;
 import br.upe.sap.sistemasapupe.data.model.posts.Post;
+import br.upe.sap.sistemasapupe.data.repositories.interfaces.PostsRepository;
 import br.upe.sap.sistemasapupe.data.repositories.jdbi.JdbiPostsRepository;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,13 +13,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class PostsService {
-    private final JdbiPostsRepository postsRepository;
-
-    @Autowired
-    public PostsService(JdbiPostsRepository postsRepository) {
-        this.postsRepository = postsRepository;
-    }
+    PostsRepository postsRepository;
 
     public Post createPost(Post post) {
         return postsRepository.create(post);
@@ -53,11 +51,13 @@ public class PostsService {
         return postsRepository.delete(id) > 0;
     }
 
-    public boolean deleteComentario(Integer id) {
-        if (postsRepository.findById(id) == null) {
-            throw new EntityNotFoundException("O comentário deve previamente existir no banco de dados");
+    public int deleteComentario(Integer id) {
+        Comentario comentario = postsRepository.findComentarioById(id);
+        if (comentario == null) {
+            throw new EntityNotFoundException("O comentário com ID " + id + " não existe");
         }
-        return postsRepository.deleteComentario(id) > 0;
+        postsRepository.deleteComentario(id);
+        return id;
     }
 
     public List<Post> getAllPosts() {

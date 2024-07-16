@@ -3,6 +3,7 @@ package br.upe.sap.sistemasapupe.api.controllers;
 import br.upe.sap.sistemasapupe.data.model.posts.Comentario;
 import br.upe.sap.sistemasapupe.data.model.posts.Post;
 import br.upe.sap.sistemasapupe.api.services.PostsService;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,15 +13,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
+@AllArgsConstructor
 @RequestMapping("/api/v1/posts")
 public class PostsController {
-
-    private final PostsService postsService;
-
-    @Autowired
-    public PostsController(PostsService postsService) {
-        this.postsService = postsService;
-    }
+    PostsService postsService;
 
     @PostMapping
     public ResponseEntity<Post> createPost(@RequestBody Post post) {
@@ -28,7 +24,7 @@ public class PostsController {
         return ResponseEntity.created(URI.create("/posts/" + createdPost.getId())).body(createdPost);
     }
 
-    @PutMapping("/{postId}")
+    @PutMapping("update/{postId}")
     public ResponseEntity<Post> updatePost(@PathVariable Integer postId, @RequestBody Post post) {
         if (!postId.equals(post.getId())) {
             return ResponseEntity.badRequest().build();
@@ -37,10 +33,19 @@ public class PostsController {
         return ResponseEntity.ok(updatedPost);
     }
 
-    @DeleteMapping("/{postId}")
+    @DeleteMapping("/delete/{postId}")
     public ResponseEntity<Void> deletePost(@PathVariable Integer postId) {
         boolean deleted = postsService.deletePost(postId);
         return deleted ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+    }
+    @DeleteMapping("/comentarios/delete/{comentarioId}")
+    public ResponseEntity<Void> deleteComentario(@PathVariable Integer comentarioId) {
+        int deletedCount = postsService.deleteComentario(comentarioId);
+        if (deletedCount > 0) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping("/all")
@@ -67,17 +72,19 @@ public class PostsController {
         return ResponseEntity.ok(comentarios);
     }
 
-    @GetMapping("/comentario/{comentarioId}")
+    @GetMapping("/comentarios/{comentarioId}")
     public ResponseEntity<Comentario> getComentarioById(@PathVariable Integer comentarioId) {
         Comentario comentario = postsService.getComentarioById(comentarioId);
         return comentario != null ? ResponseEntity.ok(comentario) : ResponseEntity.notFound().build();
     }
-    @PostMapping("/{postId}/comentarios")
-    public ResponseEntity<Comentario> createComentario(@PathVariable Integer postId, @RequestBody Comentario comentario) {
-        comentario.setId_post(postId);
+    @PostMapping("/comentarios")
+    public ResponseEntity<Comentario> createComentario(@RequestBody Comentario comentario) {
         Comentario createdComentario = postsService.createComentario(comentario);
+        int postId = comentario.getId_post();
         return ResponseEntity.created(URI.create("/posts/" + postId + "/comentarios/" + createdComentario.getId())).body(createdComentario);
     }
+
+
 
 
 }

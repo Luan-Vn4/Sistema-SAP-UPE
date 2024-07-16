@@ -60,7 +60,7 @@ public class TokenService {
 
             String token = JWT.create()
                     .withIssuer(getIssuer())
-                    //.withIssuedAt(currentInstant)
+                    .withIssuedAt(currentInstant)
                     .withExpiresAt(expirationInstant)
                     .withSubject(subject)
                     .sign(getAlgorithm());
