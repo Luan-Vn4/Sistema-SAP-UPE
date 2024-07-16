@@ -53,6 +53,8 @@ public class SecurityConfiguration {
                 .requestMatchers("/api/v1/funcionarios/**").hasRole(Cargo.TECNICO.getRole())
                 .requestMatchers("/api/v1/funcionarios/**").hasRole(Cargo.TECNICO.getRole())
                 .requestMatchers("/error/**").permitAll()
+                .requestMatchers("/api/v1/posts").hasRole(Cargo.TECNICO.getRole())
+                .requestMatchers("/api/v1/posts/**").permitAll()
                 .anyRequest().authenticated())
             .csrf(CsrfConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

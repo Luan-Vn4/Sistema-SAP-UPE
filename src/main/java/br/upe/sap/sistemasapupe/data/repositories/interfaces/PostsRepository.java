@@ -2,12 +2,13 @@ package br.upe.sap.sistemasapupe.data.repositories.interfaces;
 
 import br.upe.sap.sistemasapupe.data.model.posts.Comentario;
 import br.upe.sap.sistemasapupe.data.model.posts.Post;
+import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
-public interface PostsRepository extends BasicRepository<Post, UUID> {
+@Repository
+public interface PostsRepository extends BasicRepository<Post, Integer> {
 
     Post create(Post novoPosto);
 
@@ -15,16 +16,18 @@ public interface PostsRepository extends BasicRepository<Post, UUID> {
 
     List<Post> findAll();
 
-    Post findById(UUID idPost);
+    Post findById(Integer idPost);
 
-    Post findByTempo(LocalDateTime tempoInicio, LocalDateTime tempoFim);
+    Post findByTempo(LocalDateTime data_publicacao);
 
-    List<Comentario> findComentariosByPost(UUID idPost);
+    List<Comentario> findComentariosByPost(Integer idPost);
+
+    Comentario findComentarioById(Integer id);
 
     Post update(Post postAtualizado);
 
-    int delete(UUID idPost);
+    int delete(Integer idPost);
 
-    int deleteComentario(UUID idComentario);
+    int deleteComentario(Integer idComentario);
 
 }
