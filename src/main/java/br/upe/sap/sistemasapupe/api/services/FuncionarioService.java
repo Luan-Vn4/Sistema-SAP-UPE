@@ -23,7 +23,7 @@ public class FuncionarioService {
 
     @Transactional
     public FuncionarioDTO updateCredentials(UpdateFuncionarioDTO dto) {
-        Funcionario funcionario = funcionarioRepository.findById(dto.uid());
+        Funcionario funcionario = funcionarioRepository.findById(dto.id());
 
         funcionario.setNome(valueOrElse(dto.nome(), funcionario.getNome()));
         funcionario.setEmail(valueOrElse(dto.email(), funcionario.getEmail()));
