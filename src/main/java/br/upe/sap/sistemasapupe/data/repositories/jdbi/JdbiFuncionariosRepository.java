@@ -135,6 +135,7 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
 
         return jdbi.withHandle(handle -> handle
             .createUpdate(UPDATE)
+            .bind("is_ativo", isAtivo)
             .bind("uid", uidFuncionario)
             .executeAndReturnGeneratedKeys()
             .mapTo(Boolean.class)
