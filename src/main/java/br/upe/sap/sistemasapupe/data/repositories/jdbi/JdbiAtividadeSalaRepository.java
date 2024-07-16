@@ -2,6 +2,8 @@ package br.upe.sap.sistemasapupe.data.repositories.jdbi;
 
 import br.upe.sap.sistemasapupe.data.model.atividades.*;
 import br.upe.sap.sistemasapupe.data.model.enums.StatusAtividade;
+import br.upe.sap.sistemasapupe.data.model.funcionarios.Funcionario;
+import br.upe.sap.sistemasapupe.data.model.pacientes.Ficha;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.AtividadeSalaRepository;
 import org.jdbi.v3.core.Jdbi;
 
@@ -178,14 +180,89 @@ public class JdbiAtividadeSalaRepository implements AtividadeSalaRepository {
 
     @Override
     public AtendimentoGrupo updateAtendimentoGrupo(AtendimentoGrupo atendimentoGrupo) {
-        update(atendimentoGrupo);
-        return null;
+
+        return jdbi.inTransaction(handle -> {
+
+            update(atendimentoGrupo);
+
+            // Remove todos os registros de participantes
+            final String REMOVE_PARTICIPANTES = """
+                DELETE FROM ficha_atendimento_grupo
+                WHERE id_atendimento_grupo = :id
+                """;
+
+            handle.createUpdate(REMOVE_PARTICIPANTES)
+                    .bind("id", atendimentoGrupo.getId())
+                    .execute();
+
+            // Reinsere os participantes
+            final String INSERT_PARTICIPANTES = """
+                INSERT INTO ficha_atendimento_grupo (id_ficha, id_atendimento_grupo)
+                VALUES (:id_ficha, :id_atendimento_grupo)
+                """;
+
+            for (Ficha participante : atendimentoGrupo.getParticipantes()) {
+                handle.createUpdate(INSERT_PARTICIPANTES)
+                        .bind("id_ficha", participante.getId())
+                        .bind("id_atendimento_grupo", atendimentoGrupo.getId())
+                        .executeAndReturnGeneratedKeys();
+            }
+
+            // Remove todos os registros dos ministrantes
+            final String REMOVE_MINISTRANTES = """
+                DELETE FROM coordenacao_atendimento_grupo 
+                WHERE id_atendimento_grupo = :id
+                """;
+
+            handle.createUpdate(REMOVE_MINISTRANTES)
+                    .bind("id", atendimentoGrupo.getId())
+                    .execute();
+
+            // Reinsere os ministrantes
+            final String INSERT_MINISTRANTES = """
+                INSERT INTO coordenacao_atendimento_grupo (id_funcionario, id_atendimento_grupo) 
+                VALUES (:id_funcionario, :id_atendimento_grupo)
+                """;
+
+            for (Funcionario ministrante : atendimentoGrupo.getMinistrantes()) {
+                handle.createUpdate(INSERT_MINISTRANTES)
+                        .bind("id_funcionario", ministrante.getId())
+                        .bind("id_atendimento_grupo", atendimentoGrupo.getId())
+                        .executeAndReturnGeneratedKeys();
+            }
+
+            return atendimentoGrupo;
+        });
     }
+
 
     @Override
     public Encontro updateEncontroEstudo(Encontro encontroEstudo) {
-        update(encontroEstudo);
-        return null;
+        return jdbi.inTransaction(handle -> {
+            update(encontroEstudo);
+
+            final String REMOVE_COMPARECIMENTO = """
+                    DELETE FROM comparecimento_encontros
+                    WHERE id_encontro = :id_encontro
+                    """;
+            handle.createUpdate(REMOVE_COMPARECIMENTO)
+                    .bind("id_encontro", encontroEstudo.getId())
+                    .execute();
+
+            final String INSERT_COMPARECIMENTO = """
+                    INSERT INTO comparecimento_encontros (id_encontro, id_participante)
+                    VALUES (:id_encontro, :id_participante)
+                    """;
+            for (Funcionario participante : encontroEstudo.getGrupoEstudo().getParticipantes()){
+                handle.createUpdate(INSERT_COMPARECIMENTO)
+                        .bind("id_encontro", encontroEstudo.getGrupoEstudo().getId())
+                        .bind("id_participante", participante.getId())
+                        .executeAndReturnGeneratedKeys();
+            }
+
+            return encontroEstudo;
+
+        });
     }
 
 
