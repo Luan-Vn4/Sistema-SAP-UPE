@@ -64,18 +64,16 @@ public class JdbiPostsRepositoryTest {
     private List<Post> getPosts(){
         Tecnico supervisor = (Tecnico) funcionariosRepository.create(getTecnicos().get(0));
         Post post1 = Post.postBuilder()
-                .id_autor(supervisor.getId())
-                .comentarios(null)
-                .data_publicacao(LocalDateTime.now())
-                .imagem_post("gatinhoURL")
+                .idAutor(supervisor.getId())
+                .dataPublicacao(LocalDateTime.now())
+                .imagemPost("gatinhoURL")
                 .titulo("Gatinhos são muito daora!")
                 .conteudo("veja esse belo gatinho")
                 .build();
         Post post2 = Post.postBuilder()
-                .id_autor(supervisor.getId())
-                .comentarios(null)
-                .data_publicacao(LocalDateTime.now())
-                .imagem_post("doguinhoURL")
+                .idAutor(supervisor.getId())
+                .dataPublicacao(LocalDateTime.now())
+                .imagemPost("doguinhoURL")
                 .titulo("Doguinhos são demais!")
                 .conteudo("veja esse belo doguinho")
                 .build();
@@ -85,18 +83,16 @@ public class JdbiPostsRepositoryTest {
 
     private List<Post> getPostsNoCreate(){
         Post post1 = Post.postBuilder()
-                .id_autor(1)
-                .comentarios(null)
-                .data_publicacao(LocalDateTime.now())
-                .imagem_post("gatinhoURL")
+                .idAutor(1)
+                .dataPublicacao(LocalDateTime.now())
+                .imagemPost("gatinhoURL")
                 .titulo("Gatinhos são muito daora!")
                 .conteudo("veja esse belo gatinho")
                 .build();
         Post post2 = Post.postBuilder()
-                .id_autor(1)
-                .comentarios(null)
-                .data_publicacao(LocalDateTime.now())
-                .imagem_post("doguinhoURL")
+                .idAutor(1)
+                .dataPublicacao(LocalDateTime.now())
+                .imagemPost("doguinhoURL")
                 .titulo("Doguinhos são demais!")
                 .conteudo("veja esse belo doguinho")
                 .build();
@@ -107,14 +103,14 @@ public class JdbiPostsRepositoryTest {
     private List<Comentario> getComentarios(){
         Post post = repository.create(getPosts().get(0));
         Comentario comentario1 = Comentario.comentarioBuilder()
-                .id_post(post.getId())
-                .id_autor(post.getId_autor())
+                .idPost(post.getId())
+                .idAutor(post.getIdAutor())
                 .conteudo("UAU!")
                 .build();
 
         Comentario comentario2 = Comentario.comentarioBuilder()
-                .id_post(post.getId())
-                .id_autor(post.getId_autor())
+                .idPost(post.getId())
+                .idAutor(post.getIdAutor())
                 .conteudo("Que arraso!")
                 .build();
 
@@ -135,10 +131,9 @@ public class JdbiPostsRepositoryTest {
         estagiario.setSupervisor(supervisor);
 
         Post post = Post.postBuilder()
-                .id_autor(supervisor.getId())
-                .comentarios(null)
-                .data_publicacao(LocalDateTime.now())
-                .imagem_post("url")
+                .idAutor(supervisor.getId())
+                .dataPublicacao(LocalDateTime.now())
+                .imagemPost("url")
                 .titulo("titulo")
                 .conteudo("conteudo")
                 .build();
@@ -152,15 +147,15 @@ public class JdbiPostsRepositoryTest {
 
     private void assertIdsAreNotNull(Post post) {
         assertNotNull(post.getId(), "ID do post não deve ser nulo");
-        assertNotNull(post.getId_autor(), "ID do autor não deve ser nulo");
+        assertNotNull(post.getIdAutor(), "ID do autor não deve ser nulo");
     }
 
     private void assertEqualsWithoutIds(Post expected, Post actual) {
         assertEquals(expected.getTitulo(), actual.getTitulo(), "Título não coincide");
         //Assertions.assertEquals(expected.getData_publicacao(), actual.getData_publicacao(), "Data de publicação não coincide"); atraso de menos de um segundo
         assertEquals(expected.getConteudo(), actual.getConteudo(), "Conteúdo não coincide");
-        assertEquals(expected.getImagem_post(), actual.getImagem_post(), "Imagem não coincide");
-        assertEquals(expected.getComentarios(), actual.getComentarios(), "Comentários não coincidem");
+        assertEquals(expected.getImagemPost(), actual.getImagemPost(), "Imagem não coincide");
+        assertEquals(expected.getConteudo(), actual.getConteudo(), "Comentários não coincidem");
     }
     @Test
     @DisplayName("Dado um comentario, quando criar, então retorne comentario com as chaves auto-geradas")
@@ -168,8 +163,8 @@ public class JdbiPostsRepositoryTest {
         Post post = repository.create(getPosts().get(0));
 
         Comentario comentario = Comentario.comentarioBuilder()
-                .id_post(post.getId())
-                .id_autor(post.getId_autor())
+                .idPost(post.getId())
+                .idAutor(post.getIdAutor())
                 .conteudo("UAU!")
                 .build();
 
@@ -186,8 +181,8 @@ public class JdbiPostsRepositoryTest {
     }
 
     private void assertEqualsWithoutIds(Comentario expected, Comentario actual) {
-        assertEquals(expected.getId_post(), actual.getId_post(), "Id_post não encontrado");
-        assertEquals(expected.getId_autor(), actual.getId_autor(), "Id_autor não encontrado");
+        assertEquals(expected.getIdPost(), actual.getIdPost(), "Id_post não encontrado");
+        assertEquals(expected.getIdAutor(), actual.getIdAutor(), "Id_autor não encontrado");
         assertEquals(expected.getConteudo(), actual.getConteudo(), "Conteúdo não encontrado");
     }
 
@@ -197,13 +192,13 @@ public class JdbiPostsRepositoryTest {
         Post post = repository.create(getPosts().get(0));
 
         Comentario comentario1 = Comentario.comentarioBuilder()
-                .id_post(post.getId())
-                .id_autor(post.getId_autor())
+                .idPost(post.getId())
+                .idAutor(post.getIdAutor())
                 .conteudo("Primeiro comentário")
                 .build();
         Comentario comentario2 = Comentario.comentarioBuilder()
-                .id_post(post.getId())
-                .id_autor(post.getId_autor())
+                .idPost(post.getId())
+                .idAutor(post.getIdAutor())
                 .conteudo("Segundo comentário")
                 .build();
 
@@ -218,8 +213,8 @@ public class JdbiPostsRepositoryTest {
     }
 
     private void assertComentarioEquals(Comentario expected, Comentario actual) {
-        assertEquals(expected.getId_post(), actual.getId_post(), "ID do post não coincide");
-        assertEquals(expected.getId_autor(), actual.getId_autor(), "ID do autor não coincide");
+        assertEquals(expected.getIdPost(), actual.getIdPost(), "ID do post não coincide");
+        assertEquals(expected.getIdAutor(), actual.getIdAutor(), "ID do autor não coincide");
         assertEquals(expected.getConteudo(), actual.getConteudo(), "Conteúdo não coincide");
     }
 
@@ -255,10 +250,10 @@ public class JdbiPostsRepositoryTest {
         Post post = getPosts().get(0);
         post = repository.create(post);
 
-        Post foundPost = repository.findByTempo(post.getData_publicacao());
+        Post foundPost = repository.findByTempo(post.getDataPublicacao());
 
         assertNotNull(foundPost, "Post não encontrado");
-        assertEquals(post.getData_publicacao(), foundPost.getData_publicacao(), "Datas de publicação não correspondem");
+        assertEquals(post.getDataPublicacao(), foundPost.getDataPublicacao(), "Datas de publicação não correspondem");
     }
 
     @Test
@@ -279,10 +274,10 @@ public class JdbiPostsRepositoryTest {
         int id_post = post.getId();
 
         Post postAtualizado = Post.postBuilder()
-                .id_autor(post.getId_autor())
+                .idAutor(post.getIdAutor())
                 .titulo("Novo Título")
-                .imagem_post("nova-url-imagem")
-                .data_publicacao(LocalDateTime.now())
+                .imagemPost("nova-url-imagem")
+                .dataPublicacao(LocalDateTime.now())
                 .conteudo("Novo conteúdo do post")
                 .build();
 
@@ -292,7 +287,7 @@ public class JdbiPostsRepositoryTest {
         assertNotNull(postRetornado, "Post retornado não deve ser nulo");
         assertEquals(postAtualizado.getId(), postRetornado.getId(), "IDs do post não correspondem");
         assertEquals(postAtualizado.getTitulo(), postRetornado.getTitulo(), "Títulos do post não correspondem");
-        assertEquals(postAtualizado.getImagem_post(), postRetornado.getImagem_post(), "URLs da imagem do post não correspondem");
+        assertEquals(postAtualizado.getImagemPost(), postRetornado.getImagemPost(), "URLs da imagem do post não correspondem");
         assertEquals(postAtualizado.getConteudo(), postRetornado.getConteudo(), "Conteúdos do post não correspondem");
     }
 

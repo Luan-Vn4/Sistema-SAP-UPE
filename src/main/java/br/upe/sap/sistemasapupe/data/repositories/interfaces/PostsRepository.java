@@ -28,6 +28,8 @@ public interface PostsRepository extends BasicRepository<Post, Integer> {
 
     int delete(Integer idPost);
 
+    void deleteComentariosByPostId(Integer postId);
+
     int deleteComentario(Integer idComentario);
 
 }

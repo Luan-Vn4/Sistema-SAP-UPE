@@ -3,6 +3,7 @@ import br.upe.sap.sistemasapupe.data.model.funcionarios.Estagiario;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Funcionario;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Tecnico;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Cargo;
+import jakarta.annotation.Nullable;
 
 import java.util.List;
 import java.util.UUID;
@@ -43,6 +44,9 @@ public interface FuncionarioRepository extends BasicRepository<Funcionario, UUID
      */
     @Override
     Funcionario create(Funcionario funcionario);
+
+    @Nullable
+    Funcionario findByIdInteger(Integer id);
 
     List<Estagiario> findSupervisionados(UUID uidTecnico);
 
