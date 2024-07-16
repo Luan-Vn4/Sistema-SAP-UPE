@@ -40,8 +40,12 @@ public class PostsController {
     }
     @DeleteMapping("/comentarios/delete/{comentarioId}")
     public ResponseEntity<Void> deleteComentario(@PathVariable Integer comentarioId) {
-        boolean deleted = postsService.deleteComentario(comentarioId);
-        return deleted ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+        int deletedCount = postsService.deleteComentario(comentarioId);
+        if (deletedCount > 0) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping("/all")

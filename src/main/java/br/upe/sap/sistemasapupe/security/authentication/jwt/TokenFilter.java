@@ -1,6 +1,6 @@
 package br.upe.sap.sistemasapupe.security.authentication.jwt;
 
-import br.upe.sap.sistemasapupe.data.repositories.jdbi.JdbiFuncionariosRepository;
+import br.upe.sap.sistemasapupe.security.authentication.dtos.login.TokenDTO;
 import br.upe.sap.sistemasapupe.security.authentication.services.UserDetailsServiceImpl;
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.FilterChain;
@@ -10,7 +10,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -21,16 +20,13 @@ import java.util.UUID;
 @Component
 public class TokenFilter extends OncePerRequestFilter {
 
+    UserDetailsServiceImpl userDetailsService;
+
     TokenService tokenService;
 
-    UserDetailsService userDetailsService;
-
-    JdbiFuncionariosRepository funcionariosRepository;
-
-    public TokenFilter(TokenService tokenService, UserDetailsServiceImpl userDetailsService, JdbiFuncionariosRepository funcionariosRepository) {
-        this.tokenService = tokenService;
+    public TokenFilter(TokenService authService, UserDetailsServiceImpl userDetailsService) {
+        this.tokenService = authService;
         this.userDetailsService = userDetailsService;
-        this.funcionariosRepository = funcionariosRepository;
     }
 
     @Override
@@ -38,9 +34,8 @@ public class TokenFilter extends OncePerRequestFilter {
                                     @Nonnull FilterChain filterChain) throws ServletException, IOException {
         String token = extractToken(request);
         if (token != null) {
-            String subject = this.tokenService.validateToken(token).subject();
-            String email = funcionariosRepository.findById(UUID.fromString(subject)).getEmail();
-            UserDetails user = this.userDetailsService.loadUserByUsername(email);
+            TokenDTO tokenDTO = this.tokenService.validateToken(token);
+            UserDetails user = this.userDetailsService.loadUserByUID(UUID.fromString(tokenDTO.subject()));
 
             var authentication = new UsernamePasswordAuthenticationToken(
                     user, null, user.getAuthorities());

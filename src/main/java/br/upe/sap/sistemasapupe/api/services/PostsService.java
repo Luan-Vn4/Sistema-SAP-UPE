@@ -51,11 +51,13 @@ public class PostsService {
         return postsRepository.delete(id) > 0;
     }
 
-    public boolean deleteComentario(Integer id) {
-        if (postsRepository.findById(id) == null) {
-            throw new EntityNotFoundException("O comentário deve previamente existir no banco de dados");
+    public int deleteComentario(Integer id) {
+        Comentario comentario = postsRepository.findComentarioById(id);
+        if (comentario == null) {
+            throw new EntityNotFoundException("O comentário com ID " + id + " não existe");
         }
-        return postsRepository.deleteComentario(id) > 0;
+        postsRepository.deleteComentario(id);
+        return id;
     }
 
     public List<Post> getAllPosts() {

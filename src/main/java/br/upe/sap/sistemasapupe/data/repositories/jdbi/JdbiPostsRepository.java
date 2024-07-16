@@ -9,6 +9,7 @@ import org.jdbi.v3.core.statement.PreparedBatch;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
