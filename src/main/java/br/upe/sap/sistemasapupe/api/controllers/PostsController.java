@@ -40,20 +40,10 @@ public class PostsController {
         return deleted ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 
-    @DeleteMapping("/delete/many/{postIds}")
-    public ResponseEntity<Void> deletePost(@PathVariable("postIds") List<Integer> postId) {
-        boolean deleted = postsService.deletePost(postId);
+    @DeleteMapping("/delete/many")
+    public ResponseEntity<Void> deletePost(@RequestBody List<Integer> postIds) {
+        boolean deleted = postsService.deletePost(postIds);
         return deleted ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
-    }
-
-    @DeleteMapping("/comentarios/delete/{comentarioId}")
-    public ResponseEntity<Void> deleteComentario(@PathVariable Integer comentarioId) {
-        int deletedCount = postsService.deleteComentario(comentarioId);
-        if (deletedCount > 0) {
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
     }
 
     @GetMapping("/all")
@@ -80,18 +70,6 @@ public class PostsController {
     public ResponseEntity<List<ComentarioDTO>> getComentariosByPost(@PathVariable Integer postId) {
         List<ComentarioDTO> comentarios = postsService.getComentariosByPost(postId);
         return ResponseEntity.ok(comentarios);
-    }
-
-    @GetMapping("/comentarios/{comentarioId}")
-    public ResponseEntity<ComentarioDTO> getComentarioById(@PathVariable Integer comentarioId) {
-        ComentarioDTO comentario = postsService.getComentarioById(comentarioId);
-        return comentario != null ? ResponseEntity.ok(comentario) : ResponseEntity.notFound().build();
-    }
-    @PostMapping("/comentarios")
-    public ResponseEntity<ComentarioDTO> createComentario(@RequestBody CreateComentarioDTO comentario) {
-        ComentarioDTO createdComentario = postsService.createComentario(comentario);
-        int postId = comentario.idPost();
-        return ResponseEntity.created(URI.create("/posts/" + postId + "/comentarios/" + createdComentario.idComentario())).body(createdComentario);
     }
 
 
