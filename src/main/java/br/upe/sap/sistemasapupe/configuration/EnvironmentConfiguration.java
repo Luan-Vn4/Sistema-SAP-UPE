@@ -24,6 +24,7 @@ public class EnvironmentConfiguration implements ApplicationListener<Application
         for (DotenvEntry entry : dotenv.entries(Dotenv.Filter.DECLARED_IN_ENV_FILE)) {
             System.setProperty(entry.getKey(), entry.getValue());
         }
+
     }
 
 }

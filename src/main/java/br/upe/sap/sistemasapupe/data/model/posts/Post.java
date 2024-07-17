@@ -1,6 +1,8 @@
 package br.upe.sap.sistemasapupe.data.model.posts;
 
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Funcionario;
+import jakarta.persistence.Column;
+import jakarta.persistence.Id;
 import lombok.*;
 
 import java.rmi.server.UID;
@@ -11,35 +13,33 @@ import java.util.List;
 @NoArgsConstructor
 @ToString
 public class Post {
-
+    @Id
+    @Column(name = "id")
     private int id;
-    private int id_autor;
+
+    @Column(name = "id_autor")
+    private int idAutor;
+
+    @Column(name = "titulo")
     private String titulo;
-    private LocalDateTime data_publicacao;
+
+    @Column(name = "data_publicacao")
+    private LocalDateTime dataPublicacao;
+
+    @Column(name = "conteudo")
     private String conteudo;
-    private String imagem_post;
-    private List<Comentario> comentarios;
+
+    @Column(name = "imagemPost")
+    private String imagemPost;
 
     @Builder(builderMethodName = "postBuilder")
-    public Post(int id_autor, String titulo, LocalDateTime data_publicacao,
-                String conteudo, String imagem_post, List<Comentario> comentarios) {
-        this.id_autor = id_autor;
+    public Post(int idAutor, String titulo, LocalDateTime dataPublicacao,
+                String conteudo, String imagemPost) {
+        this.idAutor = idAutor;
         this.titulo = titulo;
-        this.data_publicacao = data_publicacao;
+        this.dataPublicacao = dataPublicacao;
         this.conteudo = conteudo;
-        this.imagem_post = imagem_post;
-        this.comentarios = comentarios;
+        this.imagemPost = imagemPost;
     }
 
-    @Builder(builderMethodName = "postBuilderWithId")
-    public Post(int id, int id_autor, String titulo, LocalDateTime data_publicacao,
-                String conteudo, String imagem_post, List<Comentario> comentarios) {
-        this.id = id;
-        this.id_autor = id_autor;
-        this.titulo = titulo;
-        this.data_publicacao = data_publicacao;
-        this.conteudo = conteudo;
-        this.imagem_post = imagem_post;
-        this.comentarios = comentarios;
-    }
 }

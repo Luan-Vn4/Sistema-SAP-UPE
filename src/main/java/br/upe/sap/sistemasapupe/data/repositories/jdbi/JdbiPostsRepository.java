@@ -16,16 +16,15 @@ import java.util.stream.Collectors;
 public class JdbiPostsRepository implements PostsRepository {
 
     Jdbi jdbi;
-    public JdbiPostsRepository(Jdbi jdbi) {
-        this.jdbi = jdbi;
-    }
+    public JdbiPostsRepository(Jdbi jdbi) {this.jdbi = jdbi;}
 
     @Override
     public List<Post> create(List<Post> posts) {
         String sql = """
-            INSERT INTO posts (id_autor, titulo, imagem_post, data_publicacao, conteudo)
-            VALUES (:id_autor, :titulo, :imagem_post, :data_publicacao, :conteudo)
-            """;
+        INSERT INTO posts (id_autor, titulo, imagem_post, data_publicacao, conteudo)
+        VALUES (:idAutor, :titulo, :imagemPost, :dataPublicacao, :conteudo)
+        RETURNING *;
+    """;
 
         jdbi.useHandle(handle -> {
             PreparedBatch batch = handle.prepareBatch(sql);
@@ -76,23 +75,24 @@ public class JdbiPostsRepository implements PostsRepository {
     @Override
     public Post create(Post post) {
         String CREATE_POST = """
-                    INSERT INTO posts (id_autor, titulo, imagem_post, data_publicacao, conteudo) VALUES
-                        (:id_autor, :titulo, :imagem_post, :data_publicacao, :conteudo)
-                    RETURNING *;
-                """;
+        INSERT INTO posts (id_autor, titulo, imagem_post, data_publicacao, conteudo)
+        VALUES (:idAutor, :titulo, :imagemPost, :dataPublicacao, :conteudo)
+        RETURNING *;
+    """;
 
         return jdbi.withHandle(handle -> handle.createUpdate(CREATE_POST)
                 .bindBean(post)
                 .executeAndReturnGeneratedKeys()
-                .mapToBean(Post.class))
-                .findFirst().orElseThrow(EntityNotFoundException::new);
+                .mapToBean(Post.class)
+                .findFirst()
+                .orElseThrow(EntityNotFoundException::new));
     }
 
     @Override
     public Comentario createComentario(Comentario comentario) {
         String CREATE_COMENTARIO = """
             INSERT INTO comentarios (id_post, id_autor, conteudo) VALUES
-                (:id_post, :id_autor, :conteudo)
+                (:idPost, :idAutor, :conteudo)
                 RETURNING *;
             """;
 
@@ -135,7 +135,7 @@ public class JdbiPostsRepository implements PostsRepository {
     public Post findByTempo(LocalDateTime data_publicacao) {
         String QUERY = """
                 SELECT id, id_autor, titulo, imagem_post, data_publicacao, conteudo FROM posts
-                WHERE data_publicacao = :data_publicacao LIMIT 1;
+                WHERE data_publicacao = :dataPublicacao LIMIT 1;
                 """;
 
         return jdbi.withHandle(handle -> handle
@@ -147,14 +147,14 @@ public class JdbiPostsRepository implements PostsRepository {
     }
 
     @Override
-    public List<Comentario> findComentariosByPost(Integer id_post) {
+    public List<Comentario> findComentariosByPost(Integer idPost) {
         String Query = """
                 SELECT * FROM comentarios WHERE id_post = :id_post
                 """;
 
         return jdbi.withHandle(handle ->
                 handle.createQuery(Query)
-                        .bind("id_post", id_post)
+                        .bind("id_post", idPost)
                         .mapToBean(Comentario.class)
                         .list()
         );
@@ -175,10 +175,10 @@ public class JdbiPostsRepository implements PostsRepository {
     public Post update(Post postAtualizado) {
         String QUERY = """
             UPDATE posts
-            SET id_autor = :id_autor,
+            SET id_autor = :idAutor,
                 titulo = :titulo,
-                imagem_post = :imagem_post,
-                data_publicacao = :data_publicacao,
+                imagem_post = :imagemPost,
+                data_publicacao = :dataPublicacao,
                 conteudo = :conteudo
             WHERE id = :id;
             """;
@@ -194,12 +194,24 @@ public class JdbiPostsRepository implements PostsRepository {
 
     @Override
     public int delete(Integer id) {
+        deleteComentariosByPostId(id);
+
         String sql = "DELETE FROM posts WHERE id = :id";
 
         return jdbi.withHandle(handle -> handle
                 .createUpdate(sql)
                 .bind("id", id)
                 .execute());
+    }
+
+    @Override
+    public void deleteComentariosByPostId(Integer postId) {
+        String sql = "DELETE FROM comentarios WHERE id_post = :postId";
+        jdbi.useHandle(handle ->
+                handle.createUpdate(sql)
+                        .bind("postId", postId)
+                        .execute()
+        );
     }
 
     @Override
