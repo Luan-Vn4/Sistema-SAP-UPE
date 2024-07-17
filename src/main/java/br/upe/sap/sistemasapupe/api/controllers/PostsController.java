@@ -1,11 +1,9 @@
 package br.upe.sap.sistemasapupe.api.controllers;
 
 import br.upe.sap.sistemasapupe.api.dtos.ComentarioDTO;
-import br.upe.sap.sistemasapupe.api.dtos.CreateComentarioDTO;
 import br.upe.sap.sistemasapupe.api.dtos.CreatePostDTO;
 import br.upe.sap.sistemasapupe.api.dtos.PostDTO;
 import br.upe.sap.sistemasapupe.api.services.PostsService;
-import br.upe.sap.sistemasapupe.data.model.posts.Comentario;
 import br.upe.sap.sistemasapupe.data.model.posts.Post;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +23,7 @@ public class PostsController {
     public ResponseEntity<PostDTO> createPost(@RequestBody CreatePostDTO postDTO) {
         Post post = postsService.convertToPost(postDTO);
         PostDTO createdPost = postsService.createPost(post);
-        return ResponseEntity.created(URI.create("/posts/" + createdPost.idPost())).body(createdPost);
+        return ResponseEntity.created(URI.create("/posts/" + createdPost.id())).body(createdPost);
     }
 
     @PutMapping("/update")
@@ -41,7 +39,7 @@ public class PostsController {
     }
 
     @DeleteMapping("/delete/many")
-    public ResponseEntity<Void> deletePost(@RequestBody List<Integer> postIds) {
+    public ResponseEntity<Void> deletePosts(@RequestBody List<Integer> postIds) {
         boolean deleted = postsService.deletePost(postIds);
         return deleted ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
