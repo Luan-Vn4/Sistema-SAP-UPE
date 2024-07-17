@@ -159,7 +159,14 @@ public class JdbiFuncionariosRepositoryTest {
                 "Id do novo supervisor diferente do esperado");
     }
 
-    //public void givenUidFuncionarioAndAtivo_whenUpdateAtivo_thenReturnBoo
+    @Test
+    public void givenUidFuncionarioAndAtivo_whenUpdateAtivo_thenReturnBoolean() {
+        Tecnico tecnico = repository.createTecnico(getTecnicos().get(0));
+
+        boolean status = repository.updateAtivo(tecnico.getUid(), false);
+
+        Assertions.assertFalse(status);
+    }
 
     // READ
     @Test

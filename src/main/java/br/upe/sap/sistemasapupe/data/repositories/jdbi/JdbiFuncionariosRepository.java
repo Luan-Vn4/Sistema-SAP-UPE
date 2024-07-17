@@ -137,7 +137,7 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
             .bind("is_ativo", isAtivo)
             .bind("uid", uidFuncionario)
             .executeAndReturnGeneratedKeys()
-            .mapTo(Boolean.class)
+            .map((rs, ctx) -> rs.getBoolean("is_ativo"))
             .findFirst().orElseThrow(() ->
                 new EntityNotFoundException("Não existe funcionário com o uid: " + uidFuncionario)));
     }
