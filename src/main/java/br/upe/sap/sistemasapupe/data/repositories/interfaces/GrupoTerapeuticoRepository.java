@@ -23,6 +23,10 @@ public interface GrupoTerapeuticoRepository extends BasicRepository<GrupoTerapeu
 
     GrupoTerapeutico update(GrupoTerapeutico grupoTerapeutico);
 
+    int removerFuncionario(UUID uidFUncionario, UUID uidGrupo);
+
+    int removerFicha(UUID uidFicha, UUID uidGrupo);
+
     int delete(UUID uidGrupoTerapeutico);
 
 }
