@@ -8,6 +8,7 @@ import br.upe.sap.sistemasapupe.data.repositories.interfaces.AtividadeSalaReposi
 import org.jdbi.v3.core.Jdbi;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -15,6 +16,7 @@ import java.util.UUID;
 public class JdbiAtividadeSalaRepository implements AtividadeSalaRepository {
 
     Jdbi jdbi;
+    JdbiFuncionariosRepository jdbiFuncionariosRepository;
 
     public JdbiAtividadeSalaRepository(Jdbi jdbi){
         this.jdbi = jdbi;
@@ -38,16 +40,26 @@ public class JdbiAtividadeSalaRepository implements AtividadeSalaRepository {
     @Override
     public List<Atividade> findByFuncionario(UUID uidFuncionario) {
         if (uidFuncionario == null) throw new IllegalArgumentException("UID do funcionário não deve ser nulo");
-        final String QUERY = """
-                SELECT *
-                FROM
-                WHERE
-                """;
-        return null;
+
+        List<Atividade> atividades = new ArrayList<>();
+
+        // Adiciona atividades individuais
+        List<AtendimentoIndividual> individuais = findByFuncionarioAtendimentoIndividual(uidFuncionario);
+        atividades.addAll(individuais);
+
+        // Adiciona atividades de grupo
+        List<AtendimentoGrupo> grupo = findByFuncionarioAtendimentoGrupo(uidFuncionario);
+        atividades.addAll(grupo);
+
+        // Adiciona encontros de estudo
+        List<Encontro> encontros = findByFuncionarioEncontroEstudo(uidFuncionario);
+        atividades.addAll(encontros);
+
+        return atividades;
     }
 
     @Override
-    public List<Atividade> findByFuncionarioAtendimentoIndividual(UUID uidFuncionario) {
+    public List<AtendimentoIndividual> findByFuncionarioAtendimentoIndividual(UUID uidFuncionario) {
         final String QUERY = """
                 SELECT *
                 FROM atendimentos_individuais
@@ -55,17 +67,37 @@ public class JdbiAtividadeSalaRepository implements AtividadeSalaRepository {
                 """;
         return jdbi.withHandle(handle -> handle
                 .createQuery(QUERY)
-                .bind("id_terapeuta", Funcionario ))
+                .bind("id_terapeuta", jdbiFuncionariosRepository.findById(uidFuncionario))
+                .mapToBean(AtendimentoIndividual.class)
+                .list());
     }
 
     @Override
-    public List<Atividade> findByFuncionarioAtendimentoGrupo(UUID uidFuncionario) {
-        return null;
+    public List<AtendimentoGrupo> findByFuncionarioAtendimentoGrupo(UUID uidFuncionario) {
+        final String QUERY = """
+                SELECT *
+                FROM coordenacao_atendimento_grupo
+                WHERE id_funcionario = :id_funcionario
+                """;
+        return jdbi.withHandle(handle -> handle
+                .createQuery(QUERY)
+                .bind("id_funcionario", jdbiFuncionariosRepository.findById(uidFuncionario))
+                .mapToBean(AtendimentoGrupo.class)
+                .list());
     }
 
     @Override
-    public List<Atividade> findByFuncionarioEncontroEstudo(UUID uidFuncionario) {
-        return null;
+    public List<Encontro> findByFuncionarioEncontroEstudo(UUID uidFuncionario) {
+        final String QUERY = """
+                SELECT *
+                FROM comparecimento_encontros
+                WHERE id_participante = :id_participante
+                """;
+        return jdbi.withHandle(handle -> handle
+                .createQuery(QUERY)
+                .bind("id_participante", jdbiFuncionariosRepository.findById(uidFuncionario))
+                .mapToBean(Encontro.class)
+                .list());
     }
 
     @Override
