@@ -6,6 +6,7 @@ import br.upe.sap.sistemasapupe.security.authentication.jwt.TokenFilter;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -52,7 +53,7 @@ public class SecurityConfiguration {
                 .requestMatchers("/api/v1/funcionarios/**").hasRole(Cargo.TECNICO.getRole())
                 .requestMatchers("/api/v1/funcionarios/**").hasRole(Cargo.TECNICO.getRole())
                 .requestMatchers("/error/**").permitAll()
-                .requestMatchers("/api/v1/posts").hasRole(Cargo.TECNICO.getRole())
+                .requestMatchers(HttpMethod.POST,"/api/v1/posts").hasRole(Cargo.TECNICO.getRole())
                 .requestMatchers("/api/v1/posts/**").permitAll()
                 .anyRequest().authenticated())
             .csrf(CsrfConfigurer::disable)

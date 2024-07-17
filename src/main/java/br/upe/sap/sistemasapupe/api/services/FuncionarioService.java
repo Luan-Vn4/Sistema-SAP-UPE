@@ -54,8 +54,8 @@ public class FuncionarioService {
         return mapToFuncionarioDTO(funcionarioRepository.findSupervisionados(uidTecnico));
     }
 
-    public List<FuncionarioDTO> getAllAtivos() {
-        return mapToFuncionarioDTO(funcionarioRepository.findFuncionariosAtivos());
+    public List<FuncionarioDTO> getByAtivo(boolean ativo) {
+        return mapToFuncionarioDTO(funcionarioRepository.findByAtivo(ativo));
     }
 
     public FuncionarioDTO getByUid(UUID uid) {

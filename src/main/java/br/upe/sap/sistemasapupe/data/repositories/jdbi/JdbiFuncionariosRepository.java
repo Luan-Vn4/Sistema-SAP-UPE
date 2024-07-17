@@ -324,14 +324,15 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
     }
 
     @Override
-    public List<Funcionario> findFuncionariosAtivos() {
+    public List<Funcionario> findByAtivo(boolean ativo) {
         final String QUERY = """
             SELECT uid, id, nome, sobrenome, email, senha, url_imagem, is_tecnico, is_ativo FROM funcionarios
-                WHERE is_ativo = TRUE;
+                WHERE is_ativo = :ativo;
             """;
 
         List<Funcionario> results = jdbi.withHandle(handle -> handle
             .createQuery(QUERY)
+            .bind("ativo", ativo)
             .map(this::mapByCargo)
             .collectIntoList());
 
