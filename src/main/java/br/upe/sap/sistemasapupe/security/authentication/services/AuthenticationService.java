@@ -65,6 +65,7 @@ public class AuthenticationService {
         Tecnico tecnico = (Tecnico) this.funcionarioRepository.findById(registerDTO.uidTecnico());
         Estagiario estagiario = registerDTO.toEstagiario(tecnico);
         estagiario.setSupervisor(tecnico);
+        estagiario.setSenha(encodePassword(estagiario.getPassword()));
 
         this.funcionarioRepository.create(estagiario);
     }
