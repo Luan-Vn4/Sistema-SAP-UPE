@@ -9,12 +9,9 @@ import br.upe.sap.sistemasapupe.data.model.posts.Comentario;
 import br.upe.sap.sistemasapupe.data.model.posts.Post;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.FuncionarioRepository;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.PostsRepository;
-import br.upe.sap.sistemasapupe.data.repositories.jdbi.JdbiPostsRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -37,7 +34,7 @@ public class PostsService {
             throw new EntityNotFoundException("Autor não encontrado para o UUID: " + postDTO.idAutor());
         }
         Post post = new Post(autor.getId(), postDTO.titulo(), postDTO.dataPublicacao(), postDTO.conteudo(), postDTO.imagemPost());
-        post.setId(postDTO.idPost());
+        post.setId(postDTO.id());
         return post;
     }
 
@@ -54,7 +51,7 @@ public class PostsService {
     public Comentario convertToComentario(ComentarioDTO comentarioDTO) {
         Funcionario autor = funcionarioRepository.findById(comentarioDTO.idAutor());
         Comentario comentario = new Comentario(autor.getId(), comentarioDTO.idPost(), comentarioDTO.conteudo());
-        comentario.setId(comentarioDTO.idComentario());
+        comentario.setId(comentarioDTO.id());
         return comentario;
     }
     public Comentario convertToComentario(CreateComentarioDTO comentarioDTO) {

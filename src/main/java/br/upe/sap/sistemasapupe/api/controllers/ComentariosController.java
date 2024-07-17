@@ -2,17 +2,11 @@ package br.upe.sap.sistemasapupe.api.controllers;
 
 import br.upe.sap.sistemasapupe.api.dtos.ComentarioDTO;
 import br.upe.sap.sistemasapupe.api.dtos.CreateComentarioDTO;
-import br.upe.sap.sistemasapupe.api.dtos.CreatePostDTO;
-import br.upe.sap.sistemasapupe.api.dtos.PostDTO;
 import br.upe.sap.sistemasapupe.api.services.PostsService;
-import br.upe.sap.sistemasapupe.data.model.posts.Post;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.net.URI;
-import java.time.LocalDateTime;
-import java.util.List;
 
 @RestController
 @AllArgsConstructor
@@ -21,7 +15,7 @@ public class ComentariosController {
     PostsService postsService;
 
 
-    @DeleteMapping("/comentarios/delete/{comentarioId}")
+    @DeleteMapping("/delete/{comentarioId}")
     public ResponseEntity<Void> deleteComentario(@PathVariable Integer comentarioId) {
         int deletedCount = postsService.deleteComentario(comentarioId);
         if (deletedCount > 0) {
@@ -31,16 +25,16 @@ public class ComentariosController {
         }
     }
 
-    @GetMapping("/comentarios/{comentarioId}")
+    @GetMapping("/{comentarioId}")
     public ResponseEntity<ComentarioDTO> getComentarioById(@PathVariable Integer comentarioId) {
         ComentarioDTO comentario = postsService.getComentarioById(comentarioId);
         return comentario != null ? ResponseEntity.ok(comentario) : ResponseEntity.notFound().build();
     }
-    @PostMapping("/comentarios")
+    @PostMapping()
     public ResponseEntity<ComentarioDTO> createComentario(@RequestBody CreateComentarioDTO comentario) {
         ComentarioDTO createdComentario = postsService.createComentario(comentario);
         int postId = comentario.idPost();
-        return ResponseEntity.created(URI.create("/posts/" + postId + "/comentarios/" + createdComentario.idComentario())).body(createdComentario);
+        return ResponseEntity.created(URI.create("/posts/" + postId + "/comentarios/" + createdComentario.id())).body(createdComentario);
     }
 
 

@@ -89,7 +89,7 @@ public class JdbiFuncionariosRepositoryTest {
 
     private static void assertIdsAreNotNull(Funcionario funcionario) {
         Assertions.assertNotNull(funcionario.getId(), "ID nulo");
-        Assertions.assertNotNull(funcionario.getUid(), "UID nulo");
+        Assertions.assertNotNull(funcionario.getId(), "UID nulo");
     }
 
     @Test

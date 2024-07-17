@@ -10,6 +10,6 @@ public record CreatePostDTO(UUID idAutor, String titulo, LocalDateTime dataPubli
                             String conteudo, String imagemPost) {
     public static Post toPost(CreatePostDTO dto, FuncionarioRepository funcionarioRepository) {
         int idAutor = funcionarioRepository.findById(dto.idAutor()).getId();
-        return new Post(idAutor, dto.titulo(), dto.dataPublicacao(), dto.conteudo(), dto.imagemPost());
+        return new Post(idAutor, dto.titulo(), LocalDateTime.now(), dto.conteudo(), dto.imagemPost());
     }
 }
