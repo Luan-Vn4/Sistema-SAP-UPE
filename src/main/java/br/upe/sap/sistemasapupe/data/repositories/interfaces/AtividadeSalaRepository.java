@@ -2,6 +2,7 @@ package br.upe.sap.sistemasapupe.data.repositories.interfaces;
 
 import br.upe.sap.sistemasapupe.data.model.atividades.*;
 import br.upe.sap.sistemasapupe.data.model.enums.StatusAtividade;
+import br.upe.sap.sistemasapupe.data.model.funcionarios.Funcionario;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,6 +13,9 @@ public interface AtividadeSalaRepository extends BasicRepository<Atividade, UUID
     List<Atividade> findBySala(UUID uidSala);
 
     List<Atividade> findByFuncionario(UUID uidFuncionario);
+    List<Atividade> findByFuncionarioAtendimentoIndividual(UUID uidFuncionario);
+    List<Atividade> findByFuncionarioAtendimentoGrupo(UUID uidFuncionario);
+    List<Atividade> findByFuncionarioEncontroEstudo(UUID uidFuncionario);
 
     List<Atividade> findByTempo(LocalDateTime tempoInicio, LocalDateTime tempoFim);
     List<Atividade> findByStatus(StatusAtividade statusAtividade);

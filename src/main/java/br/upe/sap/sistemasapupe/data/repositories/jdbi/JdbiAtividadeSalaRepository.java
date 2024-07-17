@@ -37,14 +37,34 @@ public class JdbiAtividadeSalaRepository implements AtividadeSalaRepository {
 
     @Override
     public List<Atividade> findByFuncionario(UUID uidFuncionario) {
-        // identificar de onde ta vindo a atividade no banco de dados:
-        //grupos_estudo, atendimentos_inidividuais, atendimentos_grupos
-
+        if (uidFuncionario == null) throw new IllegalArgumentException("UID do funcionário não deve ser nulo");
         final String QUERY = """
                 SELECT *
-                FROM 
-                WHERE 
+                FROM
+                WHERE
                 """;
+        return null;
+    }
+
+    @Override
+    public List<Atividade> findByFuncionarioAtendimentoIndividual(UUID uidFuncionario) {
+        final String QUERY = """
+                SELECT *
+                FROM atendimentos_individuais
+                WHERE id_terapeuta = :id
+                """;
+        return jdbi.withHandle(handle -> handle
+                .createQuery(QUERY)
+                .bind("id_terapeuta", Funcionario ))
+    }
+
+    @Override
+    public List<Atividade> findByFuncionarioAtendimentoGrupo(UUID uidFuncionario) {
+        return null;
+    }
+
+    @Override
+    public List<Atividade> findByFuncionarioEncontroEstudo(UUID uidFuncionario) {
         return null;
     }
 
@@ -298,7 +318,7 @@ public class JdbiAtividadeSalaRepository implements AtividadeSalaRepository {
     @Override
     public Sala createSala(Sala sala) {
         final String CREATE = """
-                INSERT INTO salas (id, nome, tipo) 
+                INSERT INTO salas (id, nome, tipo)
                 VALUES (:nome, :tipo)
                 RETURNING *
                 """;
@@ -313,8 +333,14 @@ public class JdbiAtividadeSalaRepository implements AtividadeSalaRepository {
     }
 
     @Override
-    public Atividade create(Atividade atividade) {
-        return null;
+    public Atividade create(Atividade atividade){
+        if (atividade instanceof AtendimentoIndividual) {
+            return createAtendimentoIndividual((AtendimentoIndividual) atividade);
+        } else if (atividade instanceof AtendimentoGrupo) {
+            return createAtendimentoGrupo((AtendimentoGrupo) atividade);
+        } else {
+            return createEncontroEstudo((Encontro) atividade);
+        }
     }
 
     @Override
@@ -326,7 +352,7 @@ public class JdbiAtividadeSalaRepository implements AtividadeSalaRepository {
     public Atividade update(Atividade atividade) {
         final String UPDATE = """
                 UPDATE atividades
-                SET id_sala = :id_sala, 
+                SET id_sala = :id_sala,
                 tempo_inicio = :tempo_inicio,
                 tempo_fim = :tempo_fim,
                 status = :status
@@ -405,7 +431,7 @@ public class JdbiAtividadeSalaRepository implements AtividadeSalaRepository {
     @Override
     public int delete(UUID uid) {
         final String DELETE = """
-                DELETE FROM atividades 
+                DELETE FROM atividades
                 WHERE uid = :uid
                 """;
         return jdbi.withHandle(handle -> handle
