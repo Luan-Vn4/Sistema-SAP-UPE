@@ -197,6 +197,27 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
         return funcionario;
     }
 
+    @Override
+    @Nullable
+    public Funcionario findByIdInteger(Integer id) {
+        if (id == null) throw new IllegalArgumentException("ID não deveria ser nulo");
+
+        final String QUERY = """
+            SELECT uid, id, nome, sobrenome, email, senha, url_imagem, is_tecnico, is_ativo FROM funcionarios
+                WHERE id = :id LIMIT 1;
+        """;
+
+        Funcionario funcionario = jdbi.withHandle(handle -> handle
+                .createQuery(QUERY)
+                .bind("id", id)
+                .map(this::mapByCargo)
+                .findFirst().orElse(null));
+
+        setSupervisorIfEstagiario(funcionario);
+
+        return funcionario;
+    }
+
     private void setSupervisorIfEstagiario(Funcionario funcionario) {
         if (funcionario instanceof Estagiario estagiario) {
             estagiario.setSupervisor(findSupervisor(estagiario.getUid()));
