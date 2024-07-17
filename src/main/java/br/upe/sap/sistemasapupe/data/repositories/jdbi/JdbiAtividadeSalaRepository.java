@@ -2,17 +2,23 @@ package br.upe.sap.sistemasapupe.data.repositories.jdbi;
 
 import br.upe.sap.sistemasapupe.data.model.atividades.*;
 import br.upe.sap.sistemasapupe.data.model.enums.StatusAtividade;
+import br.upe.sap.sistemasapupe.data.model.funcionarios.Funcionario;
+import br.upe.sap.sistemasapupe.data.model.pacientes.Ficha;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.AtividadeSalaRepository;
 import org.jdbi.v3.core.Jdbi;
+import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Repository
 public class JdbiAtividadeSalaRepository implements AtividadeSalaRepository {
 
     Jdbi jdbi;
+    JdbiFuncionariosRepository jdbiFuncionariosRepository;
 
     public JdbiAtividadeSalaRepository(Jdbi jdbi){
         this.jdbi = jdbi;
@@ -35,15 +41,65 @@ public class JdbiAtividadeSalaRepository implements AtividadeSalaRepository {
 
     @Override
     public List<Atividade> findByFuncionario(UUID uidFuncionario) {
-        // identificar de onde ta vindo a atividade no banco de dados:
-        //grupos_estudo, atendimentos_inidividuais, atendimentos_grupos
+        if (uidFuncionario == null) throw new IllegalArgumentException("UID do funcionário não deve ser nulo");
 
+        List<Atividade> atividades = new ArrayList<>();
+
+        // Adiciona atividades individuais
+        List<AtendimentoIndividual> individuais = findByFuncionarioAtendimentoIndividual(uidFuncionario);
+        atividades.addAll(individuais);
+
+        // Adiciona atividades de grupo
+        List<AtendimentoGrupo> grupo = findByFuncionarioAtendimentoGrupo(uidFuncionario);
+        atividades.addAll(grupo);
+
+        // Adiciona encontros de estudo
+        List<Encontro> encontros = findByFuncionarioEncontroEstudo(uidFuncionario);
+        atividades.addAll(encontros);
+
+        return atividades;
+    }
+
+    @Override
+    public List<AtendimentoIndividual> findByFuncionarioAtendimentoIndividual(UUID uidFuncionario) {
         final String QUERY = """
                 SELECT *
-                FROM 
-                WHERE 
+                FROM atendimentos_individuais
+                WHERE id_terapeuta = :id
                 """;
-        return null;
+        return jdbi.withHandle(handle -> handle
+                .createQuery(QUERY)
+                .bind("id_terapeuta", jdbiFuncionariosRepository.findById(uidFuncionario))
+                .mapToBean(AtendimentoIndividual.class)
+                .list());
+    }
+
+    @Override
+    public List<AtendimentoGrupo> findByFuncionarioAtendimentoGrupo(UUID uidFuncionario) {
+        final String QUERY = """
+                SELECT *
+                FROM coordenacao_atendimento_grupo
+                WHERE id_funcionario = :id_funcionario
+                """;
+        return jdbi.withHandle(handle -> handle
+                .createQuery(QUERY)
+                .bind("id_funcionario", jdbiFuncionariosRepository.findById(uidFuncionario))
+                .mapToBean(AtendimentoGrupo.class)
+                .list());
+    }
+
+    @Override
+    public List<Encontro> findByFuncionarioEncontroEstudo(UUID uidFuncionario) {
+        final String QUERY = """
+                SELECT *
+                FROM comparecimento_encontros
+                WHERE id_participante = :id_participante
+                """;
+        return jdbi.withHandle(handle -> handle
+                .createQuery(QUERY)
+                .bind("id_participante", jdbiFuncionariosRepository.findById(uidFuncionario))
+                .mapToBean(Encontro.class)
+                .list());
     }
 
     @Override
@@ -178,14 +234,89 @@ public class JdbiAtividadeSalaRepository implements AtividadeSalaRepository {
 
     @Override
     public AtendimentoGrupo updateAtendimentoGrupo(AtendimentoGrupo atendimentoGrupo) {
-        update(atendimentoGrupo);
-        return null;
+
+        return jdbi.inTransaction(handle -> {
+
+            update(atendimentoGrupo);
+
+            // Remove todos os registros de participantes
+            final String REMOVE_PARTICIPANTES = """
+                DELETE FROM ficha_atendimento_grupo
+                WHERE id_atendimento_grupo = :id
+                """;
+
+            handle.createUpdate(REMOVE_PARTICIPANTES)
+                    .bind("id", atendimentoGrupo.getId())
+                    .execute();
+
+            // Reinsere os participantes
+            final String INSERT_PARTICIPANTES = """
+                INSERT INTO ficha_atendimento_grupo (id_ficha, id_atendimento_grupo)
+                VALUES (:id_ficha, :id_atendimento_grupo)
+                """;
+
+            for (Ficha participante : atendimentoGrupo.getParticipantes()) {
+                handle.createUpdate(INSERT_PARTICIPANTES)
+                        .bind("id_ficha", participante.getId())
+                        .bind("id_atendimento_grupo", atendimentoGrupo.getId())
+                        .executeAndReturnGeneratedKeys();
+            }
+
+            // Remove todos os registros dos ministrantes
+            final String REMOVE_MINISTRANTES = """
+                DELETE FROM coordenacao_atendimento_grupo 
+                WHERE id_atendimento_grupo = :id
+                """;
+
+            handle.createUpdate(REMOVE_MINISTRANTES)
+                    .bind("id", atendimentoGrupo.getId())
+                    .execute();
+
+            // Reinsere os ministrantes
+            final String INSERT_MINISTRANTES = """
+                INSERT INTO coordenacao_atendimento_grupo (id_funcionario, id_atendimento_grupo) 
+                VALUES (:id_funcionario, :id_atendimento_grupo)
+                """;
+
+            for (Funcionario ministrante : atendimentoGrupo.getMinistrantes()) {
+                handle.createUpdate(INSERT_MINISTRANTES)
+                        .bind("id_funcionario", ministrante.getId())
+                        .bind("id_atendimento_grupo", atendimentoGrupo.getId())
+                        .executeAndReturnGeneratedKeys();
+            }
+
+            return atendimentoGrupo;
+        });
     }
+
 
     @Override
     public Encontro updateEncontroEstudo(Encontro encontroEstudo) {
-        update(encontroEstudo);
-        return null;
+        return jdbi.inTransaction(handle -> {
+            update(encontroEstudo);
+
+            final String REMOVE_COMPARECIMENTO = """
+                    DELETE FROM comparecimento_encontros
+                    WHERE id_encontro = :id_encontro
+                    """;
+            handle.createUpdate(REMOVE_COMPARECIMENTO)
+                    .bind("id_encontro", encontroEstudo.getId())
+                    .execute();
+
+            final String INSERT_COMPARECIMENTO = """
+                    INSERT INTO comparecimento_encontros (id_encontro, id_participante)
+                    VALUES (:id_encontro, :id_participante)
+                    """;
+            for (Funcionario participante : encontroEstudo.getGrupoEstudo().getParticipantes()){
+                handle.createUpdate(INSERT_COMPARECIMENTO)
+                        .bind("id_encontro", encontroEstudo.getGrupoEstudo().getId())
+                        .bind("id_participante", participante.getId())
+                        .executeAndReturnGeneratedKeys();
+            }
+
+            return encontroEstudo;
+
+        });
     }
 
 
@@ -221,7 +352,7 @@ public class JdbiAtividadeSalaRepository implements AtividadeSalaRepository {
     @Override
     public Sala createSala(Sala sala) {
         final String CREATE = """
-                INSERT INTO salas (id, nome, tipo) 
+                INSERT INTO salas (id, nome, tipo)
                 VALUES (:nome, :tipo)
                 RETURNING *
                 """;
@@ -236,8 +367,14 @@ public class JdbiAtividadeSalaRepository implements AtividadeSalaRepository {
     }
 
     @Override
-    public Atividade create(Atividade atividade) {
-        return null;
+    public Atividade create(Atividade atividade){
+        if (atividade instanceof AtendimentoIndividual) {
+            return createAtendimentoIndividual((AtendimentoIndividual) atividade);
+        } else if (atividade instanceof AtendimentoGrupo) {
+            return createAtendimentoGrupo((AtendimentoGrupo) atividade);
+        } else {
+            return createEncontroEstudo((Encontro) atividade);
+        }
     }
 
     @Override
@@ -249,7 +386,7 @@ public class JdbiAtividadeSalaRepository implements AtividadeSalaRepository {
     public Atividade update(Atividade atividade) {
         final String UPDATE = """
                 UPDATE atividades
-                SET id_sala = :id_sala, 
+                SET id_sala = :id_sala,
                 tempo_inicio = :tempo_inicio,
                 tempo_fim = :tempo_fim,
                 status = :status
@@ -328,7 +465,7 @@ public class JdbiAtividadeSalaRepository implements AtividadeSalaRepository {
     @Override
     public int delete(UUID uid) {
         final String DELETE = """
-                DELETE FROM atividades 
+                DELETE FROM atividades
                 WHERE uid = :uid
                 """;
         return jdbi.withHandle(handle -> handle
