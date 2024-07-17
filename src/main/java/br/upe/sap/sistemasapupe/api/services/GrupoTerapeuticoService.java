@@ -6,7 +6,6 @@ import br.upe.sap.sistemasapupe.data.repositories.jdbi.JdbiGrupoTerapeuticoRepos
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
 
 @AllArgsConstructor
 @Service
@@ -20,7 +19,7 @@ public class GrupoTerapeuticoService {
     }
 
     // Preciso do
-    public GrupoTerapeutico convertToDTO(GrupoTerapeutico grupoTerapeutico){
-
-    }
+//    public GrupoTerapeutico convertToDTO(GrupoTerapeutico grupoTerapeutico){
+//
+//    }
 }
