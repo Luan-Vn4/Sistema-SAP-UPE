@@ -193,16 +193,6 @@ public class JdbiPostsRepository implements PostsRepository {
     }
 
     @Override
-    public <HEAD> int delete(UUID idPost) {
-        return 0;
-    }
-
-    @Override
-    public int deleteComentario(UUID idComentario) {
-        return 0;
-    }
-
-    @Override
     public int delete(Integer id) {
         String sql = "DELETE FROM posts WHERE id = :id";
 
