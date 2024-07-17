@@ -135,6 +135,7 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
 
         return jdbi.withHandle(handle -> handle
             .createUpdate(UPDATE)
+            .bind("is_ativo", isAtivo)
             .bind("uid", uidFuncionario)
             .executeAndReturnGeneratedKeys()
             .mapTo(Boolean.class)
@@ -283,7 +284,7 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
             sup_est AS (
                 SELECT inf_sup_id, inf_sup_cargo, id_estagiario FROM inf_sup LEFT JOIN supervisoes
                     ON inf_sup_id = id_supervisor LIMIT 10)
-            SELECT inf_sup_id, inf_sup_cargo, id, nome, sobrenome, email, senha, url_imagem, is_tecnico, is_ativo
+            SELECT inf_sup_id, inf_sup_cargo, id, uid, nome, sobrenome, email, senha, url_imagem, is_tecnico, is_ativo
                 FROM funcionarios RIGHT JOIN sup_est ON id_estagiario = id LIMIT 10
             """;
 

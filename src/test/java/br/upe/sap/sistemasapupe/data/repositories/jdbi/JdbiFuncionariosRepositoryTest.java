@@ -89,7 +89,7 @@ public class JdbiFuncionariosRepositoryTest {
 
     private static void assertIdsAreNotNull(Funcionario funcionario) {
         Assertions.assertNotNull(funcionario.getId(), "ID nulo");
-        Assertions.assertNotNull(funcionario.getId(), "UID nulo");
+        Assertions.assertNotNull(funcionario.getUid(), "UID nulo");
     }
 
     @Test
@@ -158,6 +158,8 @@ public class JdbiFuncionariosRepositoryTest {
         Assertions.assertEquals(supervisor2.getId(), result.getSupervisor().getId(),
                 "Id do novo supervisor diferente do esperado");
     }
+
+    //public void givenUidFuncionarioAndAtivo_whenUpdateAtivo_thenReturnBoo
 
     // READ
     @Test

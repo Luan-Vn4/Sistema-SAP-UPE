@@ -6,8 +6,6 @@ import br.upe.sap.sistemasapupe.api.services.FuncionarioService;
 import lombok.AllArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -63,17 +61,10 @@ public class FuncionarioController {
 
     @GetMapping(value = "/one")
     public ResponseEntity<FuncionarioDTO> getOne(
-            @AuthenticationPrincipal UserDetails user,
             @RequestParam(name="by", required=false) String searchType,
             @RequestParam(name="uid", required=false) UUID uid) throws BadRequestException{
 
         FuncionarioDTO result;
-
-        if (searchType == null) {
-            UUID userUid = UUID.fromString(user.getUsername());
-            return ResponseEntity.ok(funcionarioService.getByUid(userUid));
-        }
-
         switch (Search.from(searchType)) {
             case UID -> result = searchByUid(uid);
             default -> throw new BadRequestException("Não foram fornecido um tipo de busca válido");
