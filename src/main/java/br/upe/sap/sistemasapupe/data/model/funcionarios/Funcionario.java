@@ -3,6 +3,7 @@ package br.upe.sap.sistemasapupe.data.model.funcionarios;
 import jakarta.persistence.Column;
 import jakarta.persistence.Id;
 import lombok.*;
+import org.jdbi.v3.core.mapper.reflect.ColumnName;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,26 +20,26 @@ public abstract class Funcionario implements UserDetails {
     @Column(name = "id")
     protected Integer id;
 
-    @Column(name = "uid")
+    @ColumnName("uid")
     private UUID uid;
 
-    @Column(name = "nome")
+    @ColumnName("nome")
     private String nome;
 
-    @Column(name = "sobrenome")
+    @ColumnName("sobrenome")
     private String sobrenome;
 
-    @Column(name = "email")
+    @ColumnName("email")
     private String email;
 
-    @Column(name = "senha")
+    @ColumnName("senha")
     private String senha;
 
-    @Column(name = "imagem")
+    @ColumnName("url_imagem")
     private String urlImagem;
 
-    @Column(name="is_ativo")
-    private boolean isAtivo = true;
+    @ColumnName("is_ativo")
+    private boolean isAtivo;
 
     public String getNomeCompleto() {
         return this.nome + " " + this.sobrenome;

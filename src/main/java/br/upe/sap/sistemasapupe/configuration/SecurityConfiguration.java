@@ -1,9 +1,12 @@
 package br.upe.sap.sistemasapupe.configuration;
 
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Cargo;
+import br.upe.sap.sistemasapupe.exceptions.handlers.FilterChainExceptionHandler;
 import br.upe.sap.sistemasapupe.security.authentication.jwt.TokenFilter;
+import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,6 +25,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@AllArgsConstructor
 public class SecurityConfiguration {
 
     // DEPENDÊNCIAS
@@ -29,11 +33,7 @@ public class SecurityConfiguration {
 
     TokenFilter tokenFilter;
 
-    public SecurityConfiguration(UserDetailsService userDetailsService, TokenFilter tokenFilter) {
-        this.userDetailsService = userDetailsService;
-        this.tokenFilter = tokenFilter;
-    }
-
+    FilterChainExceptionHandler filterExceptionHandler;
 
     // CONFIGURAÇÕES
     @Bean
@@ -53,7 +53,7 @@ public class SecurityConfiguration {
                 .requestMatchers("/api/v1/funcionarios/**").hasRole(Cargo.TECNICO.getRole())
                 .requestMatchers("/api/v1/funcionarios/**").hasRole(Cargo.TECNICO.getRole())
                 .requestMatchers("/error/**").permitAll()
-                .requestMatchers("/api/v1/posts").hasRole(Cargo.TECNICO.getRole())
+                .requestMatchers(HttpMethod.POST,"/api/v1/posts").hasRole(Cargo.TECNICO.getRole())
                 .requestMatchers("/api/v1/posts/**").permitAll()
                 .requestMatchers("/api/v1/comentarios").permitAll()
                 .requestMatchers("/api/v1/comentarios/delete/**").hasRole(Cargo.TECNICO.getRole())
@@ -61,7 +61,8 @@ public class SecurityConfiguration {
                 .anyRequest().authenticated())
             .csrf(CsrfConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(filterExceptionHandler, TokenFilter.class);
 
         return http.build();
     }

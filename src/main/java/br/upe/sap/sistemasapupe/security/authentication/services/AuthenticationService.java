@@ -64,8 +64,8 @@ public class AuthenticationService {
     public void registerEstagiario(RegisterEstagiarioDTO registerDTO) {
         Tecnico tecnico = (Tecnico) this.funcionarioRepository.findById(registerDTO.uidTecnico());
         Estagiario estagiario = registerDTO.toEstagiario(tecnico);
-        estagiario.setSenha(encodePassword(estagiario.getPassword()));
         estagiario.setSupervisor(tecnico);
+        estagiario.setSenha(encodePassword(estagiario.getPassword()));
 
         this.funcionarioRepository.create(estagiario);
     }

@@ -22,7 +22,7 @@ public class FuncionarioController {
 
     // GET
     public enum Search {
-        ALL, ATIVOS, UIDS, TECNICOS, UID, SUPERVISIONADOS;
+        ALL, ATIVOS, INATIVOS, UIDS, TECNICOS, UID, SUPERVISIONADOS;
 
         public static Search from(String value) {
             return Search.valueOf(value.toUpperCase());
@@ -37,7 +37,8 @@ public class FuncionarioController {
 
         List<FuncionarioDTO> result;
         switch (Search.from(searchType)) {
-            case ATIVOS -> result = funcionarioService.getAllAtivos();
+            case ATIVOS -> result = funcionarioService.getByAtivo(true);
+            case INATIVOS -> result = funcionarioService.getByAtivo(false);
             case UIDS -> result = searchByUids(uids);
             case TECNICOS -> result = funcionarioService.getAllTecnicos();
             case SUPERVISIONADOS -> result = searchSupervisionados(uid);

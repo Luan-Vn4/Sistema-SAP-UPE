@@ -90,9 +90,11 @@ public class TokenService {
 
             return new TokenDTO(true, decoded.getSubject(), getTokenType(), decoded.getSubject(), expiration);
         } catch (TokenExpiredException exception) {
-            throw new JWTVerificationException("Token expirado", exception);
+            throw new TokenExpiredException("Tokens cujas datas de validade estão expiradas não podem mais " +
+                                            "ser utilizados", exception.getExpiredOn());
         } catch (JWTVerificationException exception) {
-            throw new JWTVerificationException("Token inválido", exception);
+            throw new JWTVerificationException("Token fornecido é inválido, pois possui credenciais " +
+                                               "incorretas", exception);
         }
     }
 

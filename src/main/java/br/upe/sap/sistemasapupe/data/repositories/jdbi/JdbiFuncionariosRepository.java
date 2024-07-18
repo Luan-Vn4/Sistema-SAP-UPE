@@ -30,9 +30,12 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
         return """
             INSERT INTO funcionarios (nome, sobrenome, email, senha, is_tecnico, url_imagem, is_ativo) VALUES
                 (:nome, :sobrenome, :email, :senha, %s, :urlImagem, :ativo)
-                RETURNING *
-            """.formatted(isTecnico);
+                RETURNING %s
+            """.formatted(isTecnico, returningColumns);
     }
+
+    private final String returningColumns = "uid, id, nome, sobrenome, email, senha, is_tecnico tecnico, " +
+            "url_imagem urlImagem, is_ativo ativo";
 
     @Override
     public Estagiario createEstagiario(Estagiario estagiario) {
@@ -130,26 +133,27 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
     @Override
     public boolean updateAtivo(UUID uidFuncionario, boolean isAtivo) {
         final String UPDATE = """
-            UPDATE funcionarios SET is_ativo = :is_ativo WHERE uid = CAST(:uid AS UUID);
-            """;
+            UPDATE funcionarios SET is_ativo = :is_ativo WHERE uid = CAST(:uid AS UUID)
+                RETURNING %s
+            """.formatted(returningColumns);
 
         return jdbi.withHandle(handle -> handle
             .createUpdate(UPDATE)
             .bind("is_ativo", isAtivo)
             .bind("uid", uidFuncionario)
             .executeAndReturnGeneratedKeys()
-            .mapTo(Boolean.class)
+            .map((rs, ctx) -> rs.getBoolean("ativo"))
             .findFirst().orElseThrow(() ->
                 new EntityNotFoundException("Não existe funcionário com o uid: " + uidFuncionario)));
     }
 
     private String createUpdateQuery(boolean isTecnico) {
-        return  """
+        return """
             UPDATE funcionarios SET nome = :nome, sobrenome = :sobrenome, email = :email, senha = :senha,
-                url_imagem = :urlImagem, is_tecnico = %s, is_ativo = :isAtivo
+                url_imagem = :urlImagem, is_tecnico = %s, is_ativo = :ativo
                 WHERE id = :id AND uid = CAST(:uid AS UUID)
-                    RETURNING nome, sobrenome, email, senha, url_imagem, is_ativo, is_tecnico
-            """.formatted(isTecnico);
+                    RETURNING %s
+            """.formatted(isTecnico, returningColumns);
     }
 
     @Override
@@ -183,9 +187,9 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
         if (uid == null) throw new IllegalArgumentException("UID não deveria ser nulo");
 
         final String QUERY = """
-            SELECT uid, id, nome, sobrenome, email, senha, url_imagem, is_tecnico, is_ativo FROM funcionarios
-                WHERE uid = CAST(:uid AS UUID) LIMIT 1;
-        """;
+            SELECT %s FROM funcionarios
+                    WHERE uid = CAST(:uid AS UUID) LIMIT 1;
+        """.formatted(returningColumns);
 
         Funcionario funcionario = jdbi.withHandle(handle -> handle
             .createQuery(QUERY)
@@ -203,10 +207,7 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
     public Funcionario findByIdInteger(Integer id) {
         if (id == null) throw new IllegalArgumentException("ID não deveria ser nulo");
 
-        final String QUERY = """
-            SELECT uid, id, nome, sobrenome, email, senha, url_imagem, is_tecnico, is_ativo FROM funcionarios
-                WHERE id = :id LIMIT 1;
-        """;
+        final String QUERY = "SELECT %s FROM funcionarios WHERE id = :id LIMIT 1".formatted(returningColumns);
 
         Funcionario funcionario = jdbi.withHandle(handle -> handle
                 .createQuery(QUERY)
@@ -226,17 +227,14 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
     }
 
     private Funcionario mapByCargo(ResultSet rs, StatementContext ctx) throws SQLException {
-        return rs.getBoolean("is_Tecnico") ?
+        return rs.getBoolean("tecnico") ?
                 BeanMapper.of(Tecnico.class).map(rs, ctx) :
                 BeanMapper.of(Estagiario.class).map(rs, ctx);
     }
 
     @Override
     public List<Funcionario> findAll() {
-        final String QUERY = """
-            SELECT uid, id, nome, sobrenome, email, senha, url_imagem, is_tecnico, is_ativo
-                FROM funcionarios
-            """;
+        final String QUERY = "SELECT %s FROM funcionarios".formatted(returningColumns);
 
         List<Funcionario> results = jdbi.withHandle(handle -> handle
             .createQuery(QUERY)
@@ -250,10 +248,8 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
 
     @Override
     public List<Funcionario> findById(List<UUID> uids) {
-        final String QUERY = """
-            SELECT uid, id, nome, sobrenome, email, senha, url_imagem, is_tecnico, is_ativo
-                FROM funcionarios WHERE uid IN (%s)
-            """.formatted("<uids>");
+        final String QUERY = "SELECT %s FROM funcionarios WHERE uid IN (%s)"
+            .formatted( returningColumns, "<uids>");
 
         return jdbi.withHandle(handle -> handle
             .createQuery(QUERY)
@@ -284,8 +280,9 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
             sup_est AS (
                 SELECT inf_sup_id, inf_sup_cargo, id_estagiario FROM inf_sup LEFT JOIN supervisoes
                     ON inf_sup_id = id_supervisor LIMIT 10)
-            SELECT inf_sup_id, inf_sup_cargo, id, uid, nome, sobrenome, email, senha, url_imagem, is_tecnico, is_ativo
-                FROM funcionarios RIGHT JOIN sup_est ON id_estagiario = id LIMIT 10
+            SELECT inf_sup_id, inf_sup_cargo, id, uid, nome, sobrenome, email, senha,
+                url_imagem urlImagem, is_tecnico tecnico, is_ativo ativo
+                    FROM funcionarios RIGHT JOIN sup_est ON id_estagiario = id LIMIT 10
             """;
 
         return jdbi.withHandle(handle ->
@@ -309,7 +306,7 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
                    WHERE id_estagiario = (SELECT id FROM est_id) LIMIT 1
            )
            SELECT id_estagiario, sp.id, sp.uid, sp.nome, sp.sobrenome, sp.email, sp.senha,
-               sp.url_imagem, sp.is_tecnico, sp.is_ativo FROM supervisao INNER JOIN
+               sp.url_imagem urlImagem, sp.is_tecnico tecnico, sp.is_ativo ativo FROM supervisao INNER JOIN
                    (SELECT * FROM funcionarios) sp ON id = id_supervisor
            """;
 
@@ -325,14 +322,14 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
     }
 
     @Override
-    public List<Funcionario> findFuncionariosAtivos() {
+    public List<Funcionario> findByAtivo(boolean ativo) {
         final String QUERY = """
-            SELECT uid, id, nome, sobrenome, email, senha, url_imagem, is_tecnico, is_ativo FROM funcionarios
-                WHERE is_ativo = TRUE;
-            """;
+            SELECT %s FROM funcionarios WHERE is_ativo = :ativo;
+            """.formatted(returningColumns);
 
         List<Funcionario> results = jdbi.withHandle(handle -> handle
             .createQuery(QUERY)
+            .bind("ativo", ativo)
             .map(this::mapByCargo)
             .collectIntoList());
 
@@ -348,9 +345,9 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
     @Override
     public List<Tecnico> findTecnicos() {
         final String QUERY = """
-            SELECT uid, id, nome, sobrenome, email, senha, url_imagem, is_tecnico, is_ativo FROM funcionarios
-                WHERE is_tecnico = TRUE;
-            """;
+            SELECT %s FROM funcionarios
+                    WHERE is_tecnico = TRUE;
+            """.formatted(returningColumns);
 
         return jdbi.withHandle(handle ->
             handle.createQuery(QUERY)
@@ -360,10 +357,7 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
 
     @Override
     public Funcionario findByEmail(String email) {
-        final String QUERY = """
-            SELECT uid, id, nome, sobrenome, email, senha, url_imagem, is_tecnico, is_ativo
-                FROM funcionarios WHERE email = :email
-            """;
+        final String QUERY = "SELECT %s FROM funcionarios WHERE email = :email".formatted(returningColumns);
 
         Funcionario funcionario = jdbi.withHandle(handle -> handle
             .createQuery(QUERY)

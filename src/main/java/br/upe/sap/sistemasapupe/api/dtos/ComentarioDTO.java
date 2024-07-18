@@ -1,7 +1,6 @@
 package br.upe.sap.sistemasapupe.api.dtos;
 
 import br.upe.sap.sistemasapupe.data.model.posts.Comentario;
-import br.upe.sap.sistemasapupe.data.model.posts.Post;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.FuncionarioRepository;
 import lombok.Builder;
 

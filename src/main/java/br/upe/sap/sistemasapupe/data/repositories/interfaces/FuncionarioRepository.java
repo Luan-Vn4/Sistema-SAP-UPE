@@ -50,7 +50,7 @@ public interface FuncionarioRepository extends BasicRepository<Funcionario, UUID
 
     List<Estagiario> findSupervisionados(UUID uidTecnico);
 
-    List<Funcionario> findFuncionariosAtivos();
+    List<Funcionario> findByAtivo(boolean ativo);
 
     List<Tecnico> findTecnicos();
 

@@ -70,6 +70,7 @@ public class JdbiFuncionariosRepositoryTest {
         Tecnico result = (Tecnico) repository.create(tecnico);
 
         Assertions.assertNotNull(result, "Retorno nulo");
+        Assertions.assertTrue(result.isAtivo());
         assertIdsAreNotNull(result);
         assertEqualsWithoutIds(result, tecnico);
     }
@@ -89,7 +90,7 @@ public class JdbiFuncionariosRepositoryTest {
 
     private static void assertIdsAreNotNull(Funcionario funcionario) {
         Assertions.assertNotNull(funcionario.getId(), "ID nulo");
-        Assertions.assertNotNull(funcionario.getUid(), "UID nulo");
+        Assertions.assertNotNull(funcionario.getId(), "UID nulo");
     }
 
     @Test
@@ -140,6 +141,26 @@ public class JdbiFuncionariosRepositoryTest {
 
     // UPDATE
     @Test
+    @DisplayName("Dado um funcionário com dados atualizados, quando atualizar, retornar funcionário com novos dados")
+    public void givenUpdatedFuncionario_whenUpdate_thenReturnFuncionarioWithUpdatedData() {
+        Funcionario funcionario = repository.create(getTecnicos().get(0));
+
+        funcionario.setNome("kaka");
+        funcionario.setSobrenome("tatu");
+        funcionario.setEmail("avatar2@gmail.com");
+        funcionario.setSenha("567");
+        funcionario.setUrlImagem("www.google.com");
+        funcionario.setAtivo(false);
+
+        Funcionario updated = repository.update(funcionario);
+        updated.setSenha(updated.getSenha().trim());
+
+        Assertions.assertNotNull(updated);
+        assertIdsAreNotNull(updated);
+        Assertions.assertEquals(funcionario, updated);
+    }
+
+    @Test
     @DisplayName("Dado um id de estagiário e técnico, quando atualizar supervisor, retornar estagiário com" +
                  "nome supervisor")
     public void givenIdEstagiarioAndIdTecnico_whenUpdateSupervisao_thenReturnEstagiarioWithNewTecnico() {
@@ -159,7 +180,15 @@ public class JdbiFuncionariosRepositoryTest {
                 "Id do novo supervisor diferente do esperado");
     }
 
-    //public void givenUidFuncionarioAndAtivo_whenUpdateAtivo_thenReturnBoo
+    @Test
+    @DisplayName("Dado o uid de um funcionario e seu status, ao atualizar atividade, retornar booleano correspondente")
+    public void givenUidFuncionarioAndAtivo_whenUpdateAtivo_thenReturnBoolean() {
+        Tecnico tecnico = repository.createTecnico(getTecnicos().get(0));
+
+        boolean status = repository.updateAtivo(tecnico.getUid(), false);
+
+        Assertions.assertFalse(status);
+    }
 
     // READ
     @Test
@@ -195,6 +224,37 @@ public class JdbiFuncionariosRepositoryTest {
         for (int i = 0; i < results.size(); i++) {
             assertIdsAreNotNull(results.get(i));
             assertEqualsWithoutIds(funcionarios.get(i), results.get(i));
+        }
+
+    }
+
+    @Test
+    @DisplayName("Dado um valor booleano, quando procurar por ativo, retornar funcionários ativos ou inativos")
+    public void givenBoolean_whenFindByAtivo_thenReturnAtivoAsTrueOrInativoAsFalse() {
+        List<Estagiario> estagiarios = getEstagiarios();
+        List<Tecnico> tecnicos = getTecnicos();
+
+        List<Funcionario> result1 = repository.create(tecnicos.stream().map(x -> (Funcionario) x).toList());
+        estagiarios.forEach(x -> x.setSupervisor((Tecnico) result1.get(0)));
+        List<Funcionario> result2 = repository.create(estagiarios.stream().map(x -> (Funcionario) x).toList());
+
+        repository.updateAtivo(result1.get(1).getUid(), false);
+        repository.updateAtivo(result2.get(1).getUid(), false);
+
+        List<Funcionario> expectedAtivos = List.of(result1.get(0), result2.get(0));
+        List<Funcionario> expectedInativos = List.of(result1.get(1), result2.get(1));
+        List<Funcionario> ativos = repository.findByAtivo(true);
+        List<Funcionario> inativos = repository.findByAtivo(false);
+
+        expectedInativos.forEach(x -> x.setAtivo(false));
+        Assertions.assertEquals(expectedAtivos.size(), ativos.size());
+        Assertions.assertEquals(expectedInativos.size(), inativos.size());
+
+        for (int i = 0; i < expectedAtivos.size(); i++) {
+            assertIdsAreNotNull(ativos.get(i));
+            assertIdsAreNotNull(inativos.get(i));
+            assertEqualsWithoutIds(expectedAtivos.get(i), ativos.get(i));
+            assertEqualsWithoutIds(expectedInativos.get(i), inativos.get(i));
         }
 
     }
@@ -280,6 +340,27 @@ public class JdbiFuncionariosRepositoryTest {
         Assertions.assertEquals(supervisor.getId(), result.getId(), "Ids não iguais");
         Assertions.assertEquals(supervisor.getUid(), result.getUid(), "Uids não iguais");
         assertEqualsWithoutIds(result, supervisor);
+    }
+
+    @Test
+    @DisplayName("quando procurar por técnicas, então retornar uma lista de técnicos")
+    public void whenFindTecnicos_thenReturnTecnicos() {
+        List<Tecnico> tecnicos = getTecnicos();
+        Estagiario estagiario = getEstagiarios().get(0);
+
+        List<Funcionario> createdTecnicos = repository.create(tecnicos.stream().map(x -> (Funcionario) x).toList());
+        estagiario.setSupervisor((Tecnico) createdTecnicos.get(0));
+
+        Assertions.assertNotNull(repository.create(estagiario), "Estagiário não foi criado");
+
+        List<Tecnico> foundTecnicos = repository.findTecnicos();
+
+        Assertions.assertFalse(foundTecnicos.isEmpty());
+        Assertions.assertEquals(tecnicos.size(), foundTecnicos.size());
+        for (int i = 0; i < foundTecnicos.size(); i++) {
+            assertIdsAreNotNull(foundTecnicos.get(i));
+            assertEqualsWithoutIds(tecnicos.get(i), foundTecnicos.get(i));
+        }
     }
 
     @Test
