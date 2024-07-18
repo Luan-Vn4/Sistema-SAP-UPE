@@ -10,7 +10,6 @@ import java.util.UUID;
 
 @Getter @Setter
 @ToString
-@NoArgsConstructor
 public abstract class Atividade {
 
     private int id;
@@ -33,8 +32,8 @@ public abstract class Atividade {
         this.setUid(uid);
         this.setSala(sala);
         this.setTempo(tempoInicio, tempoFim);
-        this.setStatus(status);
         this.setFuncionario(funcionario);
+        this.setStatus(status);
     }
 
     private void setTempo(LocalDateTime tempo_inicio, LocalDateTime tempo_fim) {

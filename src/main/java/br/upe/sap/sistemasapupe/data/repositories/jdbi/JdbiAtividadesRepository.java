@@ -98,16 +98,31 @@ public class JdbiAtividadesRepository implements AtividadesRepository {
             SELECT id_funcionario FROM coordenacao_atendimento_grupo
                 WHERE id_atendimento_grupo = :id;
         """;
-        
-        return jdbi.withHandle(handle -> {
-            handle.createQuery(SELECT)
-                .bind("")
 
+        return jdbi.withHandle(handle -> {
+            List<Integer> ids = handle.createQuery(SELECT)
+                .bind("id", idAtendimentoGrupo)
+                .mapTo(Integer.class)
+                .collectIntoList();
+
+            return funcionarioRepository.findById(ids);
         });
     }
 
     public List<Ficha> findParticipantes(Integer idAtendimentoGrupo) {
-        return null;
+        final String SELECT = """
+            SELECT id_ficha FROM ficha_atendimento_grupo
+                WHERE id_atendimento_grupo = :id
+            """;
+
+        return jdbi.withHandle(handle -> {
+            List<Integer> ids = handle.createQuery(SELECT)
+                .bind("id", idAtendimentoGrupo)
+                .mapTo(Integer.class)
+                .collectIntoList();
+
+            return fichaRepository.findById(ids);
+        });
     }
 
     public Encontro findEncontro(Integer idEncontro) {
@@ -135,25 +150,32 @@ public class JdbiAtividadesRepository implements AtividadesRepository {
     }
 
     public List<Funcionario> findPresentesEncontro(Integer idEncontro) {
-        return null;
+        final String SELECT = """
+            SELECT id_participante FROM comparecimento_encontros
+                WHERE id_encontro = :id;
+        """;
+
+        return jdbi.withHandle(handle -> {
+            List<Integer> ids = handle.createQuery(SELECT)
+                .bind("id", idEncontro)
+                .mapTo(Integer.class)
+                .collectIntoList();
+
+            return funcionarioRepository.findById(ids);
+        });
     }
 
     @Override
     public List<Atividade> findBySala(Integer idSala) {
-        final String QUERY = """
-            SELECT atividades.id,
-            CASE
-                WHEN (id IN (SELECT id FROM atendimentos_grupo)) then 'ATENDIMENTO_EM_GRUPO'
-                WHEN (id IN (SELECT id FROM atendimentos_individuais)) then 'ATENDIMENTO_INDIVIDUAL'
-            ELSE 'ENCONTRO' END AS tipo,
-                uid, id_sala, tempo_inicio, tempo_fim, status FROM atividades;
-            """;
+        final String QUERY = "SELECT id FROM atividades WHERE id_sala = :id_sala";
 
-        return jdbi.withHandle(handle -> handle
+        List<Integer> ids = jdbi.withHandle(handle -> handle
             .createQuery(QUERY)
-            .bind("idSala", idSala)
-            .mapToBean(Atividade.class)
+            .bind("id_sala", idSala)
+            .mapTo(Integer.class)
             .collectIntoList());
+
+        return null;
     }
 
     @Override

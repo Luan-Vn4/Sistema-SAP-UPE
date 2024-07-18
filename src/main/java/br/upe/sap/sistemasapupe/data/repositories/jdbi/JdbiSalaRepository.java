@@ -5,8 +5,12 @@ import br.upe.sap.sistemasapupe.data.model.enums.TipoSala;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.SalaRepository;
 import lombok.AllArgsConstructor;
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.mapper.reflect.BeanMapper;
+import org.jdbi.v3.core.statement.StatementContext;
 import org.springframework.stereotype.Repository;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,15 +26,23 @@ public class JdbiSalaRepository implements SalaRepository {
 
     @Override
     public Sala create(Sala sala) {
-        final String CREATE = "INSERT INTO salas (nome, tipo) VALUES (:nome, :tipo) RETURNING %s"
+        final String CREATE = "INSERT INTO salas (nome, tipo) VALUES (:nome, CAST(:tipoSala AS tipo_sala)) RETURNING %s"
             .formatted(returningColumns);
 
         return jdbi.withHandle(handle -> handle
             .createUpdate(CREATE)
             .bindBean(sala)
             .executeAndReturnGeneratedKeys()
-            .mapToBean(Sala.class)
+            .map(this::mapSala)
             .findFirst().orElse(null));
+    }
+
+    private Sala mapSala(ResultSet rs, StatementContext ctx) throws SQLException {
+        Sala sala = BeanMapper.of(Sala.class).map(rs, ctx);
+
+        sala.setTipoSala(TipoSala.valueOf(rs.getString("tipo_sala")));
+
+        return sala;
     }
 
     @Override

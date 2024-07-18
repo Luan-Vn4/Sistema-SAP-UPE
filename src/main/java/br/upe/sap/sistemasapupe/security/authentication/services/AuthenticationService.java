@@ -47,6 +47,7 @@ public class AuthenticationService {
         if (token.contains("Bearer ")) {
             token = token.replace("Bearer ", "");
         }
+
         return tokenService.validateToken(token);
     }
 
