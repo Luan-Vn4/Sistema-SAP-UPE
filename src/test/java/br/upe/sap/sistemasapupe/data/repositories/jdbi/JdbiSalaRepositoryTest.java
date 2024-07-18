@@ -16,10 +16,10 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.test.context.ContextConfiguration;
 
+import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @JdbcTest
 @ContextConfiguration(classes = {DataSourceTestConfiguration.class})
@@ -67,8 +67,118 @@ public class JdbiSalaRepositoryTest {
 
         BidiMap<UUID, Integer> foundSalaIds = repository.findId(createdSala.getUid());
         assertEquals(createdSala.getId(), foundSalaIds.get(createdSala.getUid()), "Ids não correspondentes");
+        Sala foundSala = repository.findById(foundSalaIds.get(createdSala.getUid()));
 
-
+        assertNotNull(foundSala, "Retorno nulo");
+        assertIdsAreNotNull(foundSala);
+        assertEqualsWithoutIds(createdSala, foundSala);
     }
+
+    @Test
+    @DisplayName("Dado uma sala existente, quando atualizar, então retorne a sala atualizada")
+    public void givenExistingSala_whenUpdate_thenReturnUpdatedSala() {
+        Sala sala = Sala.salaBuilder().tipoSala(TipoSala.INDIVIDUAL).nome("salinha").build();
+        Sala createdSala = repository.create(sala);
+
+        createdSala.setNome("salinha atualizada");
+        createdSala.setTipoSala(TipoSala.GRUPO);
+        Sala updatedSala = repository.update(createdSala);
+
+        assertNotNull(updatedSala, "Retorno nulo");
+        assertIdsAreNotNull(updatedSala);
+        assertEquals(createdSala.getId(), updatedSala.getId(), "ID não corresponde");
+        assertEquals(createdSala.getUid(), updatedSala.getUid(), "UID não corresponde");
+        assertEquals(createdSala.getNome(), updatedSala.getNome(), "Nome não corresponde");
+        assertEquals(createdSala.getTipoSala(), updatedSala.getTipoSala(), "Tipo de sala não corresponde");
+    }
+
+    @Test
+    @DisplayName("Dado salas existentes, quando buscar por tipo, então retorne as salas corretas")
+    public void givenSalas_whenFindByTipo_thenReturnSalasOfTipo() {
+        Sala sala1 = Sala.salaBuilder().tipoSala(TipoSala.INDIVIDUAL).nome("salinha 1").build();
+        Sala sala2 = Sala.salaBuilder().tipoSala(TipoSala.GRUPO).nome("salinha 2").build();
+        Sala sala3 = Sala.salaBuilder().tipoSala(TipoSala.INDIVIDUAL).nome("salinha 3").build();
+
+        repository.create(sala1);
+        repository.create(sala2);
+        repository.create(sala3);
+
+        List<Sala> individualSalas = repository.findByTipo(TipoSala.INDIVIDUAL);
+
+        assertNotNull(individualSalas, "Retorno nulo");
+        assertEquals(2, individualSalas.size(), "Número de salas individuais não corresponde");
+        individualSalas.forEach(sala -> assertEquals(TipoSala.INDIVIDUAL, sala.getTipoSala(), "Tipo de sala não corresponde"));
+    }
+
+    @Test
+    @DisplayName("Dada uma sala com um nome específico, quando pesquisada pelo nome, retorna a sala correta")
+    public void givenSala_whenFindByNome_thenReturnSala() {
+        Sala sala1 = Sala.salaBuilder().tipoSala(TipoSala.INDIVIDUAL).nome("salinha 1").build();
+        Sala sala2 = Sala.salaBuilder().tipoSala(TipoSala.GRUPO).nome("salinha 2").build();
+        Sala sala3 = Sala.salaBuilder().tipoSala(TipoSala.AUDITORIO).nome("salinha 3").build();
+
+        repository.create(sala1);
+        repository.create(sala2);
+        repository.create(sala3);
+
+        Sala foundSala = repository.findByNome("salinha 2");
+
+        assertNotNull(foundSala, "Retorno nulo");
+        assertEquals("salinha 2", foundSala.getNome(), "Nome incompatível");
+        assertEquals(TipoSala.GRUPO, foundSala.getTipoSala(), "Tipo incompatível");
+    }
+
+    @Test
+    @DisplayName("Given multiple salas, when findAll is called, then return all salas")
+    public void givenMultipleSalas_whenFindAll_thenReturnAllSalas() {
+        Sala sala1 = Sala.salaBuilder().tipoSala(TipoSala.INDIVIDUAL).nome("salinha 1").build();
+        Sala sala2 = Sala.salaBuilder().tipoSala(TipoSala.GRUPO).nome("salinha 2").build();
+        Sala sala3 = Sala.salaBuilder().tipoSala(TipoSala.AUDITORIO).nome("salinha 3").build();
+
+        repository.create(sala1);
+        repository.create(sala2);
+        repository.create(sala3);
+
+        List<Sala> allSalas = repository.findAll();
+
+        assertNotNull(allSalas, "The list of salas should not be null");
+        assertEquals(3, allSalas.size(), "The number of salas returned does not match the number created");
+    }
+
+    @Test
+    @DisplayName("Given an existing sala, when delete by ID, then the sala should be removed from the database")
+    public void givenExistingSala_whenDeleteById_thenSalaShouldBeRemoved() {
+        Sala sala = Sala.salaBuilder().tipoSala(TipoSala.INDIVIDUAL).nome("salinha").build();
+        Sala createdSala = repository.create(sala);
+        assertNotNull(createdSala.getId(), "Id não deve ser nulo");
+
+        int rowsAffected = repository.delete(createdSala.getId());
+
+        assertEquals(1, rowsAffected);
+        Sala foundSala = repository.findById(createdSala.getId());
+        assertNull(foundSala, "Sala deve ser nula por deleção");
+    }
+
+    @Test
+    @DisplayName("Given multiple existing salas, when delete by list of IDs, then the corresponding salas should be removed from the database")
+    public void givenMultipleSalas_whenDeleteByIds_thenCorrespondingSalasShouldBeRemoved() {
+        Sala sala1 = Sala.salaBuilder().tipoSala(TipoSala.INDIVIDUAL).nome("salinha 1").build();
+        Sala sala2 = Sala.salaBuilder().tipoSala(TipoSala.GRUPO).nome("salinha 2").build();
+        Sala sala3 = Sala.salaBuilder().tipoSala(TipoSala.AUDITORIO).nome("salinha 3").build();
+
+        Sala createdSala1 = repository.create(sala1);
+        Sala createdSala2 = repository.create(sala2);
+        Sala createdSala3 = repository.create(sala3);
+
+        List<Integer> ids = List.of(createdSala1.getId(), createdSala2.getId());
+
+        int rowsAffected = repository.delete(ids);
+
+        assertEquals(2, rowsAffected);
+        assertNull(repository.findById(createdSala1.getId()), "Sala 1 deve ser nula após deleção");
+        assertNull(repository.findById(createdSala2.getId()), "Sala 2 deve ser nula após deleção");
+        assertNotNull(repository.findById(createdSala3.getId()), "Sala deve ser nula após deleção");
+    }
+
 
 }

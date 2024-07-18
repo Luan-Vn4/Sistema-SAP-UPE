@@ -63,7 +63,7 @@ public class JdbiSalaRepository implements SalaRepository {
             .createUpdate(UPDATE)
             .bindBean(sala)
             .executeAndReturnGeneratedKeys()
-            .mapToBean(Sala.class)
+            .map(this::mapSala)
             .findFirst().orElse(null));
     }
 
@@ -112,12 +112,13 @@ public class JdbiSalaRepository implements SalaRepository {
 
     @Override
     public List<Sala> findByTipo(TipoSala tipoSala) {
-        final String SELECT = "SELECT %s FROM salas WHERE tipo = :tipo".formatted(returningColumns);
+        final String SELECT = "SELECT %s FROM salas WHERE tipo = CAST(:tipoSala AS tipo_sala)".formatted(returningColumns);
 
         return jdbi.withHandle(handle -> handle
-            .createQuery(SELECT)
-            .mapToBean(Sala.class)
-            .collectIntoList());
+                .createQuery(SELECT)
+                .bind("tipoSala", tipoSala.getLabel())
+                .map(this::mapSala)
+                .list());
     }
 
     @Override
@@ -126,7 +127,8 @@ public class JdbiSalaRepository implements SalaRepository {
 
         return jdbi.withHandle(handle -> handle
             .createQuery(SELECT)
-            .mapToBean(Sala.class)
+            .bind("nome", nome)
+            .map(this::mapSala)
             .findFirst().orElse(null));
     }
 
@@ -136,7 +138,8 @@ public class JdbiSalaRepository implements SalaRepository {
 
         return jdbi.withHandle(handle -> handle
             .createQuery(SELECT)
-            .mapToBean(Sala.class)
+            .bind("id", id)
+            .map(this::mapSala)
             .findFirst().orElse(null));
     }
 
@@ -146,7 +149,7 @@ public class JdbiSalaRepository implements SalaRepository {
 
         return jdbi.withHandle(handle -> handle
             .createQuery(SELECT)
-            .mapToBean(Sala.class)
+            .map(this::mapSala)
             .collectIntoList());
     }
 //UID
@@ -158,7 +161,7 @@ public class JdbiSalaRepository implements SalaRepository {
         return jdbi.withHandle(handle -> handle
             .createQuery(SELECT)
             .bindList("ids", ids)
-            .mapToBean(Sala.class)
+            .map(this::mapSala)
             .collectIntoList());
     }
 
