@@ -66,6 +66,6 @@ public class GrupoTerapeuticoService {
         GrupoTerapeutico grupoTerapeutico = convertToGrupoTerapeutico(dto);
         grupoTerapeuticoRepository.delete(grupoTerapeutico.getUid());
 
-
+        return grupoTerapeutico.getId() > 0;
     }
 }
