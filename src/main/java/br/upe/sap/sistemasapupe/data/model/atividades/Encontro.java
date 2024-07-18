@@ -20,8 +20,9 @@ public class Encontro extends Atividade {
 
     @Builder
     public Encontro(int id, UUID uid, Sala sala, LocalDateTime tempoInicio, LocalDateTime tempoFim,
-                    StatusAtividade statusAtividade, GrupoEstudo grupoEstudo, List<Funcionario> presentes) {
-        super(id, uid, sala, tempoInicio, tempoFim, statusAtividade);
+                    StatusAtividade statusAtividade, GrupoEstudo grupoEstudo, List<Funcionario> presentes,
+                    Funcionario funcionario) {
+        super(id, uid, sala, tempoInicio, tempoFim, statusAtividade, funcionario);
         this.grupoEstudo = grupoEstudo;
         this.presentes = presentes;
     }

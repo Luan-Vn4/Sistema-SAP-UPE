@@ -12,12 +12,6 @@ public interface AtividadesRepository extends BasicRepository<Atividade, Integer
 
     List<Atividade> findByFuncionario(Integer idFuncionario);
 
-    List<AtendimentoIndividual> findByFuncionarioAtendimentoIndividual(Integer idFuncionario);
-
-    List<AtendimentoGrupo> findByFuncionarioAtendimentoGrupo(Integer idFuncionario);
-
-    List<Encontro> findByFuncionarioEncontroEstudo(Integer idFuncionario);
-
     List<Atividade> findByTempo(LocalDateTime tempoInicio, LocalDateTime tempoFim);
 
     List<Atividade> findByStatus(StatusAtividade statusAtividade);
@@ -36,4 +30,6 @@ public interface AtividadesRepository extends BasicRepository<Atividade, Integer
 
     Atividade updateStatusAtividade(Integer idAtividade, StatusAtividade statusAtividade);
 
+    AtendimentoGrupo findAtendimentoGrupo(Integer id);
+    AtendimentoIndividual findAtendimentoIndividual(Integer id);
 }

@@ -13,6 +13,8 @@ import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.reflect.BeanMapper;
 import org.springframework.stereotype.Repository;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,167 +32,225 @@ public class JdbiAtividadesRepository implements AtividadesRepository {
 
     FichaRepository fichaRepository;
 
-    final String returningAtividadeColumns = "id, uid, id_sala, tempo_inicio, tempo_fim, status";
+    final String returningAtividadeColumns = "atividades.id, atividades.uid, atividades.id_sala, " +
+            "atividades.id_funcionario, atividades.tempo_inicio, atividades.tempo_fim, atividades.status";
 
-    public AtendimentoIndividual findAtendimentoIndividual(int id) {
-        final String QUERY = "SELECT id_ficha, id_terapeuta FROM atendimentos_individuais WHERE id = :id";
+    @Override
+    public AtendimentoIndividual findAtendimentoIndividual(Integer id) {
+        final String QUERY = """
+            SELECT id_ficha, id_terapeuta, %s
+                FROM atendimentos_individuais INNER JOIN atividades
+                    ON atividades.id = :id AND atendimentos_individuais.id = atividades.id
+        """.formatted(returningAtividadeColumns);
 
         return jdbi.withHandle(handle -> handle
             .createQuery(QUERY)
+            .bind("id", id)
             .map((rs, ctx) -> {
-                var atendimentoIndividual =
-                        BeanMapper.of(AtendimentoIndividual.class).map(rs, ctx);
+                var atividade =
+                    BeanMapper.of(AtendimentoIndividual.class).map(rs, ctx);
 
-                atendimentoIndividual.setFicha(
-                        fichaRepository.findById(rs.getInt("id_ficha")));
-                //atendimentoIndividual.setFuncionario(
-                        //funcionarioRepository.findById(rs.getInt("id_terapeuta")));
+                fillAtividadeFields(atividade, rs);
+                atividade.setFicha(
+                    fichaRepository.findById(rs.getInt("id_ficha")));
+                atividade.setTerapeuta(atividade.getFuncionario());
 
-                return atendimentoIndividual;
+                return atividade;
             })
             .findFirst().orElse(null));
     }
 
-    private Atividade findAtividade(int id) {
-        final String QUERY = "SELECT id, uid, id_sala, tempo_inicio, tempo_fim, status " +
-                             "FROM atividades WHERE id = :id";
+    private void fillAtividadeFields(Atividade atividade, ResultSet rs) throws SQLException {
+        atividade.setSala(salaRepository.findById(
+                rs.getInt("id_sala")));
+        atividade.setFuncionario(funcionarioRepository.findById(
+                rs.getInt("id_funcionario")));
+    }
 
-        return null;
+    public AtendimentoGrupo findAtendimentoGrupo(Integer id) {
+        final String QUERY = """
+            SELECT id_grupo_terapeutico, %s
+                FROM atendimentos_grupo INNER JOIN atividades
+                    ON atividades.id = :id AND atendimentos_grupo.id = atividades.id
+        """.formatted(returningAtividadeColumns);
+
+        return jdbi.withHandle(handle -> handle
+            .createQuery(QUERY)
+            .bind("id", id)
+            .map((rs, ctx) -> {
+                var atividade = BeanMapper.of(AtendimentoGrupo.class).map(rs,ctx);
+
+                // TO DO
+                fillAtividadeFields(atividade, rs);
+                atividade.setGrupoTerapeutico(null);
+                atividade.setParticipantes(findParticipantes(
+                    atividade.getId()));
+                atividade.setMinistrantes(findMinistrantes(
+                    atividade.getId()));
+
+                return atividade;
+            })
+            .findFirst().orElse(null));
+    }
+
+    public List<Funcionario> findMinistrantes(Integer idAtendimentoGrupo) {
+        final String SELECT = """
+            SELECT id_funcionario FROM coordenacao_atendimento_grupo
+                WHERE id_atendimento_grupo = :id;
+        """;
+
+        return jdbi.withHandle(handle -> {
+            List<Integer> ids = handle.createQuery(SELECT)
+                .bind("id", idAtendimentoGrupo)
+                .mapTo(Integer.class)
+                .collectIntoList();
+
+            return funcionarioRepository.findById(ids);
+        });
+    }
+
+    public List<Ficha> findParticipantes(Integer idAtendimentoGrupo) {
+        final String SELECT = """
+            SELECT id_ficha FROM ficha_atendimento_grupo
+                WHERE id_atendimento_grupo = :id
+            """;
+
+        return jdbi.withHandle(handle -> {
+            List<Integer> ids = handle.createQuery(SELECT)
+                .bind("id", idAtendimentoGrupo)
+                .mapTo(Integer.class)
+                .collectIntoList();
+
+            return fichaRepository.findById(ids);
+        });
+    }
+
+    public Encontro findEncontro(Integer idEncontro) {
+        final String QUERY = """
+            SELECT id_grupo_estudo, %s
+                FROM encontros INNER JOIN atividades
+                    ON atividades.id = :id AND encontros.id = atividades.id
+        """.formatted(returningAtividadeColumns);
+
+        return jdbi.withHandle(handle -> handle
+            .createQuery(QUERY)
+            .bind("id", idEncontro)
+            .map((rs, ctx) -> {
+                var atividade = BeanMapper.of(Encontro.class).map(rs, ctx);
+
+                // TO DO
+                fillAtividadeFields(atividade, rs);
+                atividade.setGrupoEstudo(null);
+                atividade.setPresentes(findPresentesEncontro(
+                    atividade.getId()));
+
+                return atividade;
+            })
+            .findFirst().orElse(null));
+    }
+
+    public List<Funcionario> findPresentesEncontro(Integer idEncontro) {
+        final String SELECT = """
+            SELECT id_participante FROM comparecimento_encontros
+                WHERE id_encontro = :id;
+        """;
+
+        return jdbi.withHandle(handle -> {
+            List<Integer> ids = handle.createQuery(SELECT)
+                .bind("id", idEncontro)
+                .mapTo(Integer.class)
+                .collectIntoList();
+
+            return funcionarioRepository.findById(ids);
+        });
     }
 
     @Override
     public List<Atividade> findBySala(Integer idSala) {
-        final String QUERY = """
-            SELECT atividades.id,
-            CASE
-                WHEN (id IN (SELECT id FROM atendimentos_grupo)) then 'ATENDIMENTO_EM_GRUPO'
-                WHEN (id IN (SELECT id FROM atendimentos_individuais)) then 'ATENDIMENTO_INDIVIDUAL'
-            ELSE 'ENCONTRO' END AS tipo,
-                uid, id_sala, tempo_inicio, tempo_fim, status FROM atividades;
-            """;
+        final String QUERY = "SELECT id FROM atividades WHERE id_sala = :id_sala";
 
-        return jdbi.withHandle(handle -> handle
+        List<Integer> ids = jdbi.withHandle(handle -> handle
             .createQuery(QUERY)
-            .bind("idSala", idSala)
-            .mapToBean(Atividade.class)
+            .bind("id_sala", idSala)
+            .mapTo(Integer.class)
             .collectIntoList());
+
+        return findById(ids);
     }
 
     @Override
     public List<Atividade> findByFuncionario(Integer idFuncionario) {
         if (idFuncionario == null) throw new IllegalArgumentException("UID do funcionário não deve ser nulo");
 
-        List<Atividade> atividades = new ArrayList<>();
+        final String SELECT = "SELECT id FROM atividades WHERE id_funcionario = :id_funcionario";
 
-        // Adiciona atividades individuais
-        List<AtendimentoIndividual> individuais = findByFuncionarioAtendimentoIndividual(idFuncionario);
-        atividades.addAll(individuais);
+        List<Integer> ids = jdbi.withHandle(handle -> handle
+            .createQuery(SELECT)
+            .bind("id_funcionario", idFuncionario)
+            .mapTo(Integer.class)
+            .collectIntoList());
 
-        // Adiciona atividades de grupo
-        List<AtendimentoGrupo> grupo = findByFuncionarioAtendimentoGrupo(idFuncionario);
-        atividades.addAll(grupo);
-
-        // Adiciona encontros de estudo
-        List<Encontro> encontros = findByFuncionarioEncontroEstudo(idFuncionario);
-        atividades.addAll(encontros);
-
-        return atividades;
-    }
-
-    @Override
-    public List<AtendimentoIndividual> findByFuncionarioAtendimentoIndividual(Integer idFuncionario) {
-        final String QUERY = """
-                SELECT *
-                FROM atendimentos_individuais
-                WHERE id_terapeuta = :id
-                """;
-        return jdbi.withHandle(handle -> handle
-                .createQuery(QUERY)
-                .bind("id_terapeuta", funcionarioRepository.findById(idFuncionario))
-                .mapToBean(AtendimentoIndividual.class)
-                .list());
-    }
-
-    @Override
-    public List<AtendimentoGrupo> findByFuncionarioAtendimentoGrupo(Integer idFuncionario) {
-        final String QUERY = """
-                SELECT *
-                FROM coordenacao_atendimento_grupo
-                WHERE id_funcionario = :id_funcionario
-                """;
-        return jdbi.withHandle(handle -> handle
-                .createQuery(QUERY)
-                .bind("id_funcionario", funcionarioRepository.findById(idFuncionario))
-                .mapToBean(AtendimentoGrupo.class)
-                .list());
-    }
-
-    @Override
-    public List<Encontro> findByFuncionarioEncontroEstudo(Integer idFuncionario) {
-        final String QUERY = """
-                SELECT *
-                FROM comparecimento_encontros
-                WHERE id_participante = :id_participante
-                """;
-        return jdbi.withHandle(handle -> handle
-                .createQuery(QUERY)
-                .bind("id_participante", funcionarioRepository.findById(idFuncionario))
-                .mapToBean(Encontro.class)
-                .list());
+        return findById(ids);
     }
 
     @Override
     public List<Atividade> findByTempo(LocalDateTime tempoInicio, LocalDateTime tempoFim) {
         final String QUERY = """
-                SELECT *
-                FROM atividades
-                WHERE tempo_inicio = :tempo_inicio AND tempo_fim = :tempo_fim
-                """;
-        return jdbi.withHandle(handle -> handle
+            SELECT id FROM atividades
+                WHERE (tempo_inicio BETWEEN :tempo_inicio AND :tempo_fim)
+                    AND (tempo_fim BETWEEN :tempo_inicio AND :tempo_fim)
+            """;
+
+        List<Integer> ids = jdbi.withHandle(handle -> handle
                 .createQuery(QUERY)
                 .bind("tempo_inicio", tempoInicio)
                 .bind("tempo_fim", tempoFim)
-                .mapToBean(Atividade.class)
-                .list());
+                .mapToBean(Integer.class)
+                .collectIntoList());
 
+        return findById(ids);
     }
 
     @Override
     public List<Atividade> findByStatus(StatusAtividade statusAtividade) {
         final String QUERY = """
-                SELECT *
-                FROM atividades
-                WHERE status = :status
-                """;
-        return jdbi.withHandle(handle -> handle
-                .createQuery(QUERY)
-                .bind("status", statusAtividade)
-                .mapToBean(Atividade.class)
-                .list());
+            SELECT id FROM atividades
+                WHERE status = CAST(:status AS status_atividade)
+            """;
+
+        List<Integer> ids = jdbi.withHandle(handle -> handle
+            .createQuery(QUERY)
+            .bind("status", statusAtividade)
+            .mapToBean(Integer.class)
+            .collectIntoList());
+
+        return findById(ids);
     }
 
-    private Atividade createAtividade (Atividade atividade){
+    private Atividade createAtividade (Atividade atividade) {
         final String CREATE = """
-                INSERT INTO atividades (id_sala, tempo_inicio, tempo_fim)
-                VALUES (:id_sala, :tempo_inicio, :tempo_fim)
-                RETURNING *
-                """;
+            INSERT INTO atividades (id_funcionario, id_sala, tempo_inicio, tempo_fim, status)
+                VALUES (:idAutor, :idSala, :tempoInicio, :tempoFim, :status)
+                    RETURNING *
+            """;
+
         return jdbi.withHandle(handle -> handle
-                .createUpdate(CREATE)
-                .bind("id_sala", atividade.getSala().getId())
-                .bind("tempo_inicio", atividade.getTempoInicio())
-                .bind("tempo_fim", atividade.getTempoFim())
-                .executeAndReturnGeneratedKeys()
-                .mapToBean(Atividade.class)
-                .first());
+            .createUpdate(CREATE)
+            .bindBean(atividade)
+            .bind("idSala", atividade.getSala().getId())
+            .bind("idAutor", atividade.getFuncionario().getId())
+            .executeAndReturnGeneratedKeys()
+            .mapToBean(Atividade.class)
+            .first());
     }
+
     @Override
     public AtendimentoIndividual createAtendimentoIndividual(AtendimentoIndividual atendimentoIndividual) {
         final String CREATE = """
-                INSERT INTO atendimentos_individuais (id, id_ficha, id_terapeuta)
-                VALUES (:id_ficha, :id_terapeuta)
-                RETURNING *
-                """;
+            INSERT INTO atendimentos_individuais (id, id_ficha, id_terapeuta)
+            VALUES (:id_ficha, :id_terapeuta)
+            RETURNING *
+            """;
         atendimentoIndividual.setId(createAtividade(atendimentoIndividual).getId());
         return jdbi.withHandle(handle -> handle
                 .createUpdate(CREATE)
@@ -301,7 +361,7 @@ public class JdbiAtividadesRepository implements AtividadesRepository {
 
             // Remove todos os registros dos ministrantes
             final String REMOVE_MINISTRANTES = """
-                DELETE FROM coordenacao_atendimento_grupo 
+                DELETE FROM coordenacao_atendimento_grupo
                 WHERE id_atendimento_grupo = :id
                 """;
 
@@ -375,12 +435,12 @@ public class JdbiAtividadesRepository implements AtividadesRepository {
         final String SELECT = """
             SELECT *
             FROM atividades
-            WHERE uid = :uid
+            WHERE id = :id
             """;
 
         return jdbi.withHandle(handle -> handle
                 .createQuery(SELECT)
-                .bind("uid", idAtividade)
+                .bind("id", idAtividade)
                 .mapToBean(Atividade.class)
                 .findFirst()
                 .orElse(null));
@@ -435,6 +495,7 @@ public class JdbiAtividadesRepository implements AtividadesRepository {
                 .findFirst()
                 .orElse(null));
     }
+
 
     @Override
     public List<Atividade> update(List<Atividade> atividades) {

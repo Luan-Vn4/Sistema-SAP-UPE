@@ -11,6 +11,7 @@ CREATE TABLE salas(
 CREATE TABLE atividades(
     id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     uid UUID default uuid_generate_v4() UNIQUE,
+    id_funcionario INT REFERENCES funcionarios(id) NOT NULL,
     id_sala INT REFERENCES salas(id),
     tempo_inicio TIMESTAMP NOT NULL,
     tempo_fim TIMESTAMP NOT NULL,
