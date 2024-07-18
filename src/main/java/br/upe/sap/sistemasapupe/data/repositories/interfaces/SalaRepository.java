@@ -10,28 +10,26 @@ public interface SalaRepository extends BasicRepository<Sala, Integer> {
 
     Sala create(Sala sala);
 
-    List<Sala> create(List<Sala> salas);
+    public List<Sala> create(List<Sala> salas);
 
-    Sala update(Sala sala);
+    public Sala update(Sala sala);
 
-    List<Sala> update(List<Sala> sala);
+    public List<Sala> update(List<Sala> sala);
 
-    Sala findByUUID(UUID uuid);
+    public List<Sala> findByTipo(TipoSala tipoSala);
 
-    List<Sala> findByTipo(TipoSala tipoSala);
+    public Sala findByNome(String nome);
 
-    Sala findByNome(String nome);
+    public Sala findById(Integer id);
 
-    Sala findById(Integer id);
+    public List<Sala> findAll();
 
-    List<Sala> findAll();
-
-    List<Sala> findByIds(List<Integer> ids);
+    public List<Sala> findById(List<Integer> ids);
 
     public boolean exists(Integer id);
 
-    int delete(Integer id);
+    public int delete(Integer id);
 
-    int delete(List<Integer> ids);
+    public int delete(List<Integer> ids);
 
 }
