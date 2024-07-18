@@ -26,7 +26,7 @@ public interface SalaRepository extends BasicRepository<Sala, Integer> {
 
     public List<Sala> findAll();
 
-    public List<Sala> findById(List<Integer> ids);
+    public List<Sala> findByIds(List<Integer> ids);
 
     public boolean exists(Integer id);
 
