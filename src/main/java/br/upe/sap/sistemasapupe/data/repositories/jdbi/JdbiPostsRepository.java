@@ -7,8 +7,8 @@ import jakarta.persistence.EntityNotFoundException;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.statement.PreparedBatch;
 import org.springframework.stereotype.Repository;
-
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,7 +39,9 @@ public class JdbiPostsRepository implements PostsRepository {
 
     @Override
     public List<Post> update(List<Post> posts) {
-        return null;
+        List<Post> results = new ArrayList<>();
+        for (Post post : posts) results.add(this.update(post));
+        return results;
     }
 
     @Override
@@ -105,9 +107,7 @@ public class JdbiPostsRepository implements PostsRepository {
 
     @Override
     public List<Post> findAll() {
-        String QUERY = """
-                SELECT * FROM posts;
-                """;
+        String QUERY = "SELECT * FROM posts";
 
         return jdbi.withHandle(handle ->
                 handle.createQuery(QUERY)
@@ -119,9 +119,9 @@ public class JdbiPostsRepository implements PostsRepository {
     @Override
     public Post findById(Integer idPost) {
         String FIND = """
-                SELECT id, id_autor, titulo, imagem_post, data_publicacao, conteudo FROM posts
-                WHERE id = :id LIMIT 1;
-                """;
+            SELECT id, id_autor, titulo, imagem_post, data_publicacao, conteudo FROM posts
+            WHERE id = :id LIMIT 1;
+            """;
 
         return jdbi.withHandle(handle -> handle
                 .createQuery(FIND)
@@ -134,20 +134,20 @@ public class JdbiPostsRepository implements PostsRepository {
     @Override
     public Post findByTempo(LocalDateTime data_publicacao) {
         String QUERY = """
-                SELECT id, id_autor, titulo, imagem_post, data_publicacao, conteudo FROM posts
-                WHERE data_publicacao = :dataPublicacao LIMIT 1;
-                """;
+            SELECT id, id_autor, titulo, imagem_post, data_publicacao, conteudo FROM posts
+            WHERE data_publicacao = :dataPublicacao LIMIT 1;
+            """;
 
         return jdbi.withHandle(handle -> handle
                 .createQuery(QUERY)
-                .bind("data_publicacao", data_publicacao)
+                .bind("dataPublicacao", data_publicacao)
                 .mapToBean(Post.class)
                 .findFirst()
-                .orElseGet(null));
+                .orElse(null));
     }
 
     @Override
-    public List<Comentario> findComentariosByPost(Integer idPost) {
+    public List<Comentario> findComentariosByPost(int idPost) {
         String Query = """
                 SELECT * FROM comentarios WHERE id_post = :id_post
                 """;
@@ -159,11 +159,10 @@ public class JdbiPostsRepository implements PostsRepository {
                         .list()
         );
     }
+
     @Override
-    public Comentario findComentarioById(Integer id) {
-        String Query = """
-                SELECT * FROM comentarios WHERE id = :id
-                """;
+    public Comentario findComentarioById(int id) {
+        String Query = "SELECT * FROM comentarios WHERE id = :id";
 
         return jdbi.withHandle(handle ->
                 handle.createQuery(Query)
@@ -171,6 +170,7 @@ public class JdbiPostsRepository implements PostsRepository {
                         .mapToBean(Comentario.class).
                         findFirst().orElse(null));
     }
+
     @Override
     public Post update(Post postAtualizado) {
         String QUERY = """
@@ -183,23 +183,12 @@ public class JdbiPostsRepository implements PostsRepository {
             WHERE id = :id;
             """;
 
-        jdbi.useHandle(handle -> {
-            handle.createUpdate(QUERY)
-                    .bindBean(postAtualizado)
-                    .execute();
-        });
+        jdbi.useHandle(handle -> handle
+            .createUpdate(QUERY)
+            .bindBean(postAtualizado)
+            .execute());
 
         return findById(postAtualizado.getId());
-    }
-
-    @Override
-    public <HEAD> int delete(UUID idPost) {
-        return 0;
-    }
-
-    @Override
-    public int deleteComentario(UUID idComentario) {
-        return 0;
     }
 
     @Override
@@ -215,7 +204,7 @@ public class JdbiPostsRepository implements PostsRepository {
     }
 
     @Override
-    public void deleteComentariosByPostId(Integer postId) {
+    public void deleteComentariosByPostId(int postId) {
         String sql = "DELETE FROM comentarios WHERE id_post = :postId";
         jdbi.useHandle(handle ->
                 handle.createUpdate(sql)
@@ -225,7 +214,7 @@ public class JdbiPostsRepository implements PostsRepository {
     }
 
     @Override
-    public int deleteComentario(Integer id) {
+    public int deleteComentario(int id) {
         String sql = "DELETE FROM comentarios WHERE id = :id";
 
         return jdbi.withHandle(handle -> handle
@@ -233,4 +222,5 @@ public class JdbiPostsRepository implements PostsRepository {
                 .bind("id", id)
                 .execute());
     }
+
 }

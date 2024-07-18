@@ -13,10 +13,14 @@ import java.util.UUID;
 @Getter @Setter
 @ToString
 public class AtendimentoGrupo extends Atividade {
+
     private GrupoTerapeutico grupoTerapeutico;
+
     private List<Ficha> participantes;
+
     private List<Funcionario> ministrantes;
 
+    @Builder
     public AtendimentoGrupo(int id, UUID uid, Sala sala, LocalDateTime tempoInicio,
                              LocalDateTime tempoFim, StatusAtividade statusAtividade,
                              GrupoTerapeutico grupoTerapeutico, List<Ficha> participantes,

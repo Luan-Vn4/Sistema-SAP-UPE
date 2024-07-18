@@ -3,10 +3,11 @@ package br.upe.sap.sistemasapupe.data.repositories.jdbi;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Estagiario;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Funcionario;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Tecnico;
-import br.upe.sap.sistemasapupe.data.model.pacientes.Ficha;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.FuncionarioRepository;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.EntityNotFoundException;
+import org.apache.commons.collections4.BidiMap;
+import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.reflect.BeanMapper;
 import org.jdbi.v3.core.statement.StatementContext;
@@ -110,41 +111,37 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
 
     // UPDATE
     @Override
-    public Estagiario updateSupervisao(UUID uidEstagiario, UUID uidSupervisor) {
+    public Estagiario updateSupervisao(Integer idEstagiario, Integer idSupervisor) {
         final String UPDATE = """
-            WITH id_est AS (
-                SELECT id FROM funcionarios WHERE uid = cast(:uid_estagiario AS UUID) LIMIT 1),
-            id_sup AS (
-                SELECT id FROM funcionarios WHERE uid = cast(:uid_supervisor AS UUID) LIMIT 1)
-            UPDATE supervisoes SET id_supervisor = (SELECT id FROM id_sup LIMIT 1)
-                WHERE id_estagiario = (SELECT id FROM id_est LIMIT 1)
+            UPDATE supervisoes SET id_supervisor = :id_supervisor
+                WHERE id_estagiario = :id_estagiario
             """;
 
         return jdbi.withHandle(handle -> {
             handle.createUpdate(UPDATE)
-                .bind("uid_estagiario", uidEstagiario)
-                .bind("uid_supervisor", uidSupervisor)
+                .bind("id_estagiario", idEstagiario)
+                .bind("id_supervisor", idSupervisor)
                 .execute();
 
-            return (Estagiario) this.findById(uidEstagiario);
+            return (Estagiario) this.findById(idEstagiario);
         });
     }
 
     @Override
-    public boolean updateAtivo(UUID uidFuncionario, boolean isAtivo) {
+    public boolean updateAtivo(Integer id, boolean isAtivo) {
         final String UPDATE = """
-            UPDATE funcionarios SET is_ativo = :is_ativo WHERE uid = CAST(:uid AS UUID)
+            UPDATE funcionarios SET is_ativo = :is_ativo WHERE id = :id
                 RETURNING %s
             """.formatted(returningColumns);
 
         return jdbi.withHandle(handle -> handle
             .createUpdate(UPDATE)
             .bind("is_ativo", isAtivo)
-            .bind("uid", uidFuncionario)
+            .bind("id", id)
             .executeAndReturnGeneratedKeys()
             .map((rs, ctx) -> rs.getBoolean("ativo"))
             .findFirst().orElseThrow(() ->
-                new EntityNotFoundException("Não existe funcionário com o uid: " + uidFuncionario)));
+                new EntityNotFoundException("Não existe funcionário com o id: " + id)));
     }
 
     private String createUpdateQuery(boolean isTecnico) {
@@ -166,8 +163,8 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
             .executeAndReturnGeneratedKeys()
             .map(this::mapByCargo)
             .findFirst().orElseThrow(() ->
-                new EntityNotFoundException("Não foi encontrado funcionário com uid: "
-                                            + funcionario.getUid())));
+                new EntityNotFoundException("Não foi encontrado funcionário com id: "
+                                            + funcionario.getId())));
     }
 
     @Override
@@ -182,18 +179,17 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
 
     // READ
     @Override
-    @Nullable
-    public Funcionario findById(UUID uid) {
-        if (uid == null) throw new IllegalArgumentException("UID não deveria ser nulo");
+    public Funcionario findById(Integer id) {
+        if (id == null) throw new IllegalArgumentException("id não deveria ser nulo");
 
         final String QUERY = """
             SELECT %s FROM funcionarios
-                    WHERE uid = CAST(:uid AS UUID) LIMIT 1;
+                    WHERE id = :id LIMIT 1;
         """.formatted(returningColumns);
 
         Funcionario funcionario = jdbi.withHandle(handle -> handle
             .createQuery(QUERY)
-            .bind("uid", uid)
+            .bind("id", id)
             .map(this::mapByCargo)
             .findFirst().orElse(null));
 
@@ -202,27 +198,9 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
         return funcionario;
     }
 
-    @Override
-    @Nullable
-    public Funcionario findByIdInteger(Integer id) {
-        if (id == null) throw new IllegalArgumentException("ID não deveria ser nulo");
-
-        final String QUERY = "SELECT %s FROM funcionarios WHERE id = :id LIMIT 1".formatted(returningColumns);
-
-        Funcionario funcionario = jdbi.withHandle(handle -> handle
-                .createQuery(QUERY)
-                .bind("id", id)
-                .map(this::mapByCargo)
-                .findFirst().orElse(null));
-
-        setSupervisorIfEstagiario(funcionario);
-
-        return funcionario;
-    }
-
     private void setSupervisorIfEstagiario(Funcionario funcionario) {
         if (funcionario instanceof Estagiario estagiario) {
-            estagiario.setSupervisor(findSupervisor(estagiario.getUid()));
+            estagiario.setSupervisor(findSupervisor(estagiario.getId()));
         }
     }
 
@@ -247,35 +225,35 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
     }
 
     @Override
-    public List<Funcionario> findById(List<UUID> uids) {
-        final String QUERY = "SELECT %s FROM funcionarios WHERE uid IN (%s)"
-            .formatted( returningColumns, "<uids>");
+    public List<Funcionario> findById(List<Integer> ids) {
+        final String QUERY = "SELECT %s FROM funcionarios WHERE id IN (%s)"
+            .formatted( returningColumns, "<ids>");
 
         return jdbi.withHandle(handle -> handle
             .createQuery(QUERY)
-            .bindList("uids", uids)
+            .bindList("ids", ids)
             .map(this::mapByCargo)
             .collectIntoList());
     }
 
-    public boolean exists(UUID uid) {
+    public boolean exists(Integer id) {
         final String QUERY = """
             SELECT COUNT(*) > 0 FROM funcionarios
-                    WHERE uid = CAST(:uid AS UUID) GROUP BY uid LIMIT 1
+                    WHERE id = :id GROUP BY id LIMIT 1
             """;
 
         return jdbi.withHandle(handle -> handle
             .createQuery(QUERY)
-                .bind("uid", uid)
+                .bind("id", id)
                 .mapTo(Boolean.class)
                 .findFirst().orElse(false));
     }
 
     @Override
-    public List<Estagiario> findSupervisionados(UUID uidTecnico) {
+    public List<Estagiario> findSupervisionados(Integer idTecnico) {
         final String QUERY = """
             WITH inf_sup AS (
-                SELECT id inf_sup_id, is_tecnico inf_sup_cargo FROM funcionarios WHERE uid = :uid LIMIT 1
+                SELECT id inf_sup_id, is_tecnico inf_sup_cargo FROM funcionarios WHERE id = :id LIMIT 1
             ),
             sup_est AS (
                 SELECT inf_sup_id, inf_sup_cargo, id_estagiario FROM inf_sup LEFT JOIN supervisoes
@@ -287,23 +265,20 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
 
         return jdbi.withHandle(handle ->
             handle.createQuery(QUERY)
-            .bind("uid", uidTecnico)
+            .bind("id", idTecnico)
             .map((rs, ctx) -> {
                 if (!rs.getBoolean("inf_sup_cargo"))
-                    throw new IllegalArgumentException("O funcionário fornecido não é um técnico. UID - " + uidTecnico);
+                    throw new IllegalArgumentException("O funcionário fornecido não é um técnico. id - " + idTecnico);
                 return BeanMapper.of(Estagiario.class).map(rs, ctx);
             }).collectIntoList());
     }
 
     @Nullable
-    public Tecnico findSupervisor(UUID uidEstagiario) {
+    public Tecnico findSupervisor(Integer idEstagiario) {
         final String QUERY = """
-           WITH est_id AS (
-               SELECT id FROM funcionarios WHERE uid = :uid LIMIT 1
-           ),
-           supervisao AS (
+           WITH supervisao AS (
                SELECT id_estagiario, id_supervisor FROM supervisoes
-                   WHERE id_estagiario = (SELECT id FROM est_id) LIMIT 1
+                   WHERE id_estagiario = :id LIMIT 1
            )
            SELECT id_estagiario, sp.id, sp.uid, sp.nome, sp.sobrenome, sp.email, sp.senha,
                sp.url_imagem urlImagem, sp.is_tecnico tecnico, sp.is_ativo ativo FROM supervisao INNER JOIN
@@ -312,20 +287,19 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
 
         return jdbi.withHandle(handle -> handle
             .createQuery(QUERY)
-            .bind("uid", uidEstagiario)
+            .bind("id", idEstagiario)
             .map((rs, ctx) -> {
                if (rs.getInt("id_estagiario") == 0)
                    throw new EntityNotFoundException("Não foi possível identificar um " +
-                                                     "estagiário com o uid: " + uidEstagiario);
+                                                     "estagiário com o id: " + idEstagiario);
                return BeanMapper.of(Tecnico.class).map(rs, ctx);
             }).findFirst().orElse(null));
     }
 
     @Override
     public List<Funcionario> findByAtivo(boolean ativo) {
-        final String QUERY = """
-            SELECT %s FROM funcionarios WHERE is_ativo = :ativo;
-            """.formatted(returningColumns);
+        final String QUERY = "SELECT %s FROM funcionarios WHERE is_ativo = :ativo"
+            .formatted(returningColumns);
 
         List<Funcionario> results = jdbi.withHandle(handle -> handle
             .createQuery(QUERY)
@@ -333,21 +307,15 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
             .map(this::mapByCargo)
             .collectIntoList());
 
-        for (Funcionario funcionario : results) {
-            if (funcionario instanceof Estagiario estagiario) {
-                estagiario.setSupervisor(findSupervisor(estagiario.getUid()));
-            }
-        }
+        results.forEach(this::setSupervisorIfEstagiario);
 
         return results;
     }
 
     @Override
     public List<Tecnico> findTecnicos() {
-        final String QUERY = """
-            SELECT %s FROM funcionarios
-                    WHERE is_tecnico = TRUE;
-            """.formatted(returningColumns);
+        final String QUERY = "SELECT %s FROM funcionarios WHERE is_tecnico = TRUE"
+            .formatted(returningColumns);
 
         return jdbi.withHandle(handle ->
             handle.createQuery(QUERY)
@@ -370,24 +338,63 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
         return funcionario;
     }
 
+    @Override
+    public BidiMap<UUID, Integer> findIds(UUID uuid) {
+        final String SELECT = "SELECT uid, id FROM funcionarios WHERE uid = :uuid LIMIT 1";
+
+        BidiMap<UUID, Integer> results = new DualHashBidiMap<>();
+        Map<String, Object> mapping = jdbi.withHandle(handle -> handle
+            .createQuery(SELECT)
+            .bind("uuid", uuid)
+            .mapToMap()
+            .findFirst().orElse(null));
+
+        mapIds(results, mapping);
+
+        return results;
+    }
+
+    private void mapIds(BidiMap<UUID, Integer> biMap, Map<String, Object> idsMap) {
+        if (idsMap != null) {
+            biMap.put((UUID) idsMap.get("uid"), (Integer) idsMap.get("id"));
+        }
+    }
+
+    @Override
+    public BidiMap<UUID, Integer> findIds(List<UUID> uuids) {
+        final String SELECT = "SELECT uid, id FROM funcionarios WHERE uid IN (%s) LIMIT %d"
+                .formatted("<uuids>", uuids.size());
+
+        BidiMap<UUID, Integer> results = new DualHashBidiMap<>();
+        List<Map<String, Object>> maps = jdbi.withHandle(handle -> handle
+            .createQuery(SELECT)
+            .bindList("uuids", uuids)
+            .mapToMap()
+            .collectIntoList());
+
+        maps.forEach(x -> mapIds(results, x));
+
+        return results;
+    }
+
     // DELETE
     @Override
-    public int delete(UUID uid) {
-        final String DELETE = "DELETE FROM funcionarios WHERE uid = :uid";
+    public int delete(Integer id) {
+        final String DELETE = "DELETE FROM funcionarios WHERE id = :id";
 
         return jdbi.withHandle(handle -> handle
             .createUpdate(DELETE)
-            .bind("uid", uid)
+            .bind("id", id)
             .execute());
     }
 
     @Override
-    public int delete(List<UUID> uids) {
-        final String DELETE = "DELETE FROM funcionarios WHERE uid IN (%s)".formatted("<uids>");
+    public int delete(List<Integer> ids) {
+        final String DELETE = "DELETE FROM funcionarios WHERE id IN (%s)".formatted("<ids>");
 
         return jdbi.withHandle(handle -> handle
             .createUpdate(DELETE)
-            .bindList("uids", uids)
+            .bindList("ids", ids)
             .execute());
     }
 

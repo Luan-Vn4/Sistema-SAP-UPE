@@ -1,7 +1,7 @@
 package br.upe.sap.sistemasapupe.api.controllers;
 
-import br.upe.sap.sistemasapupe.api.dtos.FuncionarioDTO;
-import br.upe.sap.sistemasapupe.api.dtos.UpdateFuncionarioDTO;
+import br.upe.sap.sistemasapupe.api.dtos.funcionarios.FuncionarioDTO;
+import br.upe.sap.sistemasapupe.api.dtos.funcionarios.UpdateFuncionarioDTO;
 import br.upe.sap.sistemasapupe.api.services.FuncionarioService;
 import lombok.AllArgsConstructor;
 import org.apache.coyote.BadRequestException;

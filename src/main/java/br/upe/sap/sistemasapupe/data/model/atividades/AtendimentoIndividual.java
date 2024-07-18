@@ -11,9 +11,12 @@ import java.util.UUID;
 @ToString
 @Getter @Setter
 public class AtendimentoIndividual extends Atividade {
+
     private Ficha ficha;
+
     private Funcionario funcionario;
 
+    @Builder
     public AtendimentoIndividual(int id, UUID uid, Sala sala, LocalDateTime tempoInicio,
                                  LocalDateTime tempoFim, StatusAtividade statusAtividade,
                                  Ficha ficha, Funcionario funcionario) {

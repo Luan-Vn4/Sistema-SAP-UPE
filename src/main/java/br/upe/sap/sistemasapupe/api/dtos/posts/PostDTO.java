@@ -1,4 +1,4 @@
-package br.upe.sap.sistemasapupe.api.dtos;
+package br.upe.sap.sistemasapupe.api.dtos.posts;
 
 import br.upe.sap.sistemasapupe.data.model.posts.Post;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.FuncionarioRepository;
@@ -12,7 +12,7 @@ public record PostDTO(Integer id, UUID idAutor, String titulo, LocalDateTime dat
                       String conteudo, String imagemPost) {
 
     public static PostDTO from(Post post, FuncionarioRepository funcionarioRepository) {
-        UUID idAutor = funcionarioRepository.findByIdInteger(post.getIdAutor()).getUid();
+        UUID idAutor = funcionarioRepository.findById(post.getIdAutor()).getUid();
         return new PostDTO(post.getId(), idAutor, post.getTitulo(), post.getDataPublicacao(),
                 post.getConteudo(), post.getImagemPost());
     }

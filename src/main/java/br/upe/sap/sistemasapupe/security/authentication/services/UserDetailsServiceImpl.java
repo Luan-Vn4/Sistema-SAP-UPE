@@ -26,7 +26,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     }
 
     public UserDetails loadUserByUID(UUID uid) {
-        UserDetails user = funcionarioRepository.findById(uid);
+        Integer id = funcionarioRepository.findIds(uid).get(uid);
+
+        UserDetails user = funcionarioRepository.findById(id);
 
         if (user == null) throw new UsernameNotFoundException("Não foi identificado um usuário " +
                 "com o uid = " + uid);

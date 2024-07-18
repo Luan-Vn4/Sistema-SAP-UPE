@@ -4,7 +4,7 @@ import br.upe.sap.sistemasapupe.data.model.funcionarios.Estagiario;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Tecnico;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.FuncionarioRepository;
 import br.upe.sap.sistemasapupe.security.authentication.dtos.login.AuthenticationDTO;
-import br.upe.sap.sistemasapupe.api.dtos.FuncionarioDTO;
+import br.upe.sap.sistemasapupe.api.dtos.funcionarios.FuncionarioDTO;
 import br.upe.sap.sistemasapupe.security.authentication.dtos.login.LoginResponseDTO;
 import br.upe.sap.sistemasapupe.security.authentication.dtos.login.TokenDTO;
 import br.upe.sap.sistemasapupe.security.authentication.dtos.registration.RegisterEstagiarioDTO;
@@ -62,7 +62,10 @@ public class AuthenticationService {
     }
 
     public void registerEstagiario(RegisterEstagiarioDTO registerDTO) {
-        Tecnico tecnico = (Tecnico) this.funcionarioRepository.findById(registerDTO.uidTecnico());
+        Integer idAutor = funcionarioRepository.findIds(
+                registerDTO.uidTecnico()).get(registerDTO.uidTecnico());
+
+        Tecnico tecnico = (Tecnico) this.funcionarioRepository.findById(idAutor);
         Estagiario estagiario = registerDTO.toEstagiario(tecnico);
         estagiario.setSupervisor(tecnico);
         estagiario.setSenha(encodePassword(estagiario.getPassword()));

@@ -1,4 +1,4 @@
-package br.upe.sap.sistemasapupe.api.dtos;
+package br.upe.sap.sistemasapupe.api.dtos.funcionarios;
 
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Cargo;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Funcionario;

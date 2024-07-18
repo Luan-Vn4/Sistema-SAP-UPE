@@ -4,13 +4,14 @@ import br.upe.sap.sistemasapupe.data.model.grupos.GrupoTerapeutico;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.GrupoTerapeuticoRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.jdbi.v3.core.Jdbi;
+import org.springframework.stereotype.Repository;
 
-import javax.swing.text.html.Option;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Repository
 public class JdbiGrupoTerapeuticoRepository implements GrupoTerapeuticoRepository {
     Jdbi jdbi;
 
@@ -87,15 +88,16 @@ public class JdbiGrupoTerapeuticoRepository implements GrupoTerapeuticoRepositor
 
     @Override
     public List<GrupoTerapeutico> findById(List<UUID> uids) {
-        final String query = """
-                SELECT * FROM grupos_terapeuticos
-                WHERE uid IN <uids>
-                """;
+        final String QUERY = """
+            SELECT * FROM grupos_terapeuticos
+            WHERE uid IN %s
+            """.formatted("<uids>");
+
         return jdbi.withHandle(handle -> handle
-                .createQuery(query)
-                .bind("uids",uids)
-                .mapToBean(GrupoTerapeutico.class)
-                .collectIntoList());
+            .createQuery(QUERY)
+            .bindList("uids",uids)
+            .mapToBean(GrupoTerapeutico.class)
+            .collectIntoList());
     }
 
     @Override
@@ -153,7 +155,7 @@ public class JdbiGrupoTerapeuticoRepository implements GrupoTerapeuticoRepositor
                 id_grupo AS (
                     SELECT id FROM grupos_terapeuticos WHERE uid = CAST(:uid_grupo AS UUID) LIMIT 1)
                 INSERT INTO participacao_grupo_terapeutico(id_funcionario, id_grupo_terapeutico)
-                VALUES ((SELECT id FROM id_func)), (SELECT id FROM id_grupo))
+                VALUES ((SELECT id FROM id_func), (SELECT id FROM id_grupo))
                 """;
 
         return jdbi.withHandle(handle -> handle

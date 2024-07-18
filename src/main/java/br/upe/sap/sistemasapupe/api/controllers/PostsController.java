@@ -1,8 +1,8 @@
 package br.upe.sap.sistemasapupe.api.controllers;
 
-import br.upe.sap.sistemasapupe.api.dtos.ComentarioDTO;
-import br.upe.sap.sistemasapupe.api.dtos.CreatePostDTO;
-import br.upe.sap.sistemasapupe.api.dtos.PostDTO;
+import br.upe.sap.sistemasapupe.api.dtos.posts.comentarios.ComentarioDTO;
+import br.upe.sap.sistemasapupe.api.dtos.posts.CreatePostDTO;
+import br.upe.sap.sistemasapupe.api.dtos.posts.PostDTO;
 import br.upe.sap.sistemasapupe.api.services.PostsService;
 import br.upe.sap.sistemasapupe.data.model.posts.Post;
 import lombok.AllArgsConstructor;
