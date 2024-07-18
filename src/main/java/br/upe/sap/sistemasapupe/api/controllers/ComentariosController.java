@@ -1,7 +1,7 @@
 package br.upe.sap.sistemasapupe.api.controllers;
 
-import br.upe.sap.sistemasapupe.api.dtos.ComentarioDTO;
-import br.upe.sap.sistemasapupe.api.dtos.CreateComentarioDTO;
+import br.upe.sap.sistemasapupe.api.dtos.posts.comentarios.ComentarioDTO;
+import br.upe.sap.sistemasapupe.api.dtos.posts.comentarios.CreateComentarioDTO;
 import br.upe.sap.sistemasapupe.api.services.PostsService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;

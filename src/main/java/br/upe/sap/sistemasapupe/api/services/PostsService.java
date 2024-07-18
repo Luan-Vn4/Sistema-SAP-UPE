@@ -1,9 +1,9 @@
 package br.upe.sap.sistemasapupe.api.services;
 
-import br.upe.sap.sistemasapupe.api.dtos.ComentarioDTO;
-import br.upe.sap.sistemasapupe.api.dtos.CreateComentarioDTO;
-import br.upe.sap.sistemasapupe.api.dtos.CreatePostDTO;
-import br.upe.sap.sistemasapupe.api.dtos.PostDTO;
+import br.upe.sap.sistemasapupe.api.dtos.posts.comentarios.ComentarioDTO;
+import br.upe.sap.sistemasapupe.api.dtos.posts.comentarios.CreateComentarioDTO;
+import br.upe.sap.sistemasapupe.api.dtos.posts.CreatePostDTO;
+import br.upe.sap.sistemasapupe.api.dtos.posts.PostDTO;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Funcionario;
 import br.upe.sap.sistemasapupe.data.model.posts.Comentario;
 import br.upe.sap.sistemasapupe.data.model.posts.Post;
@@ -24,40 +24,61 @@ public class PostsService {
     FuncionarioRepository funcionarioRepository;
 
     public PostDTO convertToPostDTO(Post post) {
-        UUID idAutor = funcionarioRepository.findByIdInteger(post.getIdAutor()).getUid();
-        return new PostDTO(post.getId(), idAutor, post.getTitulo(), post.getDataPublicacao(), post.getConteudo(), post.getImagemPost());
+        UUID uuidAutor = getAutorUUID(post.getIdAutor());
+        return new PostDTO(post.getId(), uuidAutor, post.getTitulo(), post.getDataPublicacao(), post.getConteudo(), post.getImagemPost());
+    }
+
+    private UUID getAutorUUID(Integer id) {
+        Funcionario autor = funcionarioRepository.findById(id);
+
+        if (autor == null) {
+            throw new EntityNotFoundException("Autor não encontrado para o id: " + id);
+        }
+
+        return autor.getUid();
+    }
+
+    private Integer getAutorId(UUID uuid) {
+        Integer id = funcionarioRepository.findIds(uuid).get(uuid);
+
+        if (id == null) {
+            throw new EntityNotFoundException("Autor não encontrado para o UUID: " + uuid);
+        }
+
+        return id;
     }
 
     public Post convertToPost(PostDTO postDTO) {
-        Funcionario autor = funcionarioRepository.findById(postDTO.idAutor());
-        if (autor == null) {
-            throw new EntityNotFoundException("Autor não encontrado para o UUID: " + postDTO.idAutor());
-        }
-        Post post = new Post(autor.getId(), postDTO.titulo(), postDTO.dataPublicacao(), postDTO.conteudo(), postDTO.imagemPost());
+        Integer idAutor = getAutorId(postDTO.idAutor());
+
+        Post post = new Post(idAutor, postDTO.titulo(), postDTO.dataPublicacao(), postDTO.conteudo(), postDTO.imagemPost());
         post.setId(postDTO.id());
         return post;
     }
 
     public Post convertToPost(CreatePostDTO postDTO) {
-        Funcionario autor = funcionarioRepository.findById(postDTO.idAutor());
-        return new Post(autor.getId(), postDTO.titulo(), postDTO.dataPublicacao(), postDTO.conteudo(), postDTO.imagemPost());
+        Integer idAutor = getAutorId(postDTO.idAutor());
+
+        return new Post(idAutor, postDTO.titulo(), postDTO.dataPublicacao(), postDTO.conteudo(), postDTO.imagemPost());
     }
 
     public ComentarioDTO convertToComentarioDTO(Comentario comentario) {
-        UUID idAutor = funcionarioRepository.findByIdInteger(comentario.getIdAutor()).getUid();
-        return new ComentarioDTO(comentario.getId(), comentario.getIdPost() , idAutor, comentario.getConteudo());
+        UUID uuidAutor = getAutorUUID(comentario.getIdAutor());
+        return new ComentarioDTO(comentario.getId(), comentario.getIdPost() , uuidAutor, comentario.getConteudo());
     }
 
     public Comentario convertToComentario(ComentarioDTO comentarioDTO) {
-        Funcionario autor = funcionarioRepository.findById(comentarioDTO.idAutor());
-        Comentario comentario = new Comentario(autor.getId(), comentarioDTO.idPost(), comentarioDTO.conteudo());
+        Integer idAutor  = getAutorId(comentarioDTO.idAutor());
+        Comentario comentario = new Comentario(idAutor, comentarioDTO.idPost(), comentarioDTO.conteudo());
         comentario.setId(comentarioDTO.id());
         return comentario;
     }
+
     public Comentario convertToComentario(CreateComentarioDTO comentarioDTO) {
-        Funcionario autor = funcionarioRepository.findById(comentarioDTO.idAutor());
-        return new Comentario(autor.getId(), comentarioDTO.idPost(), comentarioDTO.conteudo());
+        Integer idAutor = getAutorId(comentarioDTO.idAutor());
+        return new Comentario(idAutor, comentarioDTO.idPost(), comentarioDTO.conteudo());
     }
+
     public PostDTO createPost(Post post) {
         post = postsRepository.create(post);
         return convertToPostDTO(post);
@@ -73,7 +94,7 @@ public class PostsService {
         Post post = convertToPost(postAtualizado);
         Post postExistente = postsRepository.findById(post.getId());
         if (postExistente == null) {
-            throw new EntityNotFoundException("Post não encontrado para o ID: " + postExistente.getId());
+            throw new EntityNotFoundException("Post não encontrado para o ID: " + postAtualizado.id());
         }
 
         postExistente.setIdAutor(post.getIdAutor());

@@ -10,26 +10,16 @@ import java.util.List;
 @Repository
 public interface PostsRepository extends BasicRepository<Post, Integer> {
 
-    Post create(Post novoPosto);
-
     Comentario createComentario(Comentario novoComentario);
-
-    List<Post> findAll();
-
-    Post findById(Integer idPost);
 
     Post findByTempo(LocalDateTime data_publicacao);
 
-    List<Comentario> findComentariosByPost(Integer idPost);
+    List<Comentario> findComentariosByPost(int idPost);
 
-    Comentario findComentarioById(Integer id);
+    Comentario findComentarioById(int id);
 
-    Post update(Post postAtualizado);
+    void deleteComentariosByPostId(int postId);
 
-    int delete(Integer idPost);
-
-    void deleteComentariosByPostId(Integer postId);
-
-    int deleteComentario(Integer idComentario);
+    int deleteComentario(int idComentario);
 
 }

@@ -15,8 +15,10 @@ import java.util.UUID;
 public class Encontro extends Atividade {
 
     private GrupoEstudo grupoEstudo;
+
     private List<Funcionario> presentes;
 
+    @Builder
     public Encontro(int id, UUID uid, Sala sala, LocalDateTime tempoInicio, LocalDateTime tempoFim,
                     StatusAtividade statusAtividade, GrupoEstudo grupoEstudo, List<Funcionario> presentes) {
         super(id, uid, sala, tempoInicio, tempoFim, statusAtividade);

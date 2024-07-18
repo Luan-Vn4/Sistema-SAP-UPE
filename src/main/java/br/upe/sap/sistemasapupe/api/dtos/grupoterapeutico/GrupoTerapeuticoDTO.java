@@ -1,4 +1,4 @@
-package br.upe.sap.sistemasapupe.api.dtos;
+package br.upe.sap.sistemasapupe.api.dtos.grupoterapeutico;
 
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Funcionario;
 import br.upe.sap.sistemasapupe.data.model.grupos.GrupoTerapeutico;

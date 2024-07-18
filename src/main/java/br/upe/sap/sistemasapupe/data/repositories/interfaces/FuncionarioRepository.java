@@ -3,12 +3,12 @@ import br.upe.sap.sistemasapupe.data.model.funcionarios.Estagiario;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Funcionario;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Tecnico;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Cargo;
-import jakarta.annotation.Nullable;
+import org.apache.commons.collections4.BidiMap;
 
 import java.util.List;
 import java.util.UUID;
 
-public interface FuncionarioRepository extends BasicRepository<Funcionario, UUID> {
+public interface FuncionarioRepository extends BasicRepository<Funcionario, Integer> {
 
     /**
      * Cria um {@link Estagiario} e estabelece uma relação de supervisão com um {@link Tecnico}
@@ -45,10 +45,7 @@ public interface FuncionarioRepository extends BasicRepository<Funcionario, UUID
     @Override
     Funcionario create(Funcionario funcionario);
 
-    @Nullable
-    Funcionario findByIdInteger(Integer id);
-
-    List<Estagiario> findSupervisionados(UUID uidTecnico);
+    List<Estagiario> findSupervisionados(Integer uidTecnico);
 
     List<Funcionario> findByAtivo(boolean ativo);
 
@@ -56,8 +53,14 @@ public interface FuncionarioRepository extends BasicRepository<Funcionario, UUID
 
     Funcionario findByEmail(String email);
 
-    Estagiario updateSupervisao(UUID uidEstagiario, UUID uidSupervisor);
+    BidiMap<UUID, Integer> findIds(UUID uuid);
 
-    boolean updateAtivo(UUID uidFuncionario, boolean isAtivo);
+    BidiMap<UUID, Integer> findIds(List<UUID> uuids);
+
+    boolean exists(Integer id);
+
+    Estagiario updateSupervisao(Integer uidEstagiario, Integer uidSupervisor);
+
+    boolean updateAtivo(Integer uidFuncionario, boolean isAtivo);
 
 }

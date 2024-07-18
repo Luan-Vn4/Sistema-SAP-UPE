@@ -1,4 +1,4 @@
-package br.upe.sap.sistemasapupe.api.dtos;
+package br.upe.sap.sistemasapupe.api.dtos.funcionarios;
 
 import java.util.UUID;
 

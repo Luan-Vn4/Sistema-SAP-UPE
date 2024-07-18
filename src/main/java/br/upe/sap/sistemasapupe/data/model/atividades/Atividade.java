@@ -10,24 +10,26 @@ import java.util.UUID;
 @Getter @Setter
 @ToString
 @NoArgsConstructor
-public class Atividade {
+public abstract class Atividade {
 
     private int id;
+
     private UUID uid;
+
     private Sala sala;
-    @Setter(AccessLevel.NONE)
-    private LocalDateTime tempo_inicio;
-    @Setter(AccessLevel.NONE)
-    private LocalDateTime tempo_fim;
+
+    private LocalDateTime tempoInicio;
+
+    private LocalDateTime tempoFim;
+
     private StatusAtividade status;
 
-
-    public Atividade( int id, UUID uid, Sala sala, LocalDateTime tempo_inicio,
-                     LocalDateTime tempo_fim, StatusAtividade status) {
+    public Atividade(int id, UUID uid, Sala sala, LocalDateTime tempoInicio, LocalDateTime tempoFim,
+                     StatusAtividade status) {
         this.setId(id);
         this.setUid(uid);
         this.setSala(sala);
-        this.setTempo(tempo_inicio, tempo_fim);
+        this.setTempo(tempoInicio, tempoFim);
         this.setStatus(status);
     }
 
@@ -35,8 +37,8 @@ public class Atividade {
         if (tempo_inicio.isAfter(tempo_fim) || tempo_inicio.equals(tempo_fim)) {
             throw new ScheduleException(tempo_inicio, tempo_fim);
         }
-        this.tempo_inicio = tempo_inicio;
-        this.tempo_fim = tempo_fim;
+        this.tempoInicio = tempo_inicio;
+        this.tempoFim = tempo_fim;
     }
 
 }
