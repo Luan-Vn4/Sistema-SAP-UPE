@@ -36,4 +36,6 @@ public interface AtividadesRepository extends BasicRepository<Atividade, Integer
 
     Atividade updateStatusAtividade(Integer idAtividade, StatusAtividade statusAtividade);
 
+    AtendimentoGrupo findAtendimentoGrupo(Integer id);
+    AtendimentoIndividual findAtendimentoIndividual(Integer id);
 }

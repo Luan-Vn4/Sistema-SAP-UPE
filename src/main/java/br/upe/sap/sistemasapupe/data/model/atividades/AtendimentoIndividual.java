@@ -14,15 +14,15 @@ public class AtendimentoIndividual extends Atividade {
 
     private Ficha ficha;
 
-    private Funcionario funcionario;
+    private Funcionario terapeuta;
 
     @Builder
     public AtendimentoIndividual(int id, UUID uid, Sala sala, LocalDateTime tempoInicio,
                                  LocalDateTime tempoFim, StatusAtividade statusAtividade,
-                                 Ficha ficha, Funcionario funcionario) {
-        super(id, uid, sala, tempoInicio, tempoFim, statusAtividade);
+                                 Ficha ficha, Funcionario terapeuta) {
+        super(id, uid, sala, tempoInicio, tempoFim, statusAtividade, terapeuta);
         this.ficha = ficha;
-        this.funcionario = funcionario;
+        this.terapeuta = terapeuta;
     }
 
 }

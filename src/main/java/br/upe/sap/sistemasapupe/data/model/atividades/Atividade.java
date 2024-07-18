@@ -1,6 +1,7 @@
 package br.upe.sap.sistemasapupe.data.model.atividades;
 
 import br.upe.sap.sistemasapupe.data.model.enums.StatusAtividade;
+import br.upe.sap.sistemasapupe.data.model.funcionarios.Funcionario;
 import br.upe.sap.sistemasapupe.exceptions.ScheduleException;
 import lombok.*;
 
@@ -18,6 +19,8 @@ public abstract class Atividade {
 
     private Sala sala;
 
+    private Funcionario funcionario;
+
     private LocalDateTime tempoInicio;
 
     private LocalDateTime tempoFim;
@@ -25,12 +28,13 @@ public abstract class Atividade {
     private StatusAtividade status;
 
     public Atividade(int id, UUID uid, Sala sala, LocalDateTime tempoInicio, LocalDateTime tempoFim,
-                     StatusAtividade status) {
+                     StatusAtividade status, Funcionario funcionario) {
         this.setId(id);
         this.setUid(uid);
         this.setSala(sala);
         this.setTempo(tempoInicio, tempoFim);
         this.setStatus(status);
+        this.setFuncionario(funcionario);
     }
 
     private void setTempo(LocalDateTime tempo_inicio, LocalDateTime tempo_fim) {

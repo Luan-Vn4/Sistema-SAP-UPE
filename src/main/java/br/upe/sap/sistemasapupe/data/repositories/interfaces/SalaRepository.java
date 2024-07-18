@@ -8,12 +8,30 @@ import java.util.UUID;
 
 public interface SalaRepository extends BasicRepository<Sala, Integer> {
 
-    Sala findByUUID(UUID uuid);
+    Sala create(Sala sala);
 
-    List<Sala> findByTipo(TipoSala tipoSala);
+    public List<Sala> create(List<Sala> salas);
 
-    Sala findByNome(String nome);
+    public Sala update(Sala sala);
 
-    boolean exists(Integer id);
+    public List<Sala> update(List<Sala> sala);
+
+    public Sala findByUUID(UUID uuid);
+
+    public List<Sala> findByTipo(TipoSala tipoSala);
+
+    public Sala findByNome(String nome);
+
+    public Sala findById(Integer id);
+
+    public List<Sala> findAll();
+
+    public List<Sala> findById(List<Integer> ids);
+
+    public boolean exists(Integer id);
+
+    public int delete(Integer id);
+
+    public int delete(List<Integer> ids);
 
 }

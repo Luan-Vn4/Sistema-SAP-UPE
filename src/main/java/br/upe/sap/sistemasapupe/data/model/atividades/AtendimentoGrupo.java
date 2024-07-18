@@ -22,10 +22,10 @@ public class AtendimentoGrupo extends Atividade {
 
     @Builder
     public AtendimentoGrupo(int id, UUID uid, Sala sala, LocalDateTime tempoInicio,
-                             LocalDateTime tempoFim, StatusAtividade statusAtividade,
-                             GrupoTerapeutico grupoTerapeutico, List<Ficha> participantes,
-                             List<Funcionario> ministrantes) {
-        super(id, uid, sala, tempoInicio, tempoFim, statusAtividade);
+                            LocalDateTime tempoFim, StatusAtividade statusAtividade,
+                            Funcionario funcionario, GrupoTerapeutico grupoTerapeutico,
+                            List<Ficha> participantes, List<Funcionario> ministrantes) {
+        super(id, uid, sala, tempoInicio, tempoFim, statusAtividade, funcionario);
         this.participantes = participantes;
         this.grupoTerapeutico = grupoTerapeutico;
         this.ministrantes = ministrantes;
