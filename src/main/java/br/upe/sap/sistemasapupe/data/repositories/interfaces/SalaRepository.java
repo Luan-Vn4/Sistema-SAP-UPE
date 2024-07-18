@@ -16,8 +16,6 @@ public interface SalaRepository extends BasicRepository<Sala, Integer> {
 
     public List<Sala> update(List<Sala> sala);
 
-    public Sala findByUUID(UUID uuid);
-
     public List<Sala> findByTipo(TipoSala tipoSala);
 
     public Sala findByNome(String nome);

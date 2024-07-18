@@ -4,6 +4,8 @@ import br.upe.sap.sistemasapupe.data.model.atividades.Sala;
 import br.upe.sap.sistemasapupe.data.model.enums.TipoSala;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.SalaRepository;
 import lombok.AllArgsConstructor;
+import org.apache.commons.collections4.BidiMap;
+import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.reflect.BeanMapper;
 import org.jdbi.v3.core.statement.StatementContext;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -40,7 +43,7 @@ public class JdbiSalaRepository implements SalaRepository {
     private Sala mapSala(ResultSet rs, StatementContext ctx) throws SQLException {
         Sala sala = BeanMapper.of(Sala.class).map(rs, ctx);
 
-        sala.setTipoSala(TipoSala.valueOf(rs.getString("tipo_sala")));
+        sala.setTipoSala(TipoSala.valueOf(rs.getString("tipo")));
 
         return sala;
     }
@@ -70,14 +73,41 @@ public class JdbiSalaRepository implements SalaRepository {
     }
 
     // READ
-    @Override
-    public Sala findByUUID(UUID uuid) {
-        final String SELECT = "SELECT %s FROM salas WHERE uid = :uuid".formatted(returningColumns);
+    public BidiMap<UUID, Integer> findId(UUID uid) {
+        final String SELECT = "SELECT uid, id FROM SALAS WHERE uid = :uid LIMIT 1";
 
-        return jdbi.withHandle(handle -> handle
-            .createQuery(SELECT)
-            .mapToBean(Sala.class)
-            .findFirst().orElse(null));
+        BidiMap<UUID, Integer> results = new DualHashBidiMap<>();
+        Map<String, Object> mapping = jdbi.withHandle(handle -> handle
+                .createQuery(SELECT)
+                .bind("uid", uid)
+                .mapToMap()
+                .findFirst().orElse(null));
+
+        mapIds(results, mapping);
+
+        return results;
+    }
+
+    private void mapIds(BidiMap<UUID, Integer> biMap, Map<String, Object> idsMap) {
+        if (idsMap != null) {
+            biMap.put((UUID) idsMap.get("uid"), (Integer) idsMap.get("id"));
+        }
+    }
+
+    public BidiMap<UUID, Integer> findIds(List<UUID> uids) {
+        final String SELECT = "SELECT uid, id FROM salas WHERE uid IN (%s) LIMIT %d"
+                .formatted("<uids>", uids.size());
+
+        BidiMap<UUID, Integer> results = new DualHashBidiMap<>();
+        List<Map<String, Object>> maps = jdbi.withHandle(handle -> handle
+                .createQuery(SELECT)
+                .bindList("uids", uids)
+                .mapToMap()
+                .collectIntoList());
+
+        maps.forEach(x -> mapIds(results, x));
+
+        return results;
     }
 
     @Override
@@ -119,7 +149,7 @@ public class JdbiSalaRepository implements SalaRepository {
             .mapToBean(Sala.class)
             .collectIntoList());
     }
-
+//UID
     @Override
     public List<Sala> findById(List<Integer> ids) {
         final String SELECT = "SELECT %s FROM salas WHERE id IN (%s)"
