@@ -37,7 +37,7 @@ public class PostsService {
             throw new EntityNotFoundException("Autor não encontrado para o UUID: " + postDTO.idAutor());
         }
         Post post = new Post(autor.getId(), postDTO.titulo(), postDTO.dataPublicacao(), postDTO.conteudo(), postDTO.imagemPost());
-        post.setId(postDTO.idPost());
+        post.setId(postDTO.id());
         return post;
     }
 
@@ -54,7 +54,7 @@ public class PostsService {
     public Comentario convertToComentario(ComentarioDTO comentarioDTO) {
         Funcionario autor = funcionarioRepository.findById(comentarioDTO.idAutor());
         Comentario comentario = new Comentario(autor.getId(), comentarioDTO.idPost(), comentarioDTO.conteudo());
-        comentario.setId(comentarioDTO.idComentario());
+        comentario.setId(comentarioDTO.id());
         return comentario;
     }
     public Comentario convertToComentario(CreateComentarioDTO comentarioDTO) {

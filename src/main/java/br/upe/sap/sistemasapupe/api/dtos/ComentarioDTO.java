@@ -8,7 +8,7 @@ import lombok.Builder;
 import java.util.UUID;
 
 @Builder
-public record ComentarioDTO(Integer idComentario, Integer idPost, UUID idAutor, String conteudo) {
+public record ComentarioDTO(Integer id, Integer idPost, UUID idAutor, String conteudo) {
     public static ComentarioDTO from(Comentario comentario, FuncionarioRepository funcionarioRepository){
         UUID idAutor = funcionarioRepository.findByIdInteger(comentario.getIdAutor()).getUid();
         return new ComentarioDTO(comentario.getId(), comentario.getIdPost(), idAutor, comentario.getConteudo());
