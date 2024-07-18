@@ -17,7 +17,6 @@ import org.springframework.stereotype.Repository;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -228,7 +227,7 @@ public class JdbiAtividadesRepository implements AtividadesRepository {
         return findById(ids);
     }
 
-    private Atividade createAtividade (Atividade atividade) {
+    private Atividade createAtividade (Atividade atividade){
         final String CREATE = """
             INSERT INTO atividades (id_funcionario, id_sala, tempo_inicio, tempo_fim, status)
                 VALUES (:idAutor, :idSala, :tempoInicio, :tempoFim, :status)
@@ -248,7 +247,6 @@ public class JdbiAtividadesRepository implements AtividadesRepository {
             })
             .findFirst().orElse(null));
     }
-
     @Override
     public AtendimentoIndividual createAtendimentoIndividual(AtendimentoIndividual atendimentoIndividual) {
         final String CREATE = """
@@ -298,7 +296,7 @@ public class JdbiAtividadesRepository implements AtividadesRepository {
     }
 
     private AtendimentoGrupo mapAtendimentoGrupo(ResultSet rs, StatementContext ctx,
-                                                 Atividade atv) throws SQLException{
+                                                 Atividade atv) {
         return AtendimentoGrupo.builder()
                 .id(atv.getId()).uid(atv.getUid())
                 .sala(atv.getSala())
@@ -321,8 +319,8 @@ public class JdbiAtividadesRepository implements AtividadesRepository {
         Atividade atividade = createAtividade(encontroEstudo);
         return jdbi.withHandle(handle -> handle
                 .createUpdate(CREATE)
-                .bind("id", encontroEstudo.getGrupoEstudo().getId())
-                .bind("tema", encontroEstudo.getGrupoEstudo().getParticipantes())
+                .bind("id_grupo_estudo", encontroEstudo.getGrupoEstudo().getId())
+                .bind("id_participante", encontroEstudo.getGrupoEstudo().getParticipantes())
                 .executeAndReturnGeneratedKeys()
                 .mapToBean(Encontro.class)
                 .first());
@@ -403,7 +401,7 @@ public class JdbiAtividadesRepository implements AtividadesRepository {
 
             // Reinsere os ministrantes
             final String INSERT_MINISTRANTES = """
-                INSERT INTO coordenacao_atendimento_grupo (id_funcionario, id_atendimento_grupo) 
+                INSERT INTO coordenacao_atendimento_grupo (id_funcionario, id_atendimento_grupo)
                 VALUES (:id_funcionario, :id_atendimento_grupo)
                 """;
 
