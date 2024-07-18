@@ -25,7 +25,7 @@ public class JdbiFichaRepositoryTest {
 
     @AfterEach
     public void truncateTables() {
-        jdbi.withHandle(handle -> handle.execute("TRUNCATE TABLE ficha, funcionarios, grupos_terapeuticos CASCADE"));
+        jdbi.withHandle(handle -> handle.execute("TRUNCATE TABLE fichas, funcionarios, grupos_terapeuticos CASCADE"));
     }
 
    /* @Test
