@@ -11,5 +11,6 @@ import java.util.UUID;
 public class Sala {
     private int id;
     private UUID uid;
+    private String nome;
     private TipoSala tipoSala;
 }

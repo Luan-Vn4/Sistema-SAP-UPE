@@ -3,6 +3,7 @@ package br.upe.sap.sistemasapupe.data.repositories.jdbi;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Estagiario;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Funcionario;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Tecnico;
+import br.upe.sap.sistemasapupe.data.model.pacientes.Ficha;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.FuncionarioRepository;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.EntityNotFoundException;

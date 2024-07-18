@@ -5,7 +5,8 @@ CREATE TABLE IF NOT EXISTS grupos_terapeuticos(
 );
 
 CREATE TABLE IF NOT EXISTS fichas(
-    id VARCHAR(10) PRIMARY KEY,
+    id INT PRIMARY KEY,
+    uid UUID DEFAULT uuid_generate_v4(),
     id_responsavel BIGINT REFERENCES funcionarios(id),
     id_grupo_terapeutico BIGINT REFERENCES grupos_terapeuticos(id)
 );
@@ -30,7 +31,7 @@ CREATE TABLE IF NOT EXISTS atendimentos_grupo(
     id_grupo_terapeutico BIGINT REFERENCES grupos_terapeuticos(id)
 );
 
-CREATE OR REPLACE function ficha_pode_participar_atendimento_grupo(id_ficha VARCHAR(10),
+CREATE OR REPLACE function ficha_pode_participar_atendimento_grupo(id_ficha INT,
     id_atendimento_grupo INT) RETURNS boolean AS $$
         declare is_participante boolean;
         declare id_grupo_terapeutico INT;
@@ -45,7 +46,7 @@ CREATE OR REPLACE function ficha_pode_participar_atendimento_grupo(id_ficha VARC
     $$ LANGUAGE plpgsql;
 
 CREATE TABLE IF NOT EXISTS ficha_atendimento_grupo(
-    id_ficha VARCHAR(10) REFERENCES fichas(id),
+    id_ficha INT REFERENCES fichas(id),
     id_atendimento_grupo INT REFERENCES atendimentos_grupo(id),
     CONSTRAINT pk_ficha_atendimento_grupo PRIMARY KEY (id_ficha, id_atendimento_grupo),
     CONSTRAINT pode_participar CHECK
