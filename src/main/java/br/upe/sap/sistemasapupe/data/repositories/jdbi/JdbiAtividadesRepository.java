@@ -11,12 +11,12 @@ import br.upe.sap.sistemasapupe.data.repositories.interfaces.SalaRepository;
 import lombok.AllArgsConstructor;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.reflect.BeanMapper;
+import org.jdbi.v3.core.statement.StatementContext;
 import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -227,12 +227,12 @@ public class JdbiAtividadesRepository implements AtividadesRepository {
         return findById(ids);
     }
 
-    private Atividade createAtividade (Atividade atividade) {
+    private Atividade createAtividade (Atividade atividade){
         final String CREATE = """
             INSERT INTO atividades (id_funcionario, id_sala, tempo_inicio, tempo_fim, status)
                 VALUES (:idAutor, :idSala, :tempoInicio, :tempoFim, :status)
-                    RETURNING *
-            """;
+                    RETURNING %s
+            """.formatted(returningAtividadeColumns);
 
         return jdbi.withHandle(handle -> handle
             .createUpdate(CREATE)
@@ -240,53 +240,83 @@ public class JdbiAtividadesRepository implements AtividadesRepository {
             .bind("idSala", atividade.getSala().getId())
             .bind("idAutor", atividade.getFuncionario().getId())
             .executeAndReturnGeneratedKeys()
-            .mapToBean(Atividade.class)
-            .first());
+            .map((rs, ctx) -> {
+                var result = BeanMapper.of(Atividade.class).map(rs, ctx);
+                fillAtividadeFields(result, rs);
+                return result;
+            })
+            .findFirst().orElse(null));
     }
-
     @Override
     public AtendimentoIndividual createAtendimentoIndividual(AtendimentoIndividual atendimentoIndividual) {
         final String CREATE = """
             INSERT INTO atendimentos_individuais (id, id_ficha, id_terapeuta)
-            VALUES (:id_ficha, :id_terapeuta)
-            RETURNING *
+            VALUES (:id, :idFicha, :idTerapeuta)
+            RETURNING id, id_ficha, id_terapeuta
             """;
-        atendimentoIndividual.setId(createAtividade(atendimentoIndividual).getId());
+
+        Atividade atividade = createAtividade(atendimentoIndividual);
         return jdbi.withHandle(handle -> handle
                 .createUpdate(CREATE)
-                .bind("id_ficha", atendimentoIndividual.getFicha())
-                .bind("id_terapeuta", atendimentoIndividual.getFuncionario().getId())
+                .bind("idFicha", atendimentoIndividual.getFicha())
+                .bind("idTerapeuta", atendimentoIndividual.getFuncionario().getId())
                 .executeAndReturnGeneratedKeys()
-                .mapToBean(AtendimentoIndividual.class)
-                .first());
+                .map((rs, ctx) -> mapAtendimentoIndividual(rs, ctx, atividade))
+                .findFirst().orElse(null));
+    }
+
+    private AtendimentoIndividual mapAtendimentoIndividual(ResultSet rs, StatementContext ctx,
+                                                           Atividade atv) throws SQLException{
+        return AtendimentoIndividual.builder()
+                .id(atv.getId()).uid(atv.getUid())
+                .sala(atv.getSala())
+                .tempoFim(atv.getTempoFim())
+                .tempoInicio(atv.getTempoInicio())
+                .statusAtividade(atv.getStatus())
+                .ficha(fichaRepository.findById(rs.getInt("id_ficha")))
+                .terapeuta(atv.getFuncionario())
+                .build();
     }
 
     @Override
     public AtendimentoGrupo createAtendimentoGrupo(AtendimentoGrupo atendimentoGrupo) {
         final String CREATE = """
-                INSERT INTO coordenacao_atendimento_grupo (id_funcionario, id_atendimento_grupo)
-                VALUES (:id_funcionario, :id_atendimento_grupo)
-                RETURNING *
-                """;
-        atendimentoGrupo.setId(createAtividade(atendimentoGrupo).getId());
+            INSERT INTO atendimentos_grupo (id, id_grupo_terapeutico)
+                VALUES (:id, :idGrupoTerapeutico)
+            """;
+
+        Atividade atividade = createAtividade(atendimentoGrupo);
         return jdbi.withHandle(handle -> handle
-                .createUpdate(CREATE)
-                .bind("id_funcionario", atendimentoGrupo.getGrupoTerapeutico().getCoordenadores())
-                .bind("id_atendimento_grupo", atendimentoGrupo.getGrupoTerapeutico().getId())
-                .executeAndReturnGeneratedKeys()
-                .mapToBean(AtendimentoGrupo.class)
-                .first());
+            .createUpdate(CREATE)
+            .bind("id_funcionario", atendimentoGrupo.getGrupoTerapeutico().getCoordenadores())
+            .bind("id_atendimento_grupo", atendimentoGrupo.getGrupoTerapeutico().getId())
+            .executeAndReturnGeneratedKeys()
+            .map((rs, ctx) -> mapAtendimentoGrupo(rs, ctx, atividade))
+            .findFirst().orElse(null));
+    }
+
+    private AtendimentoGrupo mapAtendimentoGrupo(ResultSet rs, StatementContext ctx,
+                                                 Atividade atv) {
+        return AtendimentoGrupo.builder()
+                .id(atv.getId()).uid(atv.getUid())
+                .sala(atv.getSala())
+                .tempoFim(atv.getTempoFim())
+                .tempoInicio(atv.getTempoInicio())
+                .statusAtividade(atv.getStatus())
+                .ministrantes(findMinistrantes(atv.getId()))
+                .participantes(findParticipantes(atv.getId()))
+                .build();
     }
 
     @Override
     public Encontro createEncontroEstudo(Encontro encontroEstudo) {
-
         final String CREATE = """
-                INSERT INTO participacao_grupos_estudo (id_grupo_estudo, id_participante)
-                VALUES (:id_grupo_estudo, :id_participante)
-                RETURNING *
-                """;
-        encontroEstudo.setId(createAtividade(encontroEstudo).getId());
+            INSERT INTO grupos_estudo (id_dono, tema)
+                VALUES (:idGrupoEstudo, :idParticipante)
+            """;
+
+        // NÃO PRONTO
+        Atividade atividade = createAtividade(encontroEstudo);
         return jdbi.withHandle(handle -> handle
                 .createUpdate(CREATE)
                 .bind("id_grupo_estudo", encontroEstudo.getGrupoEstudo().getId())
@@ -371,7 +401,7 @@ public class JdbiAtividadesRepository implements AtividadesRepository {
 
             // Reinsere os ministrantes
             final String INSERT_MINISTRANTES = """
-                INSERT INTO coordenacao_atendimento_grupo (id_funcionario, id_atendimento_grupo) 
+                INSERT INTO coordenacao_atendimento_grupo (id_funcionario, id_atendimento_grupo)
                 VALUES (:id_funcionario, :id_atendimento_grupo)
                 """;
 
