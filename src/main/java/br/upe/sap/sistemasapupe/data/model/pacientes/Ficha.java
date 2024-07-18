@@ -14,11 +14,13 @@ public class Ficha {
     private int id;
     private UUID uid;
     private Funcionario responsavel;
+    private String nome;
     private GrupoTerapeutico grupoTerapeutico;
 
-    public Ficha(Funcionario funcionario, GrupoTerapeutico grupoTerapeutico){
+    public Ficha(Funcionario funcionario, GrupoTerapeutico grupoTerapeutico, String nome){
         this.responsavel = funcionario;
         this.grupoTerapeutico = grupoTerapeutico;
+        this.nome = nome;
     }
 
 }
