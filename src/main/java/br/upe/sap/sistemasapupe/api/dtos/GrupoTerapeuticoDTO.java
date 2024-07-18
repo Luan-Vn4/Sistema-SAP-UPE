@@ -9,10 +9,10 @@ import java.util.List;
 import java.util.UUID;
 
 @Builder
-public record GrupoTerapeuticoDTO(UUID uid, String temaTerapia,
+public record GrupoTerapeuticoDTO(Integer id, UUID uid, String temaTerapia,
                                   List<Funcionario> coordenadores, List<Ficha> participantes) {
     public static GrupoTerapeuticoDTO from(GrupoTerapeutico grupoTerapeutico){
-        return new GrupoTerapeuticoDTO(grupoTerapeutico.getUid(), grupoTerapeutico.getTemaTerapia(),
-                grupoTerapeutico.getCoordenadores(), grupoTerapeutico.getFichas());
+        return new GrupoTerapeuticoDTO(grupoTerapeutico.getId(), grupoTerapeutico.getUid(),
+                grupoTerapeutico.getTemaTerapia(), grupoTerapeutico.getCoordenadores(), grupoTerapeutico.getFichas());
     }
 }

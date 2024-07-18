@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.UUID;
 
 @Getter @Setter
-@AllArgsConstructor
 @ToString
 @NoArgsConstructor
 public class GrupoTerapeutico {
@@ -19,4 +18,12 @@ public class GrupoTerapeutico {
     private String temaTerapia;
     private List<Funcionario> coordenadores;
     private List<Ficha> fichas;
+
+    @Builder(builderMethodName = "grupoTerapeuticoBuilder")
+    public GrupoTerapeutico(String temaTerapia, List<Funcionario> coordenadores,
+                            List<Ficha> fichas){
+        this.temaTerapia = temaTerapia;
+        this.coordenadores = coordenadores;
+        this.fichas = fichas;
+    }
 }
