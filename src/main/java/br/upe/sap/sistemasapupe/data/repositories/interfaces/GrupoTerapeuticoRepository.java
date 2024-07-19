@@ -7,26 +7,26 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface GrupoTerapeuticoRepository extends BasicRepository<GrupoTerapeutico, UUID> {
+public interface GrupoTerapeuticoRepository extends BasicRepository<GrupoTerapeutico, Integer> {
 
     GrupoTerapeutico create(GrupoTerapeutico grupoTerapeutico);
 
-    GrupoTerapeutico addFuncionario(UUID uidFuncionario, UUID uidGrupoTerapeutico);
+    GrupoTerapeutico addFuncionario(Integer uidFuncionario, Integer uidGrupoTerapeutico);
 
-    GrupoTerapeutico addFicha(UUID uidFicha, UUID uidGrupoTerapeutico);
+    GrupoTerapeutico addFicha(Integer uidFicha, Integer uidGrupoTerapeutico);
 
-    GrupoTerapeutico findById(UUID uidGrupoTerapeutico);
+    GrupoTerapeutico findById(Integer uidGrupoTerapeutico);
 
-    List<GrupoTerapeutico> findByFuncionario(UUID uidFuncionario);
+    List<GrupoTerapeutico> findByFuncionario(Integer uidFuncionario);
     
-    List<GrupoTerapeutico> findByFicha(UUID idFicha);
+    List<GrupoTerapeutico> findByFicha(Integer idFicha);
 
     GrupoTerapeutico update(GrupoTerapeutico grupoTerapeutico);
 
-    int removerFuncionario(UUID uidFUncionario, UUID uidGrupo);
+    int removerFuncionario(Integer uidFUncionario, Integer uidGrupo);
 
-    int removerFicha(UUID uidFicha, UUID uidGrupo);
+    int removerFicha(Integer uidFicha, Integer uidGrupo);
 
-    int delete(UUID uidGrupoTerapeutico);
+    int delete(Integer uidGrupoTerapeutico);
 
 }
