@@ -1,4 +1,4 @@
-package br.upe.sap.sistemasapupe.api.dtos.atividades;
+package br.upe.sap.sistemasapupe.api.dtos.atividades.sala;
 
 
 import br.upe.sap.sistemasapupe.data.model.atividades.Sala;
@@ -13,6 +13,9 @@ public record SalaDTO (UUID uid, String nome, TipoSala tipoSala){
     public static SalaDTO from(Sala sala) {
         return new SalaDTO(sala.getUid(), sala.getNome(),
                 sala.getTipoSala());
+    }
+    public static Sala from(SalaDTO dto) {
+        return Sala.salaBuilder().tipoSala(dto.tipoSala).uid(dto.uid).nome(dto.nome).build();
     }
 
 }

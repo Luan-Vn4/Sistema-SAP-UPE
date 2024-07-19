@@ -56,7 +56,7 @@ public class JdbiSalaRepository implements SalaRepository {
     // UPDATE
     @Override
     public Sala update(Sala sala) {
-        final String UPDATE = "UPDATE salas SET nome = :nome, tipo = :tipo WHERE id = :id RETURNING %s"
+        final String UPDATE = "UPDATE salas SET nome = :nome, tipo = CAST(:tipoSala AS tipo_sala) WHERE id = :id RETURNING %s"
             .formatted(returningColumns);
 
         return jdbi.withHandle(handle -> handle
@@ -72,8 +72,8 @@ public class JdbiSalaRepository implements SalaRepository {
         return salas.stream().map(this::update).toList();
     }
 
-    // READ
-    public BidiMap<UUID, Integer> findId(UUID uid) {
+    @Override
+    public BidiMap<UUID, Integer> findIds(UUID uid) {
         final String SELECT = "SELECT uid, id FROM SALAS WHERE uid = :uid LIMIT 1";
 
         BidiMap<UUID, Integer> results = new DualHashBidiMap<>();
@@ -94,6 +94,7 @@ public class JdbiSalaRepository implements SalaRepository {
         }
     }
 
+    @Override
     public BidiMap<UUID, Integer> findIds(List<UUID> uids) {
         final String SELECT = "SELECT uid, id FROM salas WHERE uid IN (%s) LIMIT %d"
                 .formatted("<uids>", uids.size());

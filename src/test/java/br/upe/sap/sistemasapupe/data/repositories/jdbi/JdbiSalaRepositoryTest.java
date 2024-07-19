@@ -65,7 +65,7 @@ public class JdbiSalaRepositoryTest {
         Sala sala = Sala.salaBuilder().tipoSala(TipoSala.INDIVIDUAL).nome("salinha").build();
         Sala createdSala = repository.create(sala);
 
-        BidiMap<UUID, Integer> foundSalaIds = repository.findId(createdSala.getUid());
+        BidiMap<UUID, Integer> foundSalaIds = repository.findIds(createdSala.getUid());
         assertEquals(createdSala.getId(), foundSalaIds.get(createdSala.getUid()), "Ids não correspondentes");
         Sala foundSala = repository.findById(foundSalaIds.get(createdSala.getUid()));
 
