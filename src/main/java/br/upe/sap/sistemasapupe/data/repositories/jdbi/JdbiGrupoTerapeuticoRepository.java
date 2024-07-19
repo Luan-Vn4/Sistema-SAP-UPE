@@ -2,12 +2,12 @@ package br.upe.sap.sistemasapupe.data.repositories.jdbi;
 
 import br.upe.sap.sistemasapupe.data.model.grupos.GrupoTerapeutico;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.GrupoTerapeuticoRepository;
+import org.apache.commons.collections4.BidiMap;
+import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.jdbi.v3.core.Jdbi;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Repository
 public class JdbiGrupoTerapeuticoRepository implements GrupoTerapeuticoRepository {
@@ -19,8 +19,8 @@ public class JdbiGrupoTerapeuticoRepository implements GrupoTerapeuticoRepositor
 
     private String createGrupoTerapeuticoSQL(){
         return """
-            INSERT INTO grupos_terapeuticos(tema) VALUES
-                (:tema)
+            INSERT INTO grupos_terapeuticos(tema, descricao) VALUES
+                (:tema, :descricao)
                 RETURNING *
         """;
     }
@@ -112,7 +112,6 @@ public class JdbiGrupoTerapeuticoRepository implements GrupoTerapeuticoRepositor
 
     @Override
     public List<GrupoTerapeutico> findByFuncionario(Integer uidFuncionario) {
-        // Não tenho certeza
         final String query = """
                 WITH id_func AS (
                     SELECT id FROM funcionarios WHERE id = :id LIMIT 1),
@@ -148,6 +147,45 @@ public class JdbiGrupoTerapeuticoRepository implements GrupoTerapeuticoRepositor
     }
 
     @Override
+    public BidiMap<UUID, Integer> findIds(UUID uuid) {
+        final String SELECT = "SELECT uid, id FROM grupos_terapeuticos WHERE uid = :uuid LIMIT 1";
+
+        BidiMap<UUID, Integer> results = new DualHashBidiMap<>();
+        Map<String, Object> mapping = jdbi.withHandle(handle -> handle
+                .createQuery(SELECT)
+                .bind("uuid", uuid)
+                .mapToMap()
+                .findFirst().orElse(null));
+
+        mapIds(results, mapping);
+
+        return results;
+    }
+
+    private void mapIds(BidiMap<UUID, Integer> biMap, Map<String, Object> idsMap) {
+        if (idsMap != null) {
+            biMap.put((UUID) idsMap.get("uid"), (Integer) idsMap.get("id"));
+        }
+    }
+
+    @Override
+    public BidiMap<UUID, Integer> findIds(List<UUID> uuids) {
+        final String SELECT = "SELECT uid, id FROM grupos_terapeuticos WHERE uid IN (%s) LIMIT %d"
+                .formatted("<uuids>", uuids.size());
+
+        BidiMap<UUID, Integer> results = new DualHashBidiMap<>();
+        List<Map<String, Object>> maps = jdbi.withHandle(handle -> handle
+                .createQuery(SELECT)
+                .bindList("uuids", uuids)
+                .mapToMap()
+                .collectIntoList());
+
+        maps.forEach(x -> mapIds(results, x));
+
+        return results;
+    }
+
+    @Override
     public GrupoTerapeutico addFuncionario(Integer uidFuncionario, Integer uidGrupoTerapeutico) {
         final String query = """
                 WITH id_func AS (
@@ -168,6 +206,20 @@ public class JdbiGrupoTerapeuticoRepository implements GrupoTerapeuticoRepositor
     }
 
     @Override
+    public GrupoTerapeutico addFuncionario(List<Integer> idsFuncionarios, Integer idGrupoTerapeutico) {
+        final String query = """
+                INSERT INTO coordenacao_atendimento_grupo(id_funcionario, id_atendimento_grupo)
+                VALUES (:uids, (SELECT id FROM atendimentos_grupo WHERE :id_grupo = id_grupo_terapeutico))
+                """;
+        jdbi.withHandle(handle -> handle
+                .createUpdate(query)
+                .bindList("uids", idsFuncionarios)
+                .execute());
+
+        return findById(idGrupoTerapeutico);
+    }
+
+    @Override
     public GrupoTerapeutico addFicha(Integer uidFicha, Integer uidGrupoTerapeutico) {
         final String query = """
                 INSER INTO ficha_atendimento_grupo(id_ficha, id_atendimento_grupo)
@@ -181,6 +233,20 @@ public class JdbiGrupoTerapeuticoRepository implements GrupoTerapeuticoRepositor
                 .execute());
 
         return findById(uidGrupoTerapeutico);
+    }
+
+    @Override
+    public GrupoTerapeutico addFicha(List<Integer> idsFicha, Integer idGrupoTerapeutico) {
+        final String query = """
+                INSERT INTO ficha_atendimento_grupo(id_ficha, id_atendimento_grupo)
+                VALUES (:uids, (SELECT id FROM atendimentos_grupo WHERE :id_grupo = id_grupo_terapeutico))
+                """;
+        jdbi.withHandle(handle -> handle
+                .createUpdate(query)
+                .bindList("uids", idsFicha)
+                .execute());
+
+        return findById(idGrupoTerapeutico);
     }
 
     @Override

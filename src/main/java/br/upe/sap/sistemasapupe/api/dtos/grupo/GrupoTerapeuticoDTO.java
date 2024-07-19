@@ -9,7 +9,7 @@ import br.upe.sap.sistemasapupe.data.model.pacientes.Ficha;
 import java.util.List;
 import java.util.UUID;
 
-public record GrupoTerapeuticoDTO(UUID uid, String tema,
+public record GrupoTerapeuticoDTO(UUID uid, String tema, String descricao,
                                   List<UUID> coordenadores, List<UUID> fichas) {
 
     public static GrupoTerapeuticoDTO from(GrupoTerapeutico grupoTerapeutico){
@@ -19,6 +19,6 @@ public record GrupoTerapeuticoDTO(UUID uid, String tema,
                 .map(Ficha::getUid).toList();
 
         return new GrupoTerapeuticoDTO(grupoTerapeutico.getUid(), grupoTerapeutico.getTemaTerapia(),
-                coordenadores, fichas);
+                grupoTerapeutico.getDescricao(), coordenadores, fichas);
     }
 }

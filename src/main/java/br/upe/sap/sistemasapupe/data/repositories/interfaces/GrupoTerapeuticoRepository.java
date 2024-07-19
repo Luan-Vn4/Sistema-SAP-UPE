@@ -1,6 +1,7 @@
 package br.upe.sap.sistemasapupe.data.repositories.interfaces;
 
 import br.upe.sap.sistemasapupe.data.model.grupos.GrupoTerapeutico;
+import org.apache.commons.collections4.BidiMap;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -13,13 +14,20 @@ public interface GrupoTerapeuticoRepository extends BasicRepository<GrupoTerapeu
 
     GrupoTerapeutico addFuncionario(Integer uidFuncionario, Integer uidGrupoTerapeutico);
 
+    GrupoTerapeutico addFuncionario(List<Integer> idsFuncionarios, Integer idGrupoTerapeutico);
+
     GrupoTerapeutico addFicha(Integer uidFicha, Integer uidGrupoTerapeutico);
+    GrupoTerapeutico addFicha(List<Integer> idsFicha, Integer idGrupoTerapeutico);
 
     GrupoTerapeutico findById(Integer uidGrupoTerapeutico);
 
     List<GrupoTerapeutico> findByFuncionario(Integer uidFuncionario);
     
     List<GrupoTerapeutico> findByFicha(Integer idFicha);
+
+    BidiMap<UUID, Integer> findIds(UUID uuid);
+
+    BidiMap<UUID, Integer> findIds(List<UUID> uuids);
 
     GrupoTerapeutico update(GrupoTerapeutico grupoTerapeutico);
 

@@ -16,14 +16,15 @@ public class GrupoTerapeutico {
     private int id;
     private UUID uid;
     private String temaTerapia;
-
+    private String descricao;
     private List<Funcionario> coordenadores;
     private List<Ficha> fichas;
 
     @Builder(builderMethodName = "grupoTerapeuticoBuilder")
-    public GrupoTerapeutico(String temaTerapia, List<Funcionario> coordenadores,
-                            List<Ficha> fichas){
+    public GrupoTerapeutico(String temaTerapia, String descricao,
+                            List<Funcionario> coordenadores, List<Ficha> fichas){
         this.temaTerapia = temaTerapia;
+        this.descricao = descricao;
         this.coordenadores = coordenadores;
         this.fichas = fichas;
     }
