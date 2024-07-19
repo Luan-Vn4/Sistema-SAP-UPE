@@ -1,7 +1,9 @@
 CREATE TABLE IF NOT EXISTS grupos_estudo(
     id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     uid UUID DEFAULT uuid_generate_v4() UNIQUE,
-    tema VARCHAR(100) NOT NULL
+    id_dono INT REFERENCES funcionarios(id) NOT NULL,
+    tema VARCHAR(100) NOT NULL,
+    CONSTRAINT is_tecnico_dono_grupo_estudo CHECK (is_tecnico(id_dono))
 );
 
 CREATE OR REPLACE function pode_participar_grupo_estudo(id_funcionario INT, id_encontro INT)
