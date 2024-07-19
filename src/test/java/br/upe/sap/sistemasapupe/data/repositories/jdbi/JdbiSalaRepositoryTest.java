@@ -5,6 +5,7 @@ import br.upe.sap.sistemasapupe.data.model.atividades.Sala;
 import br.upe.sap.sistemasapupe.data.model.enums.TipoSala;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Tecnico;
 import br.upe.sap.sistemasapupe.data.model.posts.Post;
+import org.apache.commons.collections4.BidiMap;
 import org.jdbi.v3.core.Jdbi;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -14,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.test.context.ContextConfiguration;
+
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -57,6 +60,15 @@ public class JdbiSalaRepositoryTest {
     }
 
     @Test
-    @DisplayName("Dado uma sala existente, achar ess")
+    @DisplayName("Dado uma sala existente, quando buscar, então retorne a sala correta")
+    public void givenSala_whenFindById_thenReturnSala() {
+        Sala sala = Sala.salaBuilder().tipoSala(TipoSala.INDIVIDUAL).nome("salinha").build();
+        Sala createdSala = repository.create(sala);
+
+        BidiMap<UUID, Integer> foundSalaIds = repository.findId(createdSala.getUid());
+        assertEquals(createdSala.getId(), foundSalaIds.get(createdSala.getUid()), "Ids não correspondentes");
+
+
+    }
 
 }

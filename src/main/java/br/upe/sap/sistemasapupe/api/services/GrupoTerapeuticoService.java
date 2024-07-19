@@ -38,17 +38,15 @@ public class GrupoTerapeuticoService {
     }
 
     public GrupoTerapeutico convertToGrupoTerapeutico(GrupoTerapeuticoDTO dto){
-        List<Integer> ids = funcionariosRepository.findIds(
+        List<Integer> ids_funcionario = funcionariosRepository.findIds(
                 dto.coordenadores().stream().toList()).values().stream().toList();
+        List<Funcionario> funcionarios = funcionariosRepository.findById(ids_funcionario);
 
-        List<Funcionario> funcionarios = funcionariosRepository.findById(ids);
+        List<Integer> ids_ficha = fichaRepository.findIds(
+                dto.fichas().stream().toList()).values().stream().toList();
+        List<Ficha> fichas = fichaRepository.findById(ids_ficha);
 
-
-
-        // preciso dos funcionarios para criar um novo grupo terapeutico
-        GrupoTerapeutico grupoTerapeutico = new GrupoTerapeutico(dto.tema(),funcionarios, );
-
-        return grupoTerapeutico;
+        return new GrupoTerapeutico(dto.tema(),funcionarios,fichas);
     }
 
     public GrupoTerapeutico create(GrupoTerapeuticoDTO dto){
@@ -72,10 +70,13 @@ public class GrupoTerapeuticoService {
         return GrupoTerapeuticoDTO.from(grupoAntigo);
     }
 
+    public GrupoTerapeuticoDTO addFuncionario(){return null;}
+
     public boolean deleteGrupoTerapeutico(GrupoTerapeuticoDTO dto){
         GrupoTerapeutico grupoTerapeutico = convertToGrupoTerapeutico(dto);
         grupoTerapeuticoRepository.delete(grupoTerapeutico.getId());
 
         return grupoTerapeutico.getId() != 0;
     }
+
 }

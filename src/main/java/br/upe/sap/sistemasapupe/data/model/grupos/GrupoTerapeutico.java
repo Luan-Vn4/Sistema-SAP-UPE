@@ -16,6 +16,7 @@ public class GrupoTerapeutico {
     private int id;
     private UUID uid;
     private String temaTerapia;
+
     private List<Funcionario> coordenadores;
     private List<Ficha> fichas;
 
