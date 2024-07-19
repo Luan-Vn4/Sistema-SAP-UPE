@@ -52,11 +52,11 @@ public class JcbiGrupoTerapeuticoRepositoryTest {
 
     private List<Ficha> getFichas() {
         Ficha ficha1 = Ficha.fichaBuilder()
-                .funcionario(funcionariosRepository.findById(1))
+                .funcionario(1)
                 .nome("Pedin")
                 .build();
         Ficha ficha2 = Ficha.fichaBuilder()
-                .funcionario(funcionariosRepository.findById(2))
+                .funcionario(2)
                 .nome("Erick")
                 .build();
 

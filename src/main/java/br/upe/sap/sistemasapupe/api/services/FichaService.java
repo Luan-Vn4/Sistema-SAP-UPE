@@ -17,27 +17,6 @@ import java.util.UUID;
 public class FichaService {
     FichaRepository fichaRepository;
 
-    private List<FichaDTO> mapToFichaDTO(List<Ficha> fichas){
-        return fichas.stream().map(FichaDTO::from).toList();}
 
-    public FichaDTO createFicha (UUID uidFicha){return null;}
-
-    public FichaDTO updateFicha (UUID uidFicha) {return null;}
-
-    public FichaDTO removeFicha (UUID uidFicha) {return null;}
-
-    public List<FichaDTO> getAll(){return null;};
-
-    public List<FichaDTO> getByUids (List<UUID> uidsFichas){return null;}
-
-    public FichaDTO getByUid (UUID uidFicha) { return null;}
-
-    public FichaDTO getByNome (String nomeFicha){return null;}
-
-    public FichaDTO getByGrupoTerapeutico (GrupoTerapeuticoDTO grupoTerapeutico){
-        return null;
-    }
-
-    public List<FichaDTO> getByFuncionario (FuncionarioDTO responsavel){ return null;}
 
 }

@@ -7,9 +7,5 @@ import lombok.Builder;
 
 @Builder
 public record AtendimentoIndividualDTO(FichaDTO ficha, FuncionarioDTO terapeuta){
-    public static AtendimentoIndividualDTO from (AtendimentoIndividual atendimentoIndividual){
-        FichaDTO ficha = FichaDTO.from(atendimentoIndividual.getFicha());
-        FuncionarioDTO terapeuta = FuncionarioDTO.from(atendimentoIndividual.getTerapeuta());
-        return new AtendimentoIndividualDTO(ficha, terapeuta);
-    }
+
 }
