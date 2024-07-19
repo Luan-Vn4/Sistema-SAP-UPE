@@ -16,31 +16,7 @@ public class SalaService {
 
     SalaRepository salaRepository;
 
-    private List<SalaDTO> mapToSalaDTO(List<Sala> salas){
-        return salas.stream().map(SalaDTO::from).toList();}
-
-    public SalaDTO createSala (UUID uidSala){return null;}
-
-    public SalaDTO updateInfo (UUID uidSala){ return null;}
-
-    public SalaDTO removeSala (UUID uidSala){return null;}
-
-    public List<SalaDTO> getAll(){
-        return mapToSalaDTO(salaRepository.findAll());
-    }
-
-    public List<SalaDTO> getByUids(List<UUID> uidsSalas) {
-        return mapToSalaDTO();
-    }
-
-    public SalaDTO getByUid(UUID uidSala){
-        return null;
-    }
-
-    public SalaDTO getByNome(String nome){
-        return mapToSalaDTO(salaRepository.findByNome(nome));
-
-    public Sala getByTipo(TipoSala tipoSala){return null;}
+   
 
 
 

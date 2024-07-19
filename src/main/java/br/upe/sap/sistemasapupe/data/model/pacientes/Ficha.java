@@ -17,6 +17,7 @@ public class Ficha {
     private String nome;
     private GrupoTerapeutico grupoTerapeutico;
 
+    @Builder(builderMethodName = "fichaBuilder")
     public Ficha(Funcionario funcionario, GrupoTerapeutico grupoTerapeutico, String nome){
         this.responsavel = funcionario;
         this.grupoTerapeutico = grupoTerapeutico;
