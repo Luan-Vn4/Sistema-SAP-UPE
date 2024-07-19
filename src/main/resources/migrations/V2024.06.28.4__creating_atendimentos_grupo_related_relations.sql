@@ -1,15 +1,18 @@
 CREATE TABLE IF NOT EXISTS grupos_terapeuticos(
     id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     uid UUID DEFAULT uuid_generate_v4() UNIQUE,
-    tema VARCHAR(50) NOT NULL
+    id_dono INT REFERENCES funcionarios(id) NOT NULL,
+    tema VARCHAR(50) NOT NULL,
+    descricao VARCHAR(500),
+    CONSTRAINT is_tecnico_dono_grupo_terapeutico CHECK (is_tecnico(id_dono))
 );
 
 CREATE TABLE IF NOT EXISTS fichas(
     id INT PRIMARY KEY,
     uid UUID DEFAULT uuid_generate_v4(),
     nome VARCHAR(25) NOT NULL,
-    id_responsavel BIGINT REFERENCES funcionarios(id),
-    id_grupo_terapeutico BIGINT REFERENCES grupos_terapeuticos(id)
+    id_responsavel BIGINT REFERENCES funcionarios(id) ON DELETE CASCADE,
+    id_grupo_terapeutico BIGINT REFERENCES grupos_terapeuticos(id) ON DELETE SET NULL
 );
 
 CREATE OR REPLACE function pode_coordenar(id_funcionario INT,
@@ -28,8 +31,8 @@ CREATE OR REPLACE function pode_coordenar(id_funcionario INT,
     $$ LANGUAGE plpgsql;
 
 CREATE TABLE IF NOT EXISTS atendimentos_grupo(
-    id INT PRIMARY KEY REFERENCES atividades(id),
-    id_grupo_terapeutico BIGINT REFERENCES grupos_terapeuticos(id)
+    id INT PRIMARY KEY REFERENCES atividades(id) ON DELETE CASCADE,
+    id_grupo_terapeutico INT REFERENCES grupos_terapeuticos(id) ON DELETE CASCADE
 );
 
 CREATE OR REPLACE function ficha_pode_participar_atendimento_grupo(id_ficha INT,
@@ -47,16 +50,16 @@ CREATE OR REPLACE function ficha_pode_participar_atendimento_grupo(id_ficha INT,
     $$ LANGUAGE plpgsql;
 
 CREATE TABLE IF NOT EXISTS ficha_atendimento_grupo(
-    id_ficha INT REFERENCES fichas(id),
-    id_atendimento_grupo INT REFERENCES atendimentos_grupo(id),
+    id_ficha INT REFERENCES fichas(id) ON DELETE CASCADE,
+    id_atendimento_grupo INT REFERENCES atendimentos_grupo(id) ON DELETE CASCADE,
     CONSTRAINT pk_ficha_atendimento_grupo PRIMARY KEY (id_ficha, id_atendimento_grupo),
     CONSTRAINT pode_participar CHECK
     (ficha_pode_participar_atendimento_grupo(id_ficha, id_atendimento_grupo))
 );
 
 CREATE TABLE IF NOT EXISTS coordenacao_atendimento_grupo(
-    id_funcionario INT REFERENCES funcionarios(id),
-    id_atendimento_grupo INT REFERENCES atendimentos_grupo(id),
+    id_funcionario INT REFERENCES funcionarios(id) ON DELETE CASCADE,
+    id_atendimento_grupo INT REFERENCES atendimentos_grupo(id) ON DELETE CASCADE,
     CONSTRAINT pk_coordenacao_atendimento_grupo
         PRIMARY KEY (id_funcionario, id_atendimento_grupo),
     CONSTRAINT participa_grupo_terapeutico CHECK
@@ -64,8 +67,8 @@ CREATE TABLE IF NOT EXISTS coordenacao_atendimento_grupo(
 );
 
 CREATE TABLE IF NOT EXISTS participacao_grupo_terapeutico(
-    id_funcionario INT REFERENCES funcionarios(id),
-    id_grupo_terapeutico INT REFERENCES grupos_terapeuticos(id),
+    id_funcionario INT REFERENCES funcionarios(id) ON DELETE CASCADE,
+    id_grupo_terapeutico INT REFERENCES grupos_terapeuticos(id) ON DELETE CASCADE,
     CONSTRAINT pk_participacao_grupo_terapeutico
         PRIMARY KEY (id_funcionario, id_grupo_terapeutico)
 );
