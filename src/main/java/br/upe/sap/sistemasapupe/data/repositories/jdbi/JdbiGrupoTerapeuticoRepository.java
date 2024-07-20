@@ -2,14 +2,12 @@ package br.upe.sap.sistemasapupe.data.repositories.jdbi;
 
 import br.upe.sap.sistemasapupe.data.model.grupos.GrupoTerapeutico;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.GrupoTerapeuticoRepository;
-import jakarta.persistence.EntityNotFoundException;
+import org.apache.commons.collections4.BidiMap;
+import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.jdbi.v3.core.Jdbi;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Repository
 public class JdbiGrupoTerapeuticoRepository implements GrupoTerapeuticoRepository {
@@ -21,8 +19,8 @@ public class JdbiGrupoTerapeuticoRepository implements GrupoTerapeuticoRepositor
 
     private String createGrupoTerapeuticoSQL(){
         return """
-            INSERT INTO grupos_terapeuticos(tema) VALUES
-                (:tema)
+            INSERT INTO grupos_terapeuticos(tema, descricao) VALUES
+                (:tema, :descricao)
                 RETURNING *
         """;
     }
@@ -46,10 +44,10 @@ public class JdbiGrupoTerapeuticoRepository implements GrupoTerapeuticoRepositor
     @Override
     public GrupoTerapeutico update(GrupoTerapeutico grupoTerapeutico) {
         final String query = """
-                UPDATE grupos_terapeuticos
-                SET tema = :tema
-                WHERE uid = CAST (:uid AS UUID)
-            """;
+                    UPDATE grupos_terapeuticos
+                    SET tema = :tema
+                    WHERE id = :id
+                """;
 
         return jdbi.withHandle(handle -> handle
                 .createUpdate(query)
@@ -71,15 +69,15 @@ public class JdbiGrupoTerapeuticoRepository implements GrupoTerapeuticoRepositor
 
     // procurar o grupo pelo id dele mesmo
     @Override
-    public GrupoTerapeutico findById(UUID uid) {
+    public GrupoTerapeutico findById(Integer uid) {
         final String query = """
                 SELECT * FROM grupos_terapeuticos
-                WHERE uid = :uid
+                WHERE id = :id
                 """;
 
         Optional<GrupoTerapeutico> result = jdbi.withHandle(handle -> handle
                 .createQuery(query)
-                .bind("uid", uid)
+                .bind("ui", uid)
                 .mapToBean(GrupoTerapeutico.class)
                 .findFirst());
 
@@ -87,15 +85,15 @@ public class JdbiGrupoTerapeuticoRepository implements GrupoTerapeuticoRepositor
     }
 
     @Override
-    public List<GrupoTerapeutico> findById(List<UUID> uids) {
+    public List<GrupoTerapeutico> findById(List<Integer> uids) {
         final String QUERY = """
             SELECT * FROM grupos_terapeuticos
-            WHERE uid IN %s
-            """.formatted("<uids>");
+            WHERE id IN %s
+            """.formatted("<ids>");
 
         return jdbi.withHandle(handle -> handle
             .createQuery(QUERY)
-            .bindList("uids",uids)
+            .bindList("ids",uids)
             .mapToBean(GrupoTerapeutico.class)
             .collectIntoList());
     }
@@ -103,94 +101,199 @@ public class JdbiGrupoTerapeuticoRepository implements GrupoTerapeuticoRepositor
     @Override
     public List<GrupoTerapeutico> findAll() {
         final String query = """
-            SELECT * FROM grupos_terapeuticos
-            """;
-
-        return jdbi.withHandle(handle -> handle
-                .createQuery(query)
-                .mapToBean(GrupoTerapeutico.class)
-                .collectIntoList());
-    }
-
-    @Override
-    public List<GrupoTerapeutico> findByFuncionario(UUID uidFuncionario) {
-        // Não tenho certeza
-        final String query = """
-            WITH id_func AS (
-                SELECT id FROM funcionarios WHERE uid = CAST(:uid AS UUID) LIMIT 1),
-            id_participacao AS (
-                SELECT id_grupo_terapeutico AS id_grupo FROM participacao_grupo_terapeutico
-                    WHERE id_funcionario = (SELECT id FROM id_func LIMIT 1))
-            SELECT * FROM grupos_terapeuticos WHERE id IN (select id_grupo from id_participacao);
-            """;
-
-        return jdbi.withHandle(handle -> handle
-                .createQuery(query)
-                .mapToBean(GrupoTerapeutico.class)
-                .collectIntoList());
-    }
-
-    @Override
-    public List<GrupoTerapeutico> findByFicha(UUID idFicha) {
-        final String query = """
-            WITH id_fic AS (
-                SELECT id FROM fichas WHERE uid = CAST(:uid AS UUID) LIMIT 1),
-            id_atendimento AS (
-                SELECT id_atendimento_grupo AS id_grupo FROM ficha_atendimento_grupo
-                    WHERE id_ficha = (SELECT id FROM id_fic LIMIT 1))
-            SELECT * FROM grupos_terapeuticos WHERE id = (SELECT id_grupo FROM id_atendimento)
-            """;
-
-        return jdbi.withHandle(handle -> handle
-                .createQuery(query)
-                .mapToBean(GrupoTerapeutico.class)
-                .collectIntoList());
-    }
-
-    @Override
-    public GrupoTerapeutico addFuncionario(UUID uidFuncionario, UUID uidGrupoTerapeutico) {
-        final String query = """
-            WITH id_func AS (
-                SELECT id FROM funcionarios WHERE uid = CAST(:uid_funcionario AS UUID) LIMIT 1),
-            id_grupo AS (
-                SELECT id FROM grupos_terapeuticos WHERE uid = CAST(:uid_grupo AS UUID) LIMIT 1)
-            INSERT INTO participacao_grupo_terapeutico(id_funcionario, id_grupo_terapeutico)
-            VALUES ((SELECT id FROM id_func), (SELECT id FROM id_grupo))
-            """;
-
-        return jdbi.withHandle(handle -> handle
-            .createUpdate(query)
-            .bind("uid_funcionario", uidFuncionario)
-            .bind("uid_grupo", uidGrupoTerapeutico)
-            .executeAndReturnGeneratedKeys()
-            .mapToBean(GrupoTerapeutico.class)
-            .findFirst().orElseThrow(EntityNotFoundException::new));
-    }
-
-    // não sei oq fazer aqui
-    @Override
-    public GrupoTerapeutico addFicha(UUID uidFicha, UUID uidGrupoTerapeutico) {
-        return null;
-    }
-
-    public GrupoTerapeutico removeFuncionario(UUID uidFuncionario, UUID uidGrupoTerapeutico) {
-        return null;
-    }
-
-    @Override
-    public int delete(UUID uidGrupoTerapeutico) {
-        final String Delete = """
-                DELETE FROM grupos_terapeuticos WHERE uid = CAST(:uid AS UUID)
+                SELECT * FROM grupos_terapeuticos
                 """;
 
         return jdbi.withHandle(handle -> handle
-                .createUpdate(Delete)
-                .bind("uid", uidGrupoTerapeutico)
+                .createQuery(query)
+                .mapToBean(GrupoTerapeutico.class)
+                .collectIntoList());
+    }
+
+    @Override
+    public List<GrupoTerapeutico> findByFuncionario(Integer uidFuncionario) {
+        final String query = """
+                WITH id_func AS (
+                    SELECT id FROM funcionarios WHERE id = :id LIMIT 1),
+                id_participacao AS (
+                    SELECT id_grupo_terapeutico AS id_grupo FROM participacao_grupo_terapeutico
+                        WHERE id_funcionario = (SELECT id FROM id_func LIMIT 1))
+                SELECT * FROM grupos_terapeuticos WHERE id IN (select id_grupo from id_participacao);
+                """;
+
+        return jdbi.withHandle(handle -> handle
+                .createQuery(query)
+                    .bind("id", uidFuncionario)
+                .mapToBean(GrupoTerapeutico.class)
+                .collectIntoList());
+    }
+
+    @Override
+    public List<GrupoTerapeutico> findByFicha(Integer idFicha) {
+        final String query = """
+                WITH id_fic AS (
+                    SELECT id FROM fichas WHERE id = :id LIMIT 1),
+                id_atendimento AS (
+                    SELECT id_atendimento_grupo AS id_grupo FROM ficha_atendimento_grupo
+                        WHERE id_ficha = (SELECT id FROM id_fic LIMIT 1))
+                SELECT * FROM grupos_terapeuticos WHERE id = (SELECT id_grupo FROM id_atendimento)
+                """;
+
+        return jdbi.withHandle(handle -> handle
+                .createQuery(query)
+                .bind("id", idFicha)
+                .mapToBean(GrupoTerapeutico.class)
+                .collectIntoList());
+    }
+
+    @Override
+    public BidiMap<UUID, Integer> findIds(UUID uuid) {
+        final String SELECT = "SELECT uid, id FROM grupos_terapeuticos WHERE uid = :uuid LIMIT 1";
+
+        BidiMap<UUID, Integer> results = new DualHashBidiMap<>();
+        Map<String, Object> mapping = jdbi.withHandle(handle -> handle
+                .createQuery(SELECT)
+                .bind("uuid", uuid)
+                .mapToMap()
+                .findFirst().orElse(null));
+
+        mapIds(results, mapping);
+
+        return results;
+    }
+
+    private void mapIds(BidiMap<UUID, Integer> biMap, Map<String, Object> idsMap) {
+        if (idsMap != null) {
+            biMap.put((UUID) idsMap.get("uid"), (Integer) idsMap.get("id"));
+        }
+    }
+
+    @Override
+    public BidiMap<UUID, Integer> findIds(List<UUID> uuids) {
+        final String SELECT = "SELECT uid, id FROM grupos_terapeuticos WHERE uid IN (%s) LIMIT %d"
+                .formatted("<uuids>", uuids.size());
+
+        BidiMap<UUID, Integer> results = new DualHashBidiMap<>();
+        List<Map<String, Object>> maps = jdbi.withHandle(handle -> handle
+                .createQuery(SELECT)
+                .bindList("uuids", uuids)
+                .mapToMap()
+                .collectIntoList());
+
+        maps.forEach(x -> mapIds(results, x));
+
+        return results;
+    }
+
+    @Override
+    public GrupoTerapeutico addFuncionario(Integer uidFuncionario, Integer uidGrupoTerapeutico) {
+        final String query = """
+                WITH id_func AS (
+                    SELECT id FROM funcionarios WHERE id = :id_funcionario LIMIT 1),
+                id_grupo AS (
+                    SELECT id FROM grupos_terapeuticos WHERE id = :id_grupo LIMIT 1)
+                INSERT INTO participacao_grupo_terapeutico(id_funcionario, id_grupo_terapeutico)
+                VALUES ((SELECT id FROM id_func), (SELECT id FROM id_grupo))
+                """;
+
+        jdbi.withHandle(handle -> handle
+                .createUpdate(query)
+                .bind("id_funcionario", uidFuncionario)
+                .bind("id_grupo", uidGrupoTerapeutico)
+                .execute());
+
+        return findById(uidGrupoTerapeutico);
+    }
+
+    @Override
+    public GrupoTerapeutico addFuncionario(List<Integer> idsFuncionarios, Integer idGrupoTerapeutico) {
+        final String query = """
+                INSERT INTO coordenacao_atendimento_grupo(id_funcionario, id_atendimento_grupo)
+                VALUES (:uids, (SELECT id FROM atendimentos_grupo WHERE :id_grupo = id_grupo_terapeutico))
+                """;
+        jdbi.withHandle(handle -> handle
+                .createUpdate(query)
+                .bindList("uids", idsFuncionarios)
+                .execute());
+
+        return findById(idGrupoTerapeutico);
+    }
+
+    @Override
+    public GrupoTerapeutico addFicha(Integer uidFicha, Integer uidGrupoTerapeutico) {
+        final String query = """
+                INSER INTO ficha_atendimento_grupo(id_ficha, id_atendimento_grupo)
+                VALUES (:id_ficha, (SELECT id FROM atendimentos_grupo
+                                    WHERE id_grupo_terapeutico = :id_grupo))
+                """;
+        jdbi.withHandle(handle -> handle
+                .createUpdate(query)
+                .bind("id_ficha", uidFicha)
+                .bind("id_grupo", uidGrupoTerapeutico)
+                .execute());
+
+        return findById(uidGrupoTerapeutico);
+    }
+
+    @Override
+    public GrupoTerapeutico addFicha(List<Integer> idsFicha, Integer idGrupoTerapeutico) {
+        final String query = """
+                INSERT INTO ficha_atendimento_grupo(id_ficha, id_atendimento_grupo)
+                VALUES (:uids, (SELECT id FROM atendimentos_grupo WHERE :id_grupo = id_grupo_terapeutico))
+                """;
+        jdbi.withHandle(handle -> handle
+                .createUpdate(query)
+                .bindList("uids", idsFicha)
+                .execute());
+
+        return findById(idGrupoTerapeutico);
+    }
+
+    @Override
+    public int removerFuncionario(Integer uidFUncionario, Integer uidGrupo) {
+        final String query = """
+                DELETE FROM coordenacao_atendimento_grupo
+                WHERE id_funcionario = :id_func
+                AND id_atendimento_grupo = (SELECT id FROM atendimentos_grupo
+                                            WHERE id_grupo_terapeutico = :id_grupo)
+                """;
+        return jdbi.withHandle(handle -> handle
+                .createUpdate(query)
+                .bind("id_func", uidFUncionario)
+                .bind("id_grupo", uidGrupo)
                 .execute());
     }
 
     @Override
-    public int delete(List<UUID> uuids) {
+    public int removerFicha(Integer uidFicha, Integer uidGrupo) {
+        final String query = """
+                DELETE FROM ficha_atendimento_grupo
+                WHERE id_ficha = :id_fich
+                AND id_atendimento_grupo = (SELECT id FROM atendimentos_grupo
+                                            WHERE id_grupo_terapeutico = :id_grupo)
+                """;
+
+        return jdbi.withHandle(handle -> handle
+                .createUpdate(query)
+                .bind("id_fich", uidFicha)
+                .bind("id_grupo", uidGrupo)
+                .execute());
+    }
+
+    @Override
+    public int delete(Integer uidGrupoTerapeutico) {
+        final String Delete = """
+                DELETE FROM grupos_terapeuticos WHERE id = :id
+                """;
+
+        return jdbi.withHandle(handle -> handle
+                .createUpdate(Delete)
+                .bind("id", uidGrupoTerapeutico)
+                .execute());
+    }
+
+    @Override
+    public int delete(List<Integer> uuids) {
         return 0;
     }
 }

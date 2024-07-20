@@ -24,9 +24,9 @@ class AuxAtividadeRepository {
     // DEPENDÊNCIAS //
     Jdbi jdbi;
 
-    FuncionarioRepository funcionarioRepository;
-
     SalaRepository salaRepository;
+
+    FuncionarioRepository funcionarioRepository;
 
     FichaRepository fichaRepository;
 

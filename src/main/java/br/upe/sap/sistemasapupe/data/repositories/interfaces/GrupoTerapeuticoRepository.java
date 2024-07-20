@@ -1,28 +1,40 @@
 package br.upe.sap.sistemasapupe.data.repositories.interfaces;
 
 import br.upe.sap.sistemasapupe.data.model.grupos.GrupoTerapeutico;
+import org.apache.commons.collections4.BidiMap;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface GrupoTerapeuticoRepository extends BasicRepository<GrupoTerapeutico, UUID> {
+public interface GrupoTerapeuticoRepository extends BasicRepository<GrupoTerapeutico, Integer> {
 
     GrupoTerapeutico create(GrupoTerapeutico grupoTerapeutico);
 
-    GrupoTerapeutico addFuncionario(UUID uidFuncionario, UUID uidGrupoTerapeutico);
+    GrupoTerapeutico addFuncionario(Integer uidFuncionario, Integer uidGrupoTerapeutico);
 
-    GrupoTerapeutico addFicha(UUID uidFicha, UUID uidGrupoTerapeutico);
+    GrupoTerapeutico addFuncionario(List<Integer> idsFuncionarios, Integer idGrupoTerapeutico);
 
-    GrupoTerapeutico findById(UUID uidGrupoTerapeutico);
+    GrupoTerapeutico addFicha(Integer uidFicha, Integer uidGrupoTerapeutico);
+    GrupoTerapeutico addFicha(List<Integer> idsFicha, Integer idGrupoTerapeutico);
 
-    List<GrupoTerapeutico> findByFuncionario(UUID uidFuncionario);
+    GrupoTerapeutico findById(Integer uidGrupoTerapeutico);
+
+    List<GrupoTerapeutico> findByFuncionario(Integer uidFuncionario);
     
-    List<GrupoTerapeutico> findByFicha(UUID idFicha);
+    List<GrupoTerapeutico> findByFicha(Integer idFicha);
+
+    BidiMap<UUID, Integer> findIds(UUID uuid);
+
+    BidiMap<UUID, Integer> findIds(List<UUID> uuids);
 
     GrupoTerapeutico update(GrupoTerapeutico grupoTerapeutico);
 
-    int delete(UUID uidGrupoTerapeutico);
+    int removerFuncionario(Integer uidFUncionario, Integer uidGrupo);
+
+    int removerFicha(Integer uidFicha, Integer uidGrupo);
+
+    int delete(Integer uidGrupoTerapeutico);
 
 }
