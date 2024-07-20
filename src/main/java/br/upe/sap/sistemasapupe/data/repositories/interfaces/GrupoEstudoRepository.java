@@ -7,10 +7,10 @@ import java.util.UUID;
 
 public interface GrupoEstudoRepository extends BasicRepository<GrupoEstudo, Integer> {
 
-    GrupoEstudo findByFuncionario(int idFuncionario);
+    GrupoEstudo findByFuncionario(Integer idFuncionario);
 
 
-    Funcionario addFuncionario(Funcionario funcionario);
+    Funcionario addFuncionario(Integer idFuncionario, Integer idGrupoEstudo);
 
     void deleteParticipacao(int idParticipante);
 

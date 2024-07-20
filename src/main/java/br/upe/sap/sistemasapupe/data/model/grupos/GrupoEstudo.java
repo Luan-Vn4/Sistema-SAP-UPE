@@ -14,5 +14,6 @@ public class GrupoEstudo {
     private int id;
     private UUID uid;
     private String temaEstudo;
+    private String descricao;
     private Funcionario dono;
 }

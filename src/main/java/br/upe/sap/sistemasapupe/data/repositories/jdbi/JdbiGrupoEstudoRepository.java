@@ -9,6 +9,7 @@ import org.jdbi.v3.core.mapper.reflect.BeanMapper;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.springframework.stereotype.Repository;
 
+import javax.xml.transform.Result;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -61,17 +62,42 @@ public class JdbiGrupoEstudoRepository implements GrupoEstudoRepository {
 
     @Override
     public GrupoEstudo findById(Integer id) {
-        return null;
+        final String query = """
+                SELECT *
+                FROM grupos_estudo
+                WHERE id = :id
+                """;
+        return jdbi.withHandle(handle -> handle
+                .createQuery(query)
+                .bind("id", id)
+                .mapToBean(GrupoEstudo.class)
+                .findFirst().orElse(null));
     }
 
     @Override
     public List<GrupoEstudo> findAll() {
-        return null;
+        final String query = """
+                SELECT *
+                FROM grupos_estudo
+                """;
+        return jdbi.withHandle(handle -> handle
+                .createQuery(query)
+                .mapToBean(GrupoEstudo.class)
+                .collectIntoList());
     }
 
     @Override
     public List<GrupoEstudo> findById(List<Integer> ids) {
-        return null;
+        final String query = """
+                SELECT *
+                FROM grupos_estudo
+                WHERE id IN (<ids>)
+                """;
+        return jdbi.withHandle(handle -> handle
+                .createQuery(query)
+                .bindList("ids", ids)
+                .mapToBean(GrupoEstudo.class)
+                .collectIntoList());
     }
 
     @Override
@@ -95,13 +121,36 @@ public class JdbiGrupoEstudoRepository implements GrupoEstudoRepository {
     }
 
     @Override
-    public GrupoEstudo findByFuncionario(int idFuncionario) {
-        return null;
+    public GrupoEstudo findByFuncionario(Integer idFuncionario) {
+        final String query = """
+                SELECT id_grupo_estudo
+                FROM participacao_grupos_estudo
+                WHERE id_participante = :id_funcionario
+                """;
+        return jdbi.withHandle(handle -> handle
+                .createQuery(query)
+                .bind("id_funcionario", idFuncionario)
+                .mapToBean(GrupoEstudo.class)
+                .findFirst().orElse(null));
     }
 
     @Override
-    public Funcionario addFuncionario(Funcionario funcionario) {
-        return null;
+    public Funcionario addFuncionario(Integer idFuncionario, Integer idGrupoEstudo) {
+        final String query = """
+                INSERT INTO participacao_grupos_estudo(id_grupo_estudo, id_participante)
+                VALUES (:idGrupoEstudo, :id_funcionario)
+                RETURNING id_participante
+                """;
+        return jdbi.withHandle(handle -> handle
+                .createQuery(query)
+                .bind("id_funcionario", idFuncionario)
+                .bind("idGrupoEstudo", idGrupoEstudo)
+                .map(this::mapFuncionario)
+                .findFirst().orElse(null));
+    }
+
+    private Funcionario mapFuncionario(ResultSet rs, StatementContext sc) throws SQLException{
+        return funcionarioRepository.findById(rs.getInt("id_funcionario"));
     }
 
     @Override
