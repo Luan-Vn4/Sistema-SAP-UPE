@@ -21,12 +21,12 @@ $$ LANGUAGE plpgsql;
 
 CREATE TABLE IF NOT EXISTS participacao_grupos_estudo(
     id_grupo_estudo INT REFERENCES grupos_estudo(id),
-    id_participante INT REFERENCES funcionarios(id),
+     INT REFERENCES funcionarios(id),
     CONSTRAINT pk_participacoes_grupos_estudo
         PRIMARY KEY (id_grupo_estudo, id_participante)
 );
 
-CREATE TABLE IF NOT EXISTS encontros(
+CREATE TABLE IF NOT EXISTS encontros(id_participante
     id INT PRIMARY KEY REFERENCES atividades(id),
     id_grupo_estudo INT REFERENCES grupos_estudo(id)
 );

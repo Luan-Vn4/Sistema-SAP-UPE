@@ -145,7 +145,7 @@ public class JdbiSalaRepository implements SalaRepository {
     }
 
     @Override
-    public List<Ficha> findAll() {
+    public List<Sala> findAll() {
         final String SELECT = "SELECT %s FROM salas".formatted(returningColumns);
 
         return jdbi.withHandle(handle -> handle
@@ -155,7 +155,7 @@ public class JdbiSalaRepository implements SalaRepository {
     }
 //UID
     @Override
-    public List<Sala> findByIds(List<Integer> ids) {
+    public List<Sala> findById(List<Integer> ids) {
         return List.of();
     }
 
