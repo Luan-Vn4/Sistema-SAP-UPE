@@ -16,14 +16,14 @@ public interface GrupoTerapeuticoRepository extends BasicRepository<GrupoTerapeu
 
     GrupoTerapeutico addFuncionario(List<Integer> idsFuncionarios, Integer idGrupoTerapeutico);
 
-    GrupoTerapeutico addFicha(Integer uidFicha, Integer uidGrupoTerapeutico);
-    GrupoTerapeutico addFicha(List<Integer> idsFicha, Integer idGrupoTerapeutico);
+    void addFicha(Integer uidFicha, Integer uidGrupoTerapeutico);
+    void addFicha(List<Integer> idsFicha, Integer idGrupoTerapeutico);
 
     GrupoTerapeutico findById(Integer uidGrupoTerapeutico);
 
     List<GrupoTerapeutico> findByFuncionario(Integer uidFuncionario);
     
-    List<GrupoTerapeutico> findByFicha(Integer idFicha);
+    GrupoTerapeutico findByFicha(Integer idFicha);
 
     BidiMap<UUID, Integer> findIds(UUID uuid);
 
@@ -33,7 +33,7 @@ public interface GrupoTerapeuticoRepository extends BasicRepository<GrupoTerapeu
 
     int removerFuncionario(Integer uidFUncionario, Integer uidGrupo);
 
-    int removerFicha(Integer uidFicha, Integer uidGrupo);
+    int removerFicha(Integer idFicha);
 
     int delete(Integer uidGrupoTerapeutico);
 

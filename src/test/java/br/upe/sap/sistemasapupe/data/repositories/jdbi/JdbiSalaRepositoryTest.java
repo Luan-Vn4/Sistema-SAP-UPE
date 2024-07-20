@@ -5,7 +5,8 @@ import br.upe.sap.sistemasapupe.data.model.atividades.Sala;
 import br.upe.sap.sistemasapupe.data.model.enums.TipoSala;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Tecnico;
 import br.upe.sap.sistemasapupe.data.model.posts.Post;
-import br.upe.sap.sistemasapupe.data.repositories.interfaces.SalaRepository;
+
+import br.upe.sap.sistemasapupe.data.repositories.interfaces.atividades.sala.SalaRepository;
 import org.apache.commons.collections4.BidiMap;
 import org.jdbi.v3.core.Jdbi;
 import org.junit.jupiter.api.AfterEach;

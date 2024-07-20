@@ -4,7 +4,8 @@ import br.upe.sap.sistemasapupe.api.dtos.atividades.sala.CreateSalaDTO;
 import br.upe.sap.sistemasapupe.api.dtos.atividades.sala.SalaDTO;
 import br.upe.sap.sistemasapupe.data.model.atividades.Sala;
 import br.upe.sap.sistemasapupe.data.model.enums.TipoSala;
-import br.upe.sap.sistemasapupe.data.repositories.interfaces.SalaRepository;
+
+import br.upe.sap.sistemasapupe.data.repositories.interfaces.atividades.sala.SalaRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
