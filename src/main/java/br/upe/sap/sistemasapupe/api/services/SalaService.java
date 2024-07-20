@@ -26,9 +26,9 @@ public class SalaService {
 
     public SalaDTO updateSala(SalaDTO salaDTO) {
         Sala sala = SalaDTO.from(salaDTO);
-        Sala salaExistente = salaRepository.findById(salaRepository.findIds(salaDTO.uid()).get(salaDTO.uid()));
+        Sala salaExistente = salaRepository.findById(salaRepository.findIds(salaDTO.id()).get(salaDTO.id()));
         if (salaExistente == null) {
-            throw new EntityNotFoundException("Sala não encontrada para o ID: " + salaDTO.uid());
+            throw new EntityNotFoundException("Sala não encontrada para o ID: " + salaDTO.id());
         }
 
         salaExistente.setTipoSala(salaDTO.tipoSala());

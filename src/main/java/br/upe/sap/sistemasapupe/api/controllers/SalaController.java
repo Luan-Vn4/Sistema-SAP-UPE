@@ -3,14 +3,12 @@ package br.upe.sap.sistemasapupe.api.controllers;
 import br.upe.sap.sistemasapupe.api.dtos.atividades.sala.CreateSalaDTO;
 import br.upe.sap.sistemasapupe.api.dtos.atividades.sala.SalaDTO;
 import br.upe.sap.sistemasapupe.api.services.SalaService;
-import br.upe.sap.sistemasapupe.data.model.atividades.Sala;
 import br.upe.sap.sistemasapupe.data.model.enums.TipoSala;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -53,10 +51,10 @@ public class SalaController {
         return ResponseEntity.ok(sala);
     }
 
-    @PostMapping
+    @PostMapping("/")
     public ResponseEntity<SalaDTO> createSala(@RequestBody CreateSalaDTO salaDTO) {
         SalaDTO createdSala = salaService.createSala(salaDTO);
-        return ResponseEntity.created(URI.create("/posts/" + createdSala.uid())).body(createdSala);
+        return ResponseEntity.created(URI.create("/sala/" + createdSala.id())).body(createdSala);
     }
 
     @DeleteMapping("/delete/{uid}")
