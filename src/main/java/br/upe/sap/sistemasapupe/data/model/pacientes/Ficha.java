@@ -13,12 +13,13 @@ public class Ficha {
 
     private int id;
     private UUID uid;
-    private Funcionario responsavel;
+    private int idResponsavel;
     private String nome;
     private GrupoTerapeutico grupoTerapeutico;
 
-    public Ficha(Funcionario funcionario, GrupoTerapeutico grupoTerapeutico, String nome){
-        this.responsavel = funcionario;
+    @Builder(builderMethodName = "fichaBuilder")
+    public Ficha(int funcionario, GrupoTerapeutico grupoTerapeutico, String nome){
+        this.idResponsavel = funcionario;
         this.grupoTerapeutico = grupoTerapeutico;
         this.nome = nome;
     }
