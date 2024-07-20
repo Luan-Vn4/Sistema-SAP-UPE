@@ -9,15 +9,14 @@ import java.util.UUID;
 
 public interface GrupoEstudoRepository extends BasicRepository<GrupoEstudo, Integer> {
 
+    GrupoEstudo findByFuncionario(Integer idFuncionario);
+
     BidiMap<UUID, Integer> findIds(UUID uuid);
 
     BidiMap<UUID, Integer> findIds(List<UUID> uuids);
 
-    GrupoEstudo findByFuncionario(int idFuncionario);
+    Funcionario addFuncionario(Integer idFuncionario, Integer idGrupoEstudo);
 
-
-    Funcionario addFuncionario(Funcionario funcionario);
-
-    int deleteParticipacao(int idParticipante);
+    void deleteParticipacao(int idParticipante);
 
 }
