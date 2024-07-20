@@ -2,7 +2,7 @@ package br.upe.sap.sistemasapupe.data.repositories.jdbi;
 
 import br.upe.sap.sistemasapupe.data.model.atividades.Sala;
 import br.upe.sap.sistemasapupe.data.model.enums.TipoSala;
-import br.upe.sap.sistemasapupe.data.repositories.interfaces.SalaRepository;
+import br.upe.sap.sistemasapupe.data.repositories.interfaces.atividades.sala.SalaRepository;
 import lombok.AllArgsConstructor;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.reflect.BeanMapper;
@@ -118,6 +118,11 @@ public class JdbiSalaRepository implements SalaRepository {
             .createQuery(SELECT)
             .mapToBean(Sala.class)
             .collectIntoList());
+    }
+
+    @Override
+    public List<Sala> findByIds(List<Integer> ids) {
+        return List.of();
     }
 
     @Override

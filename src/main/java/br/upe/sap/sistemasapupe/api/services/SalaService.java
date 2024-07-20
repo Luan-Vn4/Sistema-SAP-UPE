@@ -3,7 +3,7 @@ package br.upe.sap.sistemasapupe.api.services;
 import br.upe.sap.sistemasapupe.api.dtos.atividades.SalaDTO;
 import br.upe.sap.sistemasapupe.data.model.atividades.Sala;
 import br.upe.sap.sistemasapupe.data.model.enums.TipoSala;
-import br.upe.sap.sistemasapupe.data.repositories.interfaces.SalaRepository;
+import br.upe.sap.sistemasapupe.data.repositories.interfaces.atividades.sala.SalaRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -30,15 +30,18 @@ public class SalaService {
     }
 
     public List<SalaDTO> getByUids(List<UUID> uidsSalas) {
-        return mapToSalaDTO();
+        //return mapToSalaDTO();
+        return null;
     }
 
     public SalaDTO getByUid(UUID uidSala){
         return null;
     }
 
-    public SalaDTO getByNome(String nome){
-        return mapToSalaDTO(salaRepository.findByNome(nome));
+    public SalaDTO getByNome(String nome) {
+        //return mapToSalaDTO(salaRepository.findByNome(nome));
+        return null;
+    }
 
     public Sala getByTipo(TipoSala tipoSala){return null;}
 
