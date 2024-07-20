@@ -14,5 +14,5 @@ public class GrupoEstudo {
     private int id;
     private UUID uid;
     private String temaEstudo;
-    private List<Funcionario> participantes;
+    private Funcionario dono;
 }
