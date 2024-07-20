@@ -10,6 +10,8 @@ public interface FichaRepository extends BasicRepository<Ficha, Integer> {
 
     List<Ficha> findByFuncionario(Integer idFuncionario);
 
+    Ficha findByNome(String nome);
+
     BidiMap<UUID, Integer> findIds(UUID uuid);
 
     BidiMap<UUID, Integer> findIds(List<UUID> uuids);

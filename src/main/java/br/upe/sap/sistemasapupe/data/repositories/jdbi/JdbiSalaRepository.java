@@ -145,7 +145,7 @@ public class JdbiSalaRepository implements SalaRepository {
     }
 
     @Override
-    public List<Sala> findAll() {
+    public List<Ficha> findAll() {
         final String SELECT = "SELECT %s FROM salas".formatted(returningColumns);
 
         return jdbi.withHandle(handle -> handle

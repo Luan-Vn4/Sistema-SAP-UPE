@@ -17,7 +17,7 @@ public interface BasicRepository<Entity, Key extends Serializable> {
 
     List<Entity> findAll();
 
-    List<Entity> findById(List<Key> ids);
+    List<Entity> findByIds(List<Key> ids);
 
     int delete(Key id);
 

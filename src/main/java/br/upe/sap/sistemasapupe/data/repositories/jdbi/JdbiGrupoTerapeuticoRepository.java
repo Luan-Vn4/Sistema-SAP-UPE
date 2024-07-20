@@ -99,7 +99,7 @@ public class JdbiGrupoTerapeuticoRepository implements GrupoTerapeuticoRepositor
     }
 
     @Override
-    public List<GrupoTerapeutico> findAll() {
+    public List<Ficha> findAll() {
         final String query = """
                 SELECT * FROM grupos_terapeuticos
                 """;

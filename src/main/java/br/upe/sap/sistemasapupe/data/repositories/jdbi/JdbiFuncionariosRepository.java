@@ -211,7 +211,7 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
     }
 
     @Override
-    public List<Funcionario> findAll() {
+    public List<Ficha> findAll() {
         final String QUERY = "SELECT %s FROM funcionarios".formatted(returningColumns);
 
         List<Funcionario> results = jdbi.withHandle(handle -> handle

@@ -106,7 +106,7 @@ public class JdbiPostsRepository implements PostsRepository {
     }
 
     @Override
-    public List<Post> findAll() {
+    public List<Ficha> findAll() {
         String QUERY = "SELECT * FROM posts";
 
         return jdbi.withHandle(handle ->

@@ -79,7 +79,7 @@ public class FuncionarioService {
     public List<FuncionarioDTO> getByUids(List<UUID> uids) {
         List<Integer> ids = funcionarioRepository.findIds(uids).values().stream().toList();
 
-        return mapToFuncionarioDTO(funcionarioRepository.findById(ids));
+        return mapToFuncionarioDTO(funcionarioRepository.findByIds(ids));
     }
 
     public List<FuncionarioDTO> getAllTecnicos() {
