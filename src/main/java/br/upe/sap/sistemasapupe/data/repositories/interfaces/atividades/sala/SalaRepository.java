@@ -1,8 +1,8 @@
-package br.upe.sap.sistemasapupe.data.repositories.interfaces.atividades.sala;
+package br.upe.sap.sistemasapupe.data.repositories.interfaces;
 
 import br.upe.sap.sistemasapupe.data.model.atividades.Sala;
 import br.upe.sap.sistemasapupe.data.model.enums.TipoSala;
-import br.upe.sap.sistemasapupe.data.repositories.interfaces.BasicRepository;
+import org.apache.commons.collections4.BidiMap;
 
 import java.util.List;
 import java.util.UUID;
@@ -27,10 +27,13 @@ public interface SalaRepository extends BasicRepository<Sala, Integer> {
 
     public List<Sala> findById(List<Integer> ids);
 
-    boolean exists(Integer id);
+    public boolean exists(Integer id);
 
     public int delete(Integer id);
 
     public int delete(List<Integer> ids);
 
+    public BidiMap<UUID, Integer> findIds(List<UUID> uids);
+
+    public BidiMap<UUID, Integer> findIds(UUID uid);
 }

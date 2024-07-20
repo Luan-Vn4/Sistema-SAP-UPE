@@ -56,14 +56,14 @@ public class JdbiSalaRepository implements SalaRepository {
     // UPDATE
     @Override
     public Sala update(Sala sala) {
-        final String UPDATE = "UPDATE salas SET nome = :nome, tipo = :tipo WHERE id = :id RETURNING %s"
+        final String UPDATE = "UPDATE salas SET nome = :nome, tipo = CAST(:tipoSala AS tipo_sala) WHERE id = :id RETURNING %s"
             .formatted(returningColumns);
 
         return jdbi.withHandle(handle -> handle
             .createUpdate(UPDATE)
             .bindBean(sala)
             .executeAndReturnGeneratedKeys()
-            .mapToBean(Sala.class)
+            .map(this::mapSala)
             .findFirst().orElse(null));
     }
 
@@ -72,8 +72,8 @@ public class JdbiSalaRepository implements SalaRepository {
         return salas.stream().map(this::update).toList();
     }
 
-    // READ
-    public BidiMap<UUID, Integer> findId(UUID uid) {
+    @Override
+    public BidiMap<UUID, Integer> findIds(UUID uid) {
         final String SELECT = "SELECT uid, id FROM SALAS WHERE uid = :uid LIMIT 1";
 
         BidiMap<UUID, Integer> results = new DualHashBidiMap<>();
@@ -94,6 +94,7 @@ public class JdbiSalaRepository implements SalaRepository {
         }
     }
 
+    @Override
     public BidiMap<UUID, Integer> findIds(List<UUID> uids) {
         final String SELECT = "SELECT uid, id FROM salas WHERE uid IN (%s) LIMIT %d"
                 .formatted("<uids>", uids.size());
@@ -112,12 +113,13 @@ public class JdbiSalaRepository implements SalaRepository {
 
     @Override
     public List<Sala> findByTipo(TipoSala tipoSala) {
-        final String SELECT = "SELECT %s FROM salas WHERE tipo = :tipo".formatted(returningColumns);
+        final String SELECT = "SELECT %s FROM salas WHERE tipo = CAST(:tipoSala AS tipo_sala)".formatted(returningColumns);
 
         return jdbi.withHandle(handle -> handle
-            .createQuery(SELECT)
-            .mapToBean(Sala.class)
-            .collectIntoList());
+                .createQuery(SELECT)
+                .bind("tipoSala", tipoSala.getLabel())
+                .map(this::mapSala)
+                .list());
     }
 
     @Override
@@ -126,7 +128,8 @@ public class JdbiSalaRepository implements SalaRepository {
 
         return jdbi.withHandle(handle -> handle
             .createQuery(SELECT)
-            .mapToBean(Sala.class)
+            .bind("nome", nome)
+            .map(this::mapSala)
             .findFirst().orElse(null));
     }
 
@@ -136,7 +139,8 @@ public class JdbiSalaRepository implements SalaRepository {
 
         return jdbi.withHandle(handle -> handle
             .createQuery(SELECT)
-            .mapToBean(Sala.class)
+            .bind("id", id)
+            .map(this::mapSala)
             .findFirst().orElse(null));
     }
 
@@ -146,7 +150,7 @@ public class JdbiSalaRepository implements SalaRepository {
 
         return jdbi.withHandle(handle -> handle
             .createQuery(SELECT)
-            .mapToBean(Sala.class)
+            .map(this::mapSala)
             .collectIntoList());
     }
 //UID
@@ -163,7 +167,7 @@ public class JdbiSalaRepository implements SalaRepository {
         return jdbi.withHandle(handle -> handle
             .createQuery(SELECT)
             .bindList("ids", ids)
-            .mapToBean(Sala.class)
+            .map(this::mapSala)
             .collectIntoList());
     }
 
