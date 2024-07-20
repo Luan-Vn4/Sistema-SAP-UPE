@@ -46,10 +46,10 @@ public class JdbiGrupoTerapeuticoRepository implements GrupoTerapeuticoRepositor
     @Override
     public GrupoTerapeutico update(GrupoTerapeutico grupoTerapeutico) {
         final String query = """
-                    UPDATE grupos_terapeuticos
-                    SET tema = :tema
-                    WHERE uid = CAST (:uid AS UUID)
-                """;
+                UPDATE grupos_terapeuticos
+                SET tema = :tema
+                WHERE uid = CAST (:uid AS UUID)
+            """;
 
         return jdbi.withHandle(handle -> handle
                 .createUpdate(query)
@@ -103,8 +103,8 @@ public class JdbiGrupoTerapeuticoRepository implements GrupoTerapeuticoRepositor
     @Override
     public List<GrupoTerapeutico> findAll() {
         final String query = """
-                SELECT * FROM grupos_terapeuticos
-                """;
+            SELECT * FROM grupos_terapeuticos
+            """;
 
         return jdbi.withHandle(handle -> handle
                 .createQuery(query)
@@ -116,13 +116,13 @@ public class JdbiGrupoTerapeuticoRepository implements GrupoTerapeuticoRepositor
     public List<GrupoTerapeutico> findByFuncionario(UUID uidFuncionario) {
         // Não tenho certeza
         final String query = """
-                WITH id_func AS (
-                    SELECT id FROM funcionarios WHERE uid = CAST(:uid AS UUID) LIMIT 1),
-                id_participacao AS (
-                    SELECT id_grupo_terapeutico AS id_grupo FROM participacao_grupo_terapeutico
-                        WHERE id_funcionario = (SELECT id FROM id_func LIMIT 1))
-                SELECT * FROM grupos_terapeuticos WHERE id IN (select id_grupo from id_participacao);
-                """;
+            WITH id_func AS (
+                SELECT id FROM funcionarios WHERE uid = CAST(:uid AS UUID) LIMIT 1),
+            id_participacao AS (
+                SELECT id_grupo_terapeutico AS id_grupo FROM participacao_grupo_terapeutico
+                    WHERE id_funcionario = (SELECT id FROM id_func LIMIT 1))
+            SELECT * FROM grupos_terapeuticos WHERE id IN (select id_grupo from id_participacao);
+            """;
 
         return jdbi.withHandle(handle -> handle
                 .createQuery(query)
@@ -133,13 +133,13 @@ public class JdbiGrupoTerapeuticoRepository implements GrupoTerapeuticoRepositor
     @Override
     public List<GrupoTerapeutico> findByFicha(UUID idFicha) {
         final String query = """
-                WITH id_fic AS (
-                    SELECT id FROM fichas WHERE uid = CAST(:uid AS UUID) LIMIT 1),
-                id_atendimento AS (
-                    SELECT id_atendimento_grupo AS id_grupo FROM ficha_atendimento_grupo 
-                        WHERE id_ficha = (SELECT id FROM id_fic LIMIT 1))
-                SELECT * FROM grupos_terapeuticos WHERE id = (SELECT id_grupo FROM id_atendimento)
-                """;
+            WITH id_fic AS (
+                SELECT id FROM fichas WHERE uid = CAST(:uid AS UUID) LIMIT 1),
+            id_atendimento AS (
+                SELECT id_atendimento_grupo AS id_grupo FROM ficha_atendimento_grupo
+                    WHERE id_ficha = (SELECT id FROM id_fic LIMIT 1))
+            SELECT * FROM grupos_terapeuticos WHERE id = (SELECT id_grupo FROM id_atendimento)
+            """;
 
         return jdbi.withHandle(handle -> handle
                 .createQuery(query)
@@ -150,21 +150,21 @@ public class JdbiGrupoTerapeuticoRepository implements GrupoTerapeuticoRepositor
     @Override
     public GrupoTerapeutico addFuncionario(UUID uidFuncionario, UUID uidGrupoTerapeutico) {
         final String query = """
-                WITH id_func AS (
-                    SELECT id FROM funcionarios WHERE uid = CAST(:uid_funcionario AS UUID) LIMIT 1),
-                id_grupo AS (
-                    SELECT id FROM grupos_terapeuticos WHERE uid = CAST(:uid_grupo AS UUID) LIMIT 1)
-                INSERT INTO participacao_grupo_terapeutico(id_funcionario, id_grupo_terapeutico)
-                VALUES ((SELECT id FROM id_func), (SELECT id FROM id_grupo))
-                """;
+            WITH id_func AS (
+                SELECT id FROM funcionarios WHERE uid = CAST(:uid_funcionario AS UUID) LIMIT 1),
+            id_grupo AS (
+                SELECT id FROM grupos_terapeuticos WHERE uid = CAST(:uid_grupo AS UUID) LIMIT 1)
+            INSERT INTO participacao_grupo_terapeutico(id_funcionario, id_grupo_terapeutico)
+            VALUES ((SELECT id FROM id_func), (SELECT id FROM id_grupo))
+            """;
 
         return jdbi.withHandle(handle -> handle
-                .createUpdate(query)
-                .bind("uid_funcionario", uidFuncionario)
-                .bind("uid_grupo", uidGrupoTerapeutico)
-                .executeAndReturnGeneratedKeys()
-                .mapToBean(GrupoTerapeutico.class)
-                .findFirst().orElseThrow(EntityNotFoundException::new));
+            .createUpdate(query)
+            .bind("uid_funcionario", uidFuncionario)
+            .bind("uid_grupo", uidGrupoTerapeutico)
+            .executeAndReturnGeneratedKeys()
+            .mapToBean(GrupoTerapeutico.class)
+            .findFirst().orElseThrow(EntityNotFoundException::new));
     }
 
     // não sei oq fazer aqui

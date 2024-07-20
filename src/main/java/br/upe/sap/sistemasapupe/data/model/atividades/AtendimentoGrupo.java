@@ -2,8 +2,6 @@ package br.upe.sap.sistemasapupe.data.model.atividades;
 
 import br.upe.sap.sistemasapupe.data.model.enums.StatusAtividade;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Funcionario;
-import br.upe.sap.sistemasapupe.data.model.grupos.GrupoTerapeutico;
-import br.upe.sap.sistemasapupe.data.model.pacientes.Ficha;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -14,21 +12,21 @@ import java.util.UUID;
 @ToString
 public class AtendimentoGrupo extends Atividade {
 
-    private GrupoTerapeutico grupoTerapeutico;
+    private Integer idGrupoTerapeutico;
 
-    private List<Ficha> participantes;
+    private List<Integer> idsParticipantes;
 
-    private List<Funcionario> ministrantes;
+    private List<Integer> idsMinistrantes;
 
     @Builder
     public AtendimentoGrupo(int id, UUID uid, Sala sala, LocalDateTime tempoInicio,
                             LocalDateTime tempoFim, StatusAtividade statusAtividade,
-                            Funcionario funcionario, GrupoTerapeutico grupoTerapeutico,
-                            List<Ficha> participantes, List<Funcionario> ministrantes) {
+                            Funcionario funcionario, Integer idGrupoTerapeutico,
+                            List<Integer> idsParticipantes, List<Integer> idsMinistrantes) {
         super(id, uid, sala, tempoInicio, tempoFim, statusAtividade, funcionario);
-        this.participantes = participantes;
-        this.grupoTerapeutico = grupoTerapeutico;
-        this.ministrantes = ministrantes;
+        this.idsParticipantes = idsParticipantes;
+        this.idGrupoTerapeutico = idGrupoTerapeutico;
+        this.idsMinistrantes = idsMinistrantes;
     }
 
 }

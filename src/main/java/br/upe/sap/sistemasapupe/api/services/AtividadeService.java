@@ -1,6 +1,6 @@
 package br.upe.sap.sistemasapupe.api.services;
 
-import br.upe.sap.sistemasapupe.data.repositories.interfaces.AtividadesRepository;
+import br.upe.sap.sistemasapupe.data.repositories.interfaces.atividades.AtividadeRepositoryFacade;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -8,6 +8,6 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class AtividadeService {
 
-    AtividadesRepository atividadesRepository;
+    AtividadeRepositoryFacade atividadesRepository;
 
 }

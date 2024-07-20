@@ -2,7 +2,7 @@ package br.upe.sap.sistemasapupe.data.repositories.jdbi;
 
 import br.upe.sap.sistemasapupe.data.model.atividades.Sala;
 import br.upe.sap.sistemasapupe.data.model.enums.TipoSala;
-import br.upe.sap.sistemasapupe.data.repositories.interfaces.SalaRepository;
+import br.upe.sap.sistemasapupe.data.repositories.interfaces.atividades.sala.SalaRepository;
 import lombok.AllArgsConstructor;
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
@@ -150,6 +150,11 @@ public class JdbiSalaRepository implements SalaRepository {
             .collectIntoList());
     }
 //UID
+    @Override
+    public List<Sala> findByIds(List<Integer> ids) {
+        return List.of();
+    }
+
     @Override
     public List<Sala> findById(List<Integer> ids) {
         final String SELECT = "SELECT %s FROM salas WHERE id IN (%s)"

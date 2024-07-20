@@ -23,8 +23,8 @@ $$;
 
 CREATE TABLE IF NOT EXISTS supervisoes (
     id_supervisor INT NOT NULL REFERENCES funcionarios(id)
-    CHECK (is_tecnico(id_supervisor)),
-    id_estagiario INT NOT NULL REFERENCES funcionarios(id)
-    CHECK (NOT is_tecnico(id_estagiario)),
+        CHECK (is_tecnico(id_supervisor)),
+    id_estagiario INT NOT NULL REFERENCES funcionarios(id) ON DELETE CASCADE
+        CHECK (NOT is_tecnico(id_estagiario)),
     CONSTRAINT pk_supervisor_estagiario PRIMARY KEY (id_supervisor, id_estagiario)
 );

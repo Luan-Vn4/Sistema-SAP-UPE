@@ -19,8 +19,8 @@ public class AtendimentoIndividual extends Atividade {
     @Builder
     public AtendimentoIndividual(int id, UUID uid, Sala sala, LocalDateTime tempoInicio,
                                  LocalDateTime tempoFim, StatusAtividade statusAtividade,
-                                 Ficha ficha, Funcionario terapeuta) {
-        super(id, uid, sala, tempoInicio, tempoFim, statusAtividade, terapeuta);
+                                 Funcionario terapeuta, Ficha ficha, Funcionario funcionario) {
+        super(id, uid, sala, tempoInicio, tempoFim, statusAtividade, funcionario);
         this.ficha = ficha;
         this.terapeuta = terapeuta;
     }
