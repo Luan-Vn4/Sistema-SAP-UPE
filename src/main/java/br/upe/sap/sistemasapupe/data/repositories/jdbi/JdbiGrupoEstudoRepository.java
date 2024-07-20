@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -19,6 +20,8 @@ public class JdbiGrupoEstudoRepository implements GrupoEstudoRepository {
 
     Jdbi jdbi;
     FuncionarioRepository funcionarioRepository;
+
+    private final String returningColumns = "id, uid, id_dono, tema, descricao";
 
     private GrupoEstudo mapGrupoEstudo(ResultSet rs, StatementContext stx) throws SQLException {
         GrupoEstudo grupoEstudo = BeanMapper.of(GrupoEstudo.class).map(rs, stx);
@@ -29,13 +32,14 @@ public class JdbiGrupoEstudoRepository implements GrupoEstudoRepository {
     @Override
     public GrupoEstudo create(GrupoEstudo grupoEstudo) {
         String CREATE = """
-                INSERT INTO grupos_estudo (id_dono, tema)
-                VALUES (:id_dono, :tema)
+                INSERT INTO grupos_estudo (id_dono, tema, descricao)
+                VALUES (:id_dono, :tema, :descricao)
                 """;
         return jdbi.withHandle(handle -> handle
                 .createUpdate(CREATE)
                 .bind("id_dono", grupoEstudo.getDono().getId())
                 .bind("tema", grupoEstudo.getTemaEstudo())
+                .bind("descricao", grupoEstudo.getDescricao())
                 .executeAndReturnGeneratedKeys()
                 .map(this::mapGrupoEstudo)
                 .findFirst()
@@ -50,12 +54,25 @@ public class JdbiGrupoEstudoRepository implements GrupoEstudoRepository {
 
     @Override
     public GrupoEstudo update(GrupoEstudo grupoEstudo) {
-        return null;
+        final String UPDATE = "UPDATE grupos_estudo SET id_dono = :id_dono, tema = :tema, descricao = :descricao WHERE id = :id RETURNING %s"
+                .formatted(returningColumns);
+
+        return jdbi.withHandle(handle -> handle
+                .createUpdate(UPDATE)
+                .bindBean(grupoEstudo)
+                .executeAndReturnGeneratedKeys()
+                .map(this::mapGrupoEstudo)
+                .findFirst().orElse(null));
     }
 
     @Override
     public List<GrupoEstudo> update(List<GrupoEstudo> grupoEstudos) {
-        return null;
+        return jdbi.inTransaction(handle -> {
+            List<GrupoEstudo> result = new ArrayList<>();
+            for (GrupoEstudo grupoEstudo : grupoEstudos){ result.add(update(grupoEstudo));
+            }
+            return result;
+        });
     }
 
 
@@ -80,7 +97,7 @@ public class JdbiGrupoEstudoRepository implements GrupoEstudoRepository {
 
         return jdbi.withHandle(handle -> handle
                         .createUpdate(DELETE)
-                        .bind("id_dono", id))
+                        .bind("id", id))
                 .execute();
     }
 
@@ -105,9 +122,13 @@ public class JdbiGrupoEstudoRepository implements GrupoEstudoRepository {
     }
 
     @Override
-    public void deleteParticipacao(int idParticipante) {
-        final String DELETE = "DELETE FROM participacao_grupos_estudo WHERE ";
+    public int deleteParticipacao(int idParticipante) {
+        final String DELETE = "DELETE FROM participacao_grupos_estudo WHERE id_participante = :id_participante";
 
+        return jdbi.withHandle(handle -> handle
+                .createUpdate(DELETE)
+                .bind("id_participante", idParticipante)
+                .execute());
     }
 }
 
