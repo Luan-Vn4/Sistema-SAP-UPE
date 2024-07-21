@@ -9,7 +9,6 @@ import org.apache.coyote.BadRequestException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,13 +21,9 @@ public class FichaController {
 
     //Criar
     @PostMapping
-    public ResponseEntity<CreateFichaDTO> createFicha(@RequestBody CreateFichaDTO fichaDTO) {
+    public ResponseEntity<FichaDTO> createFicha(@RequestBody CreateFichaDTO fichaDTO) {
         FichaDTO ficha = fichaService.createFicha(fichaDTO);
-        // Construa a URI do novo recurso criado
-        URI location = URI.create(String.format("/fichas/%s", ficha.id()));
-
-        // Retorne a resposta com o status 201 Created e a URI no cabeçalho Location
-        return ResponseEntity.created(location).body(ficha);
+        return ResponseEntity.ok().body(ficha);
     }
 
 
