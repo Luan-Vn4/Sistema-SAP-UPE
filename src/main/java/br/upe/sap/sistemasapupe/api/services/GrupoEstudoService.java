@@ -10,9 +10,9 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -124,5 +124,12 @@ public class GrupoEstudoService {
         return grupoEstudoRepository.deleteParticipacao(idParticipante, idGrupoEstudo) > 0;
     }
 
+    public List<UUID> getParticipantesByGrupoEsudo(UUID idGrupoEstudo){
+        int id = grupoEstudoRepository.findIds(idGrupoEstudo).get(idGrupoEstudo);
+        List<Integer> resultadoBD = grupoEstudoRepository.findParticipantesByGrupoEstudo(id);
+        return resultadoBD.stream()
+                .map(participanteId -> funcionarioRepository.findById(participanteId).getUid())
+                .collect(Collectors.toList());
+    }
 
 }

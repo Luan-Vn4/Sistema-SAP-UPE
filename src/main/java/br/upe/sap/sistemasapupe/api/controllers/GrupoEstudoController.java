@@ -51,6 +51,12 @@ public class GrupoEstudoController {
         return grupoEstudo != null ? ResponseEntity.ok(grupoEstudo) : ResponseEntity.notFound().build();
     }
 
+    @GetMapping("/participantes/{uuid}")
+    public ResponseEntity<List<UUID>> getParticipantesByGrupoEstudo(@PathVariable UUID uuid){
+        List<UUID> ids = grupoEstudoService.getParticipantesByGrupoEsudo(uuid);
+        return ids != null ? ResponseEntity.ok(ids) : ResponseEntity.notFound().build();
+    }
+
     @PutMapping("/update")
     public ResponseEntity<GrupoEstudoDTO> update(@RequestBody GrupoEstudoDTO grupoEstudo) {
         GrupoEstudoDTO grupoEstudoDTO  = grupoEstudoService.update(grupoEstudo);

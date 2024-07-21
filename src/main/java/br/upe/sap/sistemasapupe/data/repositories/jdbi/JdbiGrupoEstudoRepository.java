@@ -226,6 +226,16 @@ public class JdbiGrupoEstudoRepository implements GrupoEstudoRepository {
                 .bind("id_grupo_estudo", idGrupoEstudo)
                 .execute());
     }
+    @Override
+    public List<Integer> findParticipantesByGrupoEstudo(Integer idGrupoEstudo) {
+        final String QUERY = "SELECT id_participante FROM participacao_grupos_estudo WHERE id_grupo_estudo = :id_grupo_estudo";
+
+        return jdbi.withHandle(handle -> handle
+                .createQuery(QUERY)
+                .bind("id_grupo_estudo", idGrupoEstudo)
+                .mapTo(Integer.class)
+                .list());
+    }
 }
 
 

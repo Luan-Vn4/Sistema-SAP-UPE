@@ -19,4 +19,5 @@ public interface GrupoEstudoRepository extends BasicRepository<GrupoEstudo, Inte
 
     int deleteParticipacao(int idParticipante, int idGrupoEstudo);
 
+    List<Integer> findParticipantesByGrupoEstudo(Integer idGrupoEstudo);
 }
