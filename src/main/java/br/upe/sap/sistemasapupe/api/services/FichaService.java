@@ -3,6 +3,7 @@ package br.upe.sap.sistemasapupe.api.services;
 
 import br.upe.sap.sistemasapupe.api.dtos.paciente.CreateFichaDTO;
 import br.upe.sap.sistemasapupe.api.dtos.paciente.FichaDTO;
+import br.upe.sap.sistemasapupe.api.dtos.paciente.UpdateFichaDTO;
 import br.upe.sap.sistemasapupe.data.model.pacientes.Ficha;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.FichaRepository;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.FuncionarioRepository;
@@ -26,8 +27,8 @@ public class FichaService {
         return FichaDTO.from(fichaCriada);
     }
 
-    public FichaDTO updateFicha (FichaDTO fichaDTO){
-        Ficha ficha = FichaDTO.from(fichaDTO);
+    public FichaDTO updateFicha (UpdateFichaDTO fichaDTO){
+        Ficha ficha = UpdateFichaDTO.from(fichaDTO);
 
         Ficha fichaExistente = fichaRepository.findById(fichaRepository.
                 findIds(fichaDTO.uid())
