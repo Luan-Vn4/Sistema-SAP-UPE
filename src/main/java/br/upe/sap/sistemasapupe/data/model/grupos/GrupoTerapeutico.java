@@ -9,14 +9,22 @@ import lombok.*;
 import java.util.List;
 import java.util.UUID;
 
-@Getter @Setter
-@AllArgsConstructor
+@Getter
+@Setter
 @ToString
 @NoArgsConstructor
 public class GrupoTerapeutico {
     private int id;
     private UUID uid;
-    private String temaTerapia;
-    private List<Funcionario> coordenadores;
-    private List<Ficha> fichas;
+    private String tema;
+    private String descricao;
+    private int idDono;
+
+
+    @Builder(builderMethodName = "grupoTerapeuticoBuilder")
+    public GrupoTerapeutico(String tema, String descricao, int idDono) {
+        this.tema = tema;
+        this.descricao = descricao;
+        this.idDono = idDono;
+    }
 }

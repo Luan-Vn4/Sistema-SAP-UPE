@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS grupos_terapeuticos(
 );
 
 CREATE TABLE IF NOT EXISTS fichas(
-    id INT PRIMARY KEY,
+    id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     uid UUID DEFAULT uuid_generate_v4(),
     nome VARCHAR(25) NOT NULL,
     id_responsavel BIGINT REFERENCES funcionarios(id) ON DELETE CASCADE,

@@ -61,6 +61,8 @@ public class SecurityConfiguration {
                 .requestMatchers("/api/v1/comentarios").permitAll()
                 .requestMatchers("/api/v1/comentarios/delete/**").hasRole(Cargo.TECNICO.getRole())
                 .requestMatchers("/api/v1/comentarios/**").permitAll()
+                .requestMatchers("/api/v1/sala").hasRole(Cargo.TECNICO.getRole())
+                .requestMatchers("/api/v1/sala/**").permitAll()
                 .anyRequest().authenticated())
             .csrf(CsrfConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

@@ -13,10 +13,5 @@ import java.util.UUID;
 @Builder
 public record  AtividadesDTO (UUID uid, Sala sala, LocalDateTime tempoInicio, LocalDateTime tempoFim,
                               StatusAtividade status, FuncionarioDTO funcionario){
-    public static AtividadesDTO from (Atividade atividade){
-        FuncionarioDTO funcionario = FuncionarioDTO.from(atividade.getFuncionario());
-        return new AtividadesDTO(atividade.getUid(),atividade.getSala(),
-                atividade.getTempoInicio(), atividade.getTempoFim(),
-                atividade.getStatus(), funcionario);
-    }
+
 }
