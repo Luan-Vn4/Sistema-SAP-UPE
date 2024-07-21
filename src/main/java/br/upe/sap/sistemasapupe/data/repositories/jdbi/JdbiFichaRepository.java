@@ -185,7 +185,6 @@ public class JdbiFichaRepository implements FichaRepository {
     @Override
     public boolean exists(Integer id) {
         final String QUERY = """
-            
                 SELECT COUNT(*) > 0 FROM fichas
                     WHERE id = :id GROUP BY id LIMIT 1
             """;

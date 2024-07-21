@@ -16,8 +16,9 @@ public interface GrupoTerapeuticoRepository extends BasicRepository<GrupoTerapeu
 
     GrupoTerapeutico addFuncionario(List<Integer> idsFuncionarios, Integer idGrupoTerapeutico);
 
-    void addFicha(Integer uidFicha, Integer uidGrupoTerapeutico);
-    void addFicha(List<Integer> idsFicha, Integer idGrupoTerapeutico);
+    GrupoTerapeutico addFicha(Integer uidFicha, Integer uidGrupoTerapeutico);
+
+    GrupoTerapeutico addFicha(List<Integer> idsFicha, Integer idGrupoTerapeutico);
 
     GrupoTerapeutico findById(Integer uidGrupoTerapeutico);
 
