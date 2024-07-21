@@ -71,10 +71,10 @@ public class JdbiGrupoEstudoRepositoryTest {
         estagiario = funcionariosRepository.createEstagiario(estagiario);
 
         GrupoEstudo grupoEstudo = GrupoEstudo.grupoEstudoBuilder()
-                .tema("AAAA")
-                .dono(supervisor.getId())
-                .descricao("cai dentro")
-                .build();
+            .tema("AAAA")
+            .dono(supervisor.getId())
+            .descricao("cai dentro")
+            .build();
 
         GrupoEstudo createdGrupoEstudo = grupoEstudoRepository.create(grupoEstudo);
 
@@ -179,10 +179,10 @@ public class JdbiGrupoEstudoRepositoryTest {
         estagiario = funcionariosRepository.createEstagiario(estagiario);
 
         GrupoEstudo grupoEstudo1 = GrupoEstudo.grupoEstudoBuilder()
-                .tema("AAAA")
-                .dono(supervisor.getId())
-                .descricao("cai dentro")
-                .build();
+            .tema("AAAA")
+            .dono(supervisor.getId())
+            .descricao("cai dentro")
+            .build();
 
         grupoEstudo1 = grupoEstudoRepository.create(grupoEstudo1);
         grupoEstudoRepository.addFuncionario(estagiario.getId(), grupoEstudo1.getId());

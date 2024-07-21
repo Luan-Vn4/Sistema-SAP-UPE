@@ -9,11 +9,6 @@ import java.util.UUID;
 public class GrupoEstudo {
     private int id;
     private UUID uid;
-<<<<<<< HEAD
-    private String temaEstudo;
-    private String descricao;
-    private Funcionario dono;
-=======
     private String tema;
     private String descricao;
     private Integer dono;
@@ -24,5 +19,5 @@ public class GrupoEstudo {
         this.descricao = descricao;
         this.dono = dono;
     }
->>>>>>> 2396ebe1d0ee01bfc3741538ac72be5f231d471f
+
 }

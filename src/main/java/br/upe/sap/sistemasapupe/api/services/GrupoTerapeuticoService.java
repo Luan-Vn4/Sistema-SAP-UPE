@@ -2,9 +2,7 @@ package br.upe.sap.sistemasapupe.api.services;
 
 import br.upe.sap.sistemasapupe.api.dtos.funcionarios.FuncionarioDTO;
 import br.upe.sap.sistemasapupe.api.dtos.grupo.GrupoTerapeuticoDTO;
-import br.upe.sap.sistemasapupe.data.model.funcionarios.Funcionario;
 import br.upe.sap.sistemasapupe.data.model.grupos.GrupoTerapeutico;
-import br.upe.sap.sistemasapupe.data.model.pacientes.Ficha;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.FichaRepository;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.FuncionarioRepository;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.GrupoTerapeuticoRepository;
@@ -69,8 +67,8 @@ public class GrupoTerapeuticoService {
         return GrupoTerapeuticoDTO.from(grupoExistente, funcionarioRepository);
     }
 
-    public List<GrupoTerapeuticoDTO> findByFuncionario(FuncionarioDTO dto){
-        Integer idFuncionario = funcionarioRepository.findIds(dto.uid()).get(dto.uid());
+    public List<GrupoTerapeuticoDTO> findByFuncionario(FuncionarioDTO dto) {
+        Integer idFuncionario = funcionarioRepository.findIds(dto.id()).get(dto.id());
         List<GrupoTerapeutico> grupos = grupoTerapeuticoRepository.findByFuncionario(idFuncionario);
         List<GrupoTerapeuticoDTO> gruposDtos = new ArrayList<>();
 
