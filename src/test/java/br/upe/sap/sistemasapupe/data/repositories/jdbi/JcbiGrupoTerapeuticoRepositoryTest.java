@@ -1,11 +1,9 @@
 package br.upe.sap.sistemasapupe.data.repositories.jdbi;
 
 import br.upe.sap.sistemasapupe.configuration.DataSourceTestConfiguration;
-import br.upe.sap.sistemasapupe.data.model.funcionarios.Funcionario;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Tecnico;
 import br.upe.sap.sistemasapupe.data.model.grupos.GrupoTerapeutico;
 import br.upe.sap.sistemasapupe.data.model.pacientes.Ficha;
-import br.upe.sap.sistemasapupe.data.model.posts.Comentario;
 import org.jdbi.v3.core.Jdbi;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -51,12 +49,12 @@ public class JcbiGrupoTerapeuticoRepositoryTest {
     }
 
     private List<Ficha> getFichas() {
-        Ficha ficha1 = Ficha.fichaBuilder()
-                .funcionario(1)
+        Ficha ficha1 = Ficha.builder()
+                .idFuncionario(1)
                 .nome("Pedin")
                 .build();
-        Ficha ficha2 = Ficha.fichaBuilder()
-                .funcionario(2)
+        Ficha ficha2 = Ficha.builder()
+                .idFuncionario(2)
                 .nome("Erick")
                 .build();
 

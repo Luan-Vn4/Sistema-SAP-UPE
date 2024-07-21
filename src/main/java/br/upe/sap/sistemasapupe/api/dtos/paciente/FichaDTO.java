@@ -13,7 +13,7 @@ public record FichaDTO (UUID uid, int idResponsavel, String nome, GrupoTerapeuti
     //FALTA O DTO DO GRUPO TERAPEUTICOOOOOO
     public static FichaDTO from (Ficha ficha){
         return new FichaDTO(ficha.getUid(), ficha.getIdResponsavel(),
-                ficha.getNome() );
+                ficha.getNome(), null );
     }
 
     //FALTA O DTO DO GRUPO TERAPEUTICOOOOOOOO
