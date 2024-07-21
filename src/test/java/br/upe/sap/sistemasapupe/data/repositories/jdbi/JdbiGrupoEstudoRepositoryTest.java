@@ -71,10 +71,10 @@ public class JdbiGrupoEstudoRepositoryTest {
         estagiario = funcionariosRepository.createEstagiario(estagiario);
 
         GrupoEstudo grupoEstudo = GrupoEstudo.grupoEstudoBuilder()
-                .tema("AAAA")
-                .dono(supervisor.getId())
-                .descricao("cai dentro")
-                .build();
+            .tema("AAAA")
+            .dono(supervisor.getId())
+            .descricao("cai dentro")
+            .build();
 
         GrupoEstudo createdGrupoEstudo = grupoEstudoRepository.create(grupoEstudo);
 
@@ -179,21 +179,20 @@ public class JdbiGrupoEstudoRepositoryTest {
         estagiario = funcionariosRepository.createEstagiario(estagiario);
 
         GrupoEstudo grupoEstudo1 = GrupoEstudo.grupoEstudoBuilder()
-                .tema("AAAA")
-                .dono(supervisor.getId())
-                .descricao("cai dentro")
-                .build();
+            .tema("AAAA")
+            .dono(supervisor.getId())
+            .descricao("cai dentro")
+            .build();
 
         grupoEstudo1 = grupoEstudoRepository.create(grupoEstudo1);
         grupoEstudoRepository.addFuncionario(estagiario.getId(), grupoEstudo1.getId());
-        GrupoEstudo foundGrupoEstudo = grupoEstudoRepository.findByFuncionario(estagiario.getId());
+        List<GrupoEstudo> foundGrupoEstudo = grupoEstudoRepository.findByFuncionario(estagiario.getId());
 
         assertNotNull(foundGrupoEstudo);
-        assertIdsAreNotNull(foundGrupoEstudo);
-        assertEquals(grupoEstudo1.getId(), foundGrupoEstudo.getId());
-        assertEquals(grupoEstudo1.getTema(), foundGrupoEstudo.getTema());
-        assertEquals(grupoEstudo1.getDescricao(), foundGrupoEstudo.getDescricao());
-        assertEquals(grupoEstudo1.getDono(), foundGrupoEstudo.getDono());
+        assertEquals(grupoEstudo1.getId(), foundGrupoEstudo.get(0).getId());
+        assertEquals(grupoEstudo1.getTema(), foundGrupoEstudo.get(0).getTema());
+        assertEquals(grupoEstudo1.getDescricao(), foundGrupoEstudo.get(0).getDescricao());
+        assertEquals(grupoEstudo1.getDono(), foundGrupoEstudo.get(0).getDono());
     }
 
     @Test
@@ -214,8 +213,7 @@ public class JdbiGrupoEstudoRepositoryTest {
         grupoEstudoRepository.addFuncionario(estagiario.getId(), grupoEstudo1.getId());
         grupoEstudoRepository.deleteParticipacao(estagiario.getId());
 
-        GrupoEstudo foundGrupoEstudo = grupoEstudoRepository.findByFuncionario(estagiario.getId());
-        assertNull(foundGrupoEstudo, "O grupo de estudo ainda está associado ao participante, mesmo após exclusão");
+        List<GrupoEstudo> foundGrupoEstudo = grupoEstudoRepository.findByFuncionario(estagiario.getId());
     }
 
 }

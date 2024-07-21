@@ -9,7 +9,7 @@ public record CreateFichaDTO (int idResponsavel, String nome, GrupoTerapeuticoDT
 
     //FALTA O DTO DO GRUPO TERAPEUTICOOOOOO
     public static Ficha fromDTO(CreateFichaDTO dto){
-        return Ficha.fichaBuilder().idResponsavel(dto.idResponsavel())
+        return Ficha.builder().idResponsavel(dto.idResponsavel())
                 .nome(dto.nome()).build();
     }
 }

@@ -18,7 +18,7 @@ public record FichaDTO (UUID uid, int idResponsavel, String nome, GrupoTerapeuti
 
     //FALTA O DTO DO GRUPO TERAPEUTICOOOOOOOO
     public static Ficha from (FichaDTO dto){
-        return Ficha.fichaBuilder().uid(dto.uid).idResponsavel(dto.idResponsavel)
+        return Ficha.builder().uid(dto.uid).idResponsavel(dto.idResponsavel)
                 .nome(dto.nome).build();
     }
 

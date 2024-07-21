@@ -7,6 +7,7 @@ import br.upe.sap.sistemasapupe.api.dtos.paciente.UpdateFichaDTO;
 import br.upe.sap.sistemasapupe.data.model.pacientes.Ficha;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.FichaRepository;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.FuncionarioRepository;
+import br.upe.sap.sistemasapupe.data.repositories.interfaces.GrupoTerapeuticoRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class FichaService {
+    private final GrupoTerapeuticoRepository grupoTerapeuticoRepository;
     FichaRepository fichaRepository;
     FuncionarioRepository funcionarioRepository;
 
@@ -27,23 +29,31 @@ public class FichaService {
         return FichaDTO.from(fichaCriada);
     }
 
-    public FichaDTO updateFicha (UpdateFichaDTO fichaDTO){
-        Ficha ficha = UpdateFichaDTO.from(fichaDTO);
-
+    public FichaDTO updateFicha (UpdateFichaDTO fichaDTO) {
         Ficha fichaExistente = fichaRepository.findById(fichaRepository.
-                findIds(fichaDTO.uid())
-                .get(fichaDTO.uid()));
+            findIds(fichaDTO.uid())
+            .get(fichaDTO.uid()));
 
-        if (fichaExistente == null){
-            throw new EntityNotFoundException("Ficha não encontrada para o UID: " + FichaDTO.uid());
+        UUID uidResponsavel = fichaDTO.idResponsavel();
+        Integer idResponsavel = funcionarioRepository.findIds(uidResponsavel).get(uidResponsavel);
+
+        if (fichaExistente == null) {
+            throw new EntityNotFoundException("Ficha não encontrada para o UID: " + fichaDTO.uid());
         }
 
-        fichaExistente.setIdResponsavel(fichaDTO.idResponsavel());
-        fichaExistente.setNome(fichaDTO.nome());
-        fichaExistente.setGrupoTerapeutico(fichaDTO.grupoTerapeutico());
+        UUID uidGrupoTerapeutico = fichaDTO.idGrupoTerapeutico();
+        Integer idGrupoTerapeutico = grupoTerapeuticoRepository.findIds(uidGrupoTerapeutico).get(uidGrupoTerapeutico);
+
+        fichaExistente.setIdResponsavel(valueOrElse(idResponsavel, fichaExistente.getIdResponsavel()));
+        fichaExistente.setNome(valueOrElse(fichaDTO.nome(), fichaExistente.getNome()));
+        fichaExistente.setIdGrupoTerapeutico(valueOrElse(idGrupoTerapeutico, fichaExistente.getIdGrupoTerapeutico()));
 
         Ficha fichaAtualizada = fichaRepository.update(fichaExistente);
         return FichaDTO.from(fichaAtualizada);
+    }
+
+    private <T> T valueOrElse(T value, T alternative) {
+        return (value != null ? value : alternative);
     }
 
     public FichaDTO getFichaByUid (UUID uid){

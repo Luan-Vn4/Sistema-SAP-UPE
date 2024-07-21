@@ -1,8 +1,6 @@
 package br.upe.sap.sistemasapupe.data.model.pacientes;
 
-import br.upe.sap.sistemasapupe.data.model.grupos.GrupoTerapeutico;
 import lombok.*;
-
 import java.util.UUID;
 
 @Getter @Setter
@@ -14,16 +12,16 @@ public class Ficha {
     private UUID uid;
     private int idResponsavel;
     private String nome;
-    private GrupoTerapeutico grupoTerapeutico;
+    private Integer idGrupoTerapeutico;
 
 
     @Builder
-    public Ficha(int id, UUID uid, int idResponsavel, String nome, GrupoTerapeutico grupoTerapeutico) {
+    public Ficha(int id, UUID uid, int idResponsavel, String nome, Integer idGrupoTerapeutico) {
         this.id = id;
         this.uid = uid;
         this.idResponsavel = idResponsavel;
         this.nome = nome;
-        this.grupoTerapeutico = grupoTerapeutico;
+        this.idGrupoTerapeutico = idGrupoTerapeutico;
     }
 
 }
