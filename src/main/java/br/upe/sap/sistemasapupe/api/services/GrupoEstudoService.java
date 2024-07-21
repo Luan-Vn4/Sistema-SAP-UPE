@@ -21,9 +21,10 @@ public class GrupoEstudoService {
     GrupoEstudoRepository grupoEstudoRepository;
 
     public GrupoEstudoDTO create(CreateGrupoEstudoDTO grupoEstudoDTO) {
-        GrupoEstudo grupoEstudo = CreateGrupoEstudoDTO.to(grupoEstudoDTO);
+        int idDono = funcionarioRepository.findIds(grupoEstudoDTO.dono()).get(grupoEstudoDTO.dono());
+        GrupoEstudo grupoEstudo = CreateGrupoEstudoDTO.to(grupoEstudoDTO, idDono);
         GrupoEstudo grupoCriado = grupoEstudoRepository.create(grupoEstudo);
-        return GrupoEstudoDTO.from(grupoCriado);
+        return GrupoEstudoDTO.from(grupoCriado, grupoEstudoDTO.dono());
     }
 
     public GrupoEstudoDTO update(GrupoEstudoDTO grupoEstudoDTO) {
@@ -33,22 +34,29 @@ public class GrupoEstudoService {
             throw new EntityNotFoundException("Grupo de estudos não encontrado para o id " + grupoEstudoDTO.id());
         }
 
+        int idDono = funcionarioRepository.findIds(grupoEstudoDTO.dono()).get(grupoEstudoDTO.dono());
+
         gupoExistente.setDescricao(grupoEstudoDTO.descricao());
-        gupoExistente.setDono(grupoEstudoDTO.dono());
+        gupoExistente.setDono(idDono);
         gupoExistente.setTema(grupoEstudoDTO.tema());
         GrupoEstudo grupoAtualizado = grupoEstudoRepository.update(gupoExistente);
 
-        return GrupoEstudoDTO.from(grupoAtualizado);
+        return GrupoEstudoDTO.from(grupoAtualizado, grupoEstudoDTO.dono());
     }
 
     public GrupoEstudoDTO getById(UUID uid) throws EntityNotFoundException {
         int id = grupoEstudoRepository.findIds(uid).get(uid);
         GrupoEstudo grupoEncontrado = grupoEstudoRepository.findById(id);
-        return GrupoEstudoDTO.from(grupoEncontrado);
+        return GrupoEstudoDTO.from(grupoEncontrado, uid);
     }
 
     public List<GrupoEstudoDTO> getAll() {
-        return grupoEstudoRepository.findAll().stream().map(GrupoEstudoDTO::from).toList();
+        return grupoEstudoRepository.findAll().stream()
+                .map(grupoEstudo -> {
+                    UUID donoUUID = grupoEstudo.getUid();
+                    return GrupoEstudoDTO.from(grupoEstudo, donoUUID);
+                })
+                .toList();
     }
 
     public List<GrupoEstudoDTO> getByIds(List<UUID> uids) {
@@ -57,7 +65,12 @@ public class GrupoEstudoService {
         if (gruposEncontrados.isEmpty()) {
             throw new EntityNotFoundException("Grupos não encontrados para os ids " + ids);
         }
-        return gruposEncontrados.stream().map(GrupoEstudoDTO::from).toList();
+        return grupoEstudoRepository.findById(ids).stream()
+                .map(grupoEstudo -> {
+                    UUID donoUUID = grupoEstudo.getUid();
+                    return GrupoEstudoDTO.from(grupoEstudo, donoUUID);
+                })
+                .toList();
     }
 
     public Boolean deleteById(UUID uid) {
@@ -78,7 +91,12 @@ public class GrupoEstudoService {
 
     public List<GrupoEstudoDTO> getByFuncionarioId(UUID uid) {
         int id = funcionarioRepository.findIds(uid).get(uid);
-        return grupoEstudoRepository.findByFuncionario(id).stream().map(GrupoEstudoDTO::from).toList();
+        return grupoEstudoRepository.findByFuncionario(id).stream()
+                .map(grupoEstudo -> {
+                    UUID donoUUID = grupoEstudo.getUid();
+                    return GrupoEstudoDTO.from(grupoEstudo, donoUUID);
+                })
+                .toList();
     }
 
     public FuncionarioDTO addFuncionario(UUID uid, UUID uidGrupo) {
