@@ -8,11 +8,8 @@ import java.util.List;
 import java.util.UUID;
 
 @Builder
-public record GrupoEstudoDTO (UUID uid, String temaEstudo, List<FuncionarioDTO> participantes) {
+public record GrupoEstudoDTO (UUID uid, String temaEstudo, String descricao, FuncionarioDTO dono, List<FuncionarioDTO> participantes) {
     public static GrupoEstudoDTO from(GrupoEstudo grupoEstudo) {
-        List<FuncionarioDTO> participantes = grupoEstudo.getParticipantes().stream()
-                .map(FuncionarioDTO::from).toList();
-        return new GrupoEstudoDTO(grupoEstudo.getUid(),grupoEstudo.getTemaEstudo(),
-                participantes);
+        return null;
     }
 }

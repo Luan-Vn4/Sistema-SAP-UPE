@@ -18,10 +18,13 @@ public class Ficha {
     private GrupoTerapeutico grupoTerapeutico;
 
     @Builder(builderMethodName = "fichaBuilder")
-    public Ficha(int funcionario, GrupoTerapeutico grupoTerapeutico, String nome){
-        this.idResponsavel = funcionario;
-        this.grupoTerapeutico = grupoTerapeutico;
+    public Ficha(int id, UUID uid, int idResponsavel, String nome, GrupoTerapeutico grupoTerapeutico){
+        this.id = id;
+        this.uid = uid;
+        this.idResponsavel = idResponsavel;
         this.nome = nome;
+        this.grupoTerapeutico = grupoTerapeutico;
+
     }
 
 }
