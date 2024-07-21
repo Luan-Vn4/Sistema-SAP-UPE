@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.util.List;
@@ -21,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @JdbcTest
 @ContextConfiguration(classes = {DataSourceTestConfiguration.class})
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ActiveProfiles("Test")
 public class JcbiGrupoTerapeuticoRepositoryTest {
 
     @Autowired
@@ -48,37 +50,35 @@ public class JcbiGrupoTerapeuticoRepositoryTest {
         return List.of(tecnico1, tecnico2);
     }
 
-    private List<Ficha> getFichas() {
+    private List<Ficha> getFichas(int idResponsavel) {
         Ficha ficha1 = Ficha.builder()
-                .idFuncionario(1)
+                .idResponsavel(idResponsavel)
                 .nome("Pedin")
                 .build();
         Ficha ficha2 = Ficha.builder()
-                .idFuncionario(2)
+                .idResponsavel(idResponsavel)
                 .nome("Erick")
                 .build();
 
         return List.of(ficha1, ficha2);
     }
 
-    private List<GrupoTerapeutico> getGrupoTerapeuticos(){
+    private List<GrupoTerapeutico> getGrupoTerapeuticos(int idDono){
         List<Integer> ids = List.of(1, 2);
         GrupoTerapeutico grupoTerapeutico1 = GrupoTerapeutico
                 .grupoTerapeuticoBuilder()
                 .tema("SAP")
-                .idDono(1)
+                .idDono(idDono)
                 .descricao("muito legal")
                 .build();
         GrupoTerapeutico grupoTerapeutico2 = GrupoTerapeutico
                 .grupoTerapeuticoBuilder()
                 .tema("Consciencia de classe")
-                .idDono(1)
+                .idDono(idDono)
                 .descricao("uau")
                 .build();
         return List.of(grupoTerapeutico1, grupoTerapeutico2);
     }
-
-
 
     @AfterEach
     public void truncateTables() {
@@ -94,8 +94,8 @@ public class JcbiGrupoTerapeuticoRepositoryTest {
         Tecnico supervisor2 = (Tecnico) funcionariosRepository.create(getTecnicos().get(1));
         List <Integer> funcionarios = List.of(supervisor1.getId(), supervisor2.getId());
 
-        Ficha ficha1 = fichaRepository.create(getFichas().get(0));
-        Ficha ficha2 = fichaRepository.create(getFichas().get(0));
+        Ficha ficha1 = fichaRepository.create(getFichas(supervisor1.getId()).get(0));
+        Ficha ficha2 = fichaRepository.create(getFichas(supervisor2.getId()).get(0));
         List <Integer> fichas = List.of(ficha1.getId(), ficha2.getId());
 
         GrupoTerapeutico grupoTerapeutico = GrupoTerapeutico
@@ -127,10 +127,10 @@ public class JcbiGrupoTerapeuticoRepositoryTest {
     public void givenTherapeuticGroup_whenFindByID_thenReturnTherapeuticGroup(){
         Tecnico supervisor1 = (Tecnico) funcionariosRepository.create(getTecnicos().get(0));
         Tecnico supervisor2 = (Tecnico) funcionariosRepository.create(getTecnicos().get(1));
-        Ficha ficha1 = fichaRepository.create(getFichas().get(0));
-        Ficha ficha2 = fichaRepository.create(getFichas().get(0));
+        Ficha ficha1 = fichaRepository.create(getFichas(supervisor1.getId()).get(0));
+        Ficha ficha2 = fichaRepository.create(getFichas(supervisor2.getId()).get(0));
 
-        GrupoTerapeutico grupoTerapeutico = repository.create(getGrupoTerapeuticos().get(0));
+        GrupoTerapeutico grupoTerapeutico = repository.create(getGrupoTerapeuticos(supervisor1.getId()).get(0));
         GrupoTerapeutico foundGrupoTerapeutico = repository.findById(grupoTerapeutico.getId());
         assertNotNull(foundGrupoTerapeutico);
         assertEquals(grupoTerapeutico.getId(), foundGrupoTerapeutico.getId());
@@ -142,17 +142,17 @@ public class JcbiGrupoTerapeuticoRepositoryTest {
     public void givenTherapeuticGroup_whenUpdate_thenReturnUpdatedTherapeuticGroup() {
         Tecnico supervisor1 = (Tecnico) funcionariosRepository.create(getTecnicos().get(0));
         Tecnico supervisor2 = (Tecnico) funcionariosRepository.create(getTecnicos().get(1));
-        Ficha ficha1 = fichaRepository.create(getFichas().get(0));
-        Ficha ficha2 = fichaRepository.create(getFichas().get(0));
+        Ficha ficha1 = fichaRepository.create(getFichas(supervisor1.getId()).get(0));
+        Ficha ficha2 = fichaRepository.create(getFichas(supervisor2.getId()).get(0));
 
-        GrupoTerapeutico grupoTerapeutico = repository.create(getGrupoTerapeuticos().get(0));
+        GrupoTerapeutico grupoTerapeutico = repository.create(getGrupoTerapeuticos(supervisor1.getId()).get(0));
 
         grupoTerapeutico.setTema("Marxismo");
 
         GrupoTerapeutico grupoTerapeuticoResultado = repository.update(grupoTerapeutico);
         assertNotNull(grupoTerapeuticoResultado);
-        assertEquals(repository.findById(1).getId(), grupoTerapeuticoResultado.getId());
-        assertEquals(repository.findById(1).getTema(), grupoTerapeuticoResultado.getTema());
+        assertEquals(repository.findById(grupoTerapeutico.getId()).getId(), grupoTerapeuticoResultado.getId());
+        assertEquals(repository.findById(grupoTerapeutico.getId()).getTema(), grupoTerapeuticoResultado.getTema());
     }
 
     @Test
@@ -160,11 +160,11 @@ public class JcbiGrupoTerapeuticoRepositoryTest {
     public void givenTherapeuticGroups_whenFindAll_thenReturnTherapeuticGroups() {
         Tecnico supervisor1 = (Tecnico) funcionariosRepository.create(getTecnicos().get(0));
         Tecnico supervisor2 = (Tecnico) funcionariosRepository.create(getTecnicos().get(1));
-        Ficha ficha1 = fichaRepository.create(getFichas().get(0));
-        Ficha ficha2 = fichaRepository.create(getFichas().get(0));
+        Ficha ficha1 = fichaRepository.create(getFichas(supervisor1.getId()).get(0));
+        Ficha ficha2 = fichaRepository.create(getFichas(supervisor2.getId()).get(0));
 
-        GrupoTerapeutico grupoTerapeutico1 = repository.create(getGrupoTerapeuticos().get(0));
-        GrupoTerapeutico grupoTerapeutico2 = repository.create(getGrupoTerapeuticos().get(1));
+        GrupoTerapeutico grupoTerapeutico1 = repository.create(getGrupoTerapeuticos(supervisor1.getId()).get(0));
+        GrupoTerapeutico grupoTerapeutico2 = repository.create(getGrupoTerapeuticos(supervisor2.getId()).get(1));
 
         List<GrupoTerapeutico> foundGrupoTerapeuticos = repository.findAll();
         assertNotNull(foundGrupoTerapeuticos);
@@ -177,7 +177,7 @@ public class JcbiGrupoTerapeuticoRepositoryTest {
         Tecnico supervisor1 = (Tecnico) funcionariosRepository.create(getTecnicos().get(0));
         Tecnico supervisor2 = (Tecnico) funcionariosRepository.create(getTecnicos().get(1));
 
-        GrupoTerapeutico grupoTerapeutico = repository.create(getGrupoTerapeuticos().get(0));
+        GrupoTerapeutico grupoTerapeutico = repository.create(getGrupoTerapeuticos(supervisor1.getId()).get(0));
 
         GrupoTerapeutico updatedGrupo = repository.addFuncionario(supervisor1.getId(), grupoTerapeutico.getId());
         updatedGrupo = repository.addFuncionario(supervisor2.getId(), grupoTerapeutico.getId());
@@ -193,11 +193,11 @@ public class JcbiGrupoTerapeuticoRepositoryTest {
         Tecnico supervisor1 = (Tecnico) funcionariosRepository.create(getTecnicos().get(0));
         Tecnico supervisor2 = (Tecnico) funcionariosRepository.create(getTecnicos().get(1));
         List<Integer> idsSupervisores = List.of(supervisor1.getId(), supervisor2.getId());
-        Ficha ficha1 = fichaRepository.create(getFichas().get(0));
-        Ficha ficha2 = fichaRepository.create(getFichas().get(0));
+        Ficha ficha1 = fichaRepository.create(getFichas(supervisor1.getId()).get(0));
+        Ficha ficha2 = fichaRepository.create(getFichas(supervisor2.getId()).get(0));
 
-        GrupoTerapeutico grupoTerapeutico1 = repository.create(getGrupoTerapeuticos().get(0));
-        GrupoTerapeutico grupoTerapeutico2 = repository.create(getGrupoTerapeuticos().get(1));
+        GrupoTerapeutico grupoTerapeutico1 = repository.create(getGrupoTerapeuticos(supervisor1.getId()).get(0));
+        GrupoTerapeutico grupoTerapeutico2 = repository.create(getGrupoTerapeuticos(supervisor2.getId()).get(1));
         repository.addFuncionario(idsSupervisores, grupoTerapeutico1.getId());
         repository.addFuncionario(idsSupervisores, grupoTerapeutico2.getId());
 
@@ -213,11 +213,11 @@ public class JcbiGrupoTerapeuticoRepositoryTest {
         Tecnico supervisor1 = (Tecnico) funcionariosRepository.create(getTecnicos().get(0));
         Tecnico supervisor2 = (Tecnico) funcionariosRepository.create(getTecnicos().get(1));
         List<Integer> idsSupervisores = List.of(supervisor1.getId(), supervisor2.getId());
-        Ficha ficha1 = fichaRepository.create(getFichas().get(0));
-        Ficha ficha2 = fichaRepository.create(getFichas().get(0));
+        Ficha ficha1 = fichaRepository.create(getFichas(supervisor1.getId()).get(0));
+        Ficha ficha2 = fichaRepository.create(getFichas(supervisor2.getId()).get(0));
 
-        GrupoTerapeutico grupoTerapeutico1 = repository.create(getGrupoTerapeuticos().get(0));
-        GrupoTerapeutico grupoTerapeutico2 = repository.create(getGrupoTerapeuticos().get(1));
+        GrupoTerapeutico grupoTerapeutico1 = repository.create(getGrupoTerapeuticos(supervisor1.getId()).get(0));
+        GrupoTerapeutico grupoTerapeutico2 = repository.create(getGrupoTerapeuticos(supervisor2.getId()).get(1));
         repository.addFuncionario(idsSupervisores, grupoTerapeutico1.getId());
         repository.addFuncionario(idsSupervisores, grupoTerapeutico2.getId());
         repository.addFicha(List.of(ficha1.getId(), ficha2.getId()), grupoTerapeutico1.getId());
@@ -232,11 +232,11 @@ public class JcbiGrupoTerapeuticoRepositoryTest {
         Tecnico supervisor1 = (Tecnico) funcionariosRepository.create(getTecnicos().get(0));
         Tecnico supervisor2 = (Tecnico) funcionariosRepository.create(getTecnicos().get(1));
         List<Integer> idsSupervisores = List.of(supervisor1.getId(), supervisor2.getId());
-        Ficha ficha1 = fichaRepository.create(getFichas().get(0));
-        Ficha ficha2 = fichaRepository.create(getFichas().get(0));
+        Ficha ficha1 = fichaRepository.create(getFichas(supervisor1.getId()).get(0));
+        Ficha ficha2 = fichaRepository.create(getFichas(supervisor2.getId()).get(0));
 
-        GrupoTerapeutico grupoTerapeutico1 = repository.create(getGrupoTerapeuticos().get(0));
-        GrupoTerapeutico grupoTerapeutico2 = repository.create(getGrupoTerapeuticos().get(1));
+        GrupoTerapeutico grupoTerapeutico1 = repository.create(getGrupoTerapeuticos(supervisor1.getId()).get(0));
+        GrupoTerapeutico grupoTerapeutico2 = repository.create(getGrupoTerapeuticos(supervisor2.getId()).get(1));
         repository.addFuncionario(idsSupervisores, grupoTerapeutico1.getId());
         repository.addFuncionario(idsSupervisores, grupoTerapeutico2.getId());
         repository.addFicha(List.of(ficha1.getId(), ficha2.getId()), grupoTerapeutico1.getId());
@@ -252,18 +252,18 @@ public class JcbiGrupoTerapeuticoRepositoryTest {
         Tecnico supervisor1 = (Tecnico) funcionariosRepository.create(getTecnicos().get(0));
         Tecnico supervisor2 = (Tecnico) funcionariosRepository.create(getTecnicos().get(1));
         List<Integer> idsSupervisores = List.of(supervisor1.getId(), supervisor2.getId());
-        Ficha ficha1 = fichaRepository.create(getFichas().get(0));
-        Ficha ficha2 = fichaRepository.create(getFichas().get(0));
+        Ficha ficha1 = fichaRepository.create(getFichas(supervisor1.getId()).get(0));
+        Ficha ficha2 = fichaRepository.create(getFichas(supervisor2.getId()).get(0));
 
-        GrupoTerapeutico grupoTerapeutico1 = repository.create(getGrupoTerapeuticos().get(0));
-        GrupoTerapeutico grupoTerapeutico2 = repository.create(getGrupoTerapeuticos().get(1));
+        GrupoTerapeutico grupoTerapeutico1 = repository.create(getGrupoTerapeuticos(supervisor1.getId()).get(0));
+        GrupoTerapeutico grupoTerapeutico2 = repository.create(getGrupoTerapeuticos(supervisor2.getId()).get(1));
         repository.addFuncionario(idsSupervisores, grupoTerapeutico1.getId());
         repository.addFuncionario(idsSupervisores, grupoTerapeutico2.getId());
         repository.addFicha(List.of(ficha1.getId(), ficha2.getId()), grupoTerapeutico1.getId());
 
         int resultado = repository.removerFicha(ficha2.getId());
 
-        assertEquals(null, fichaRepository.findById(2).getGrupoTerapeutico());
+        assertEquals(null, fichaRepository.findById(ficha2.getId()).getIdGrupoTerapeutico());
     }
 
     @Test
@@ -272,11 +272,11 @@ public class JcbiGrupoTerapeuticoRepositoryTest {
         Tecnico supervisor1 = (Tecnico) funcionariosRepository.create(getTecnicos().get(0));
         Tecnico supervisor2 = (Tecnico) funcionariosRepository.create(getTecnicos().get(1));
         List<Integer> idsSupervisores = List.of(supervisor1.getId(), supervisor2.getId());
-        Ficha ficha1 = fichaRepository.create(getFichas().get(0));
-        Ficha ficha2 = fichaRepository.create(getFichas().get(0));
+        Ficha ficha1 = fichaRepository.create(getFichas(supervisor1.getId()).get(0));
+        Ficha ficha2 = fichaRepository.create(getFichas(supervisor2.getId()).get(0));
 
-        GrupoTerapeutico grupoTerapeutico1 = repository.create(getGrupoTerapeuticos().get(0));
-        GrupoTerapeutico grupoTerapeutico2 = repository.create(getGrupoTerapeuticos().get(1));
+        GrupoTerapeutico grupoTerapeutico1 = repository.create(getGrupoTerapeuticos(supervisor1.getId()).get(0));
+        GrupoTerapeutico grupoTerapeutico2 = repository.create(getGrupoTerapeuticos(supervisor2.getId()).get(1));
         repository.addFuncionario(idsSupervisores, grupoTerapeutico1.getId());
         repository.addFuncionario(idsSupervisores, grupoTerapeutico2.getId());
         repository.addFicha(List.of(ficha1.getId(), ficha2.getId()), grupoTerapeutico1.getId());

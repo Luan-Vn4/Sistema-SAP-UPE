@@ -53,10 +53,10 @@ public class SalaController {
         return ResponseEntity.ok(sala);
     }
 
-    @PostMapping
+    @PostMapping("/")
     public ResponseEntity<SalaDTO> createSala(@RequestBody CreateSalaDTO salaDTO) {
         SalaDTO createdSala = salaService.createSala(salaDTO);
-        return ResponseEntity.created(URI.create("/posts/" + createdSala.uid())).body(createdSala);
+        return ResponseEntity.created(URI.create("/sala/" + createdSala.uid())).body(createdSala);
     }
 
     @DeleteMapping("/delete/{uid}")

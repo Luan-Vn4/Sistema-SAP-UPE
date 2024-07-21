@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.util.List;
@@ -21,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ContextConfiguration(classes = {DataSourceTestConfiguration.class})
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @EntityScan(basePackages = {"br.upe.sap.sistemasapupe.data"})
-
+@ActiveProfiles("Test")
 public class JdbiFichaRepositoryTest {
     @Autowired
     Jdbi jdbi;
@@ -45,14 +46,14 @@ public class JdbiFichaRepositoryTest {
 
         return List.of(tecnico1, tecnico2);
     }
-    private List<Ficha> getFichas() {
+    private List<Ficha> getFichas(int idResponsavel) {
         Ficha ficha1 = Ficha.builder()
                 .nome("Pedin")
-                .idFuncionario(1)
+                .idResponsavel(idResponsavel)
                 .build();
         Ficha ficha2 = Ficha.builder()
                 .nome("Luan")
-                .idFuncionario(1)
+                .idResponsavel(idResponsavel)
                 .build();
 
         return List.of(ficha1, ficha2);
@@ -69,9 +70,9 @@ public class JdbiFichaRepositoryTest {
        Tecnico supervisor = (Tecnico) funcionariosRepository.create(getTecnicos().get(0));
 
        Ficha ficha = Ficha.builder()
-               .nome("Pedin")
-               .idFuncionario(supervisor.getId())
-               .build();
+           .nome("Pedin")
+           .idResponsavel(supervisor.getId())
+           .build();
 
        Ficha createdFicha = repository.create(ficha);
 
@@ -96,9 +97,9 @@ public class JdbiFichaRepositoryTest {
         Tecnico supervisor = (Tecnico) funcionariosRepository.create(getTecnicos().get(0));
 
         Ficha ficha = Ficha.builder()
-                .nome("Pedin")
-                .idFuncionario(supervisor.getId())
-                .build();
+            .nome("Pedin")
+            .idResponsavel(supervisor.getId())
+            .build();
 
         Ficha createdFicha = repository.create(ficha);
         Ficha foundFicha = repository.findById(createdFicha.getId());
@@ -114,15 +115,16 @@ public class JdbiFichaRepositoryTest {
         Tecnico supervisor = (Tecnico) funcionariosRepository.create(getTecnicos().get(0));
 
         Ficha ficha = Ficha.builder()
-                .nome("Pedin")
-                .idFuncionario(supervisor.getId())
-                .build();
+            .nome("Pedin")
+            .idResponsavel(supervisor.getId())
+            .build();
         Ficha createdFicha = repository.create(ficha);
 
         Ficha fichaParaAtualizar  = Ficha.builder()
-                .nome("Pedrita")
-                .idFuncionario(supervisor.getId())
-                .build();
+            .nome("Pedrita")
+            .idResponsavel(supervisor.getId())
+            .build();
+
         fichaParaAtualizar.setId(createdFicha.getId());
         fichaParaAtualizar.setUid(createdFicha.getUid());
 
@@ -138,9 +140,9 @@ public class JdbiFichaRepositoryTest {
     public void givenRecordId_whenDelete_thenRemoveRecord() {
         Tecnico supervisor = (Tecnico) funcionariosRepository.create(getTecnicos().get(0));
         Ficha ficha = Ficha.builder()
-                .nome("Pedin")
-                .idFuncionario(supervisor.getId())
-                .build();
+            .nome("Pedin")
+            .idResponsavel(supervisor.getId())
+            .build();
 
         Ficha createdFicha = repository.create(ficha);
         int id = createdFicha.getId();
@@ -155,7 +157,7 @@ public class JdbiFichaRepositoryTest {
     @DisplayName("Dada o ID de um funcionário, quando buscar por esse ID, então retornar fichas correspondentes")
     public void givenPublishDate_whenFindByTempo_thenReturnMatchingPost() {
         Tecnico supervisor = (Tecnico) funcionariosRepository.create(getTecnicos().get(0));
-        List<Ficha> createdFichas = repository.create(getFichas());
+        List<Ficha> createdFichas = repository.create(getFichas(supervisor.getId()));
         List<Ficha> foundFichas = repository.findByFuncionario(supervisor.getId());
 
         assertNotNull(foundFichas, "Fichas não encontradas");
@@ -166,20 +168,20 @@ public class JdbiFichaRepositoryTest {
     @Test
     @DisplayName("Dado uma lista de fichas, quando buscar todas as fichas, então retornar a lista completa")
     public void givenRecords_whenFindAll_thenReturnAllRecords() {
-        funcionariosRepository.create(getTecnicos().get(0));
-        repository.create(getFichas());
+        Tecnico supervisor = (Tecnico) funcionariosRepository.create(getTecnicos().get(0));
+        repository.create(getFichas(supervisor.getId()));
 
         List<Ficha> foundFichas = repository.findAll();
 
         assertNotNull(foundFichas, "Lista de posts não deve ser nula");
-        assertEquals(getFichas().size(), foundFichas.size(), "Quantidade de posts encontrados não corresponde");
+        assertEquals(getFichas(supervisor.getId()).size(), foundFichas.size(), "Quantidade de posts encontrados não corresponde");
     }
 
     @Test
     @DisplayName("Dado uma lista de IDs, quando deletar fichas, retornar o número de fichas deletadas")
     public void givenListOfIds_whenDelete_thenReturnNumberOfDeletedRecords() {
         Tecnico supervisor = (Tecnico) funcionariosRepository.create(getTecnicos().get(0));
-        List<Ficha> fichas = repository.create(getFichas());
+        List<Ficha> fichas = repository.create(getFichas(supervisor.getId()));
 
         List<Integer> idsParaDeletar = List.of(fichas.get(0).getId(), fichas.get(1).getId());
         int deletedCount = repository.delete(idsParaDeletar);

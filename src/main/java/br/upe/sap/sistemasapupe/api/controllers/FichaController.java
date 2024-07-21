@@ -75,8 +75,4 @@ public class FichaController {
         boolean deleted = fichaService.deleteFichaByUids(uids);
         return deleted ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
-
-
-
-
 }

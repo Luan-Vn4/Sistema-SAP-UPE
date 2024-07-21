@@ -1,13 +1,11 @@
 package br.upe.sap.sistemasapupe.data.repositories.jdbi;
 
-import br.upe.sap.sistemasapupe.data.model.grupos.GrupoTerapeutico;
 import br.upe.sap.sistemasapupe.data.model.pacientes.Ficha;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.FichaRepository;
 import lombok.AllArgsConstructor;
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.jdbi.v3.core.Jdbi;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +18,9 @@ public class JdbiFichaRepository implements FichaRepository {
     Jdbi jdbi;
 
     JdbiFuncionariosRepository funcionariosRepository;
+
+    private final static String returningColumns = "id, uid, nome, id_responsavel idResponsavel, " +
+        "id_grupo_terapeutico idGrupoTerapeutico";
 
     @Override
     public List<Ficha> findByFuncionario(Integer idFuncionario) {
@@ -40,21 +41,19 @@ public class JdbiFichaRepository implements FichaRepository {
     public Ficha create(Ficha ficha) {
         final String CREATE = """
             INSERT INTO fichas (nome, id_responsavel, id_grupo_terapeutico)
-            VALUES (:nome, :id_responsavel, :grupoTerapeutico)
-            RETURNING id, uid, nome, id_responsavel idResponsavel, id_grupo_terapeutico;
-            """;
-        GrupoTerapeutico grupo= ficha.getGrupoTerapeutico();
-        Integer idGrupoTerapeutico  = (grupo == null ? null : grupo.getId());
+            VALUES (:nome, :id_responsavel, :id_grupo_terapeutico)
+            RETURNING %s
+            """.formatted(returningColumns);
 
         return jdbi.withHandle(handle -> handle
-                .createUpdate(CREATE)
-                .bindBean(ficha)
-                .bind("nome", ficha.getNome())
-                .bind("id_responsavel", ficha.getIdResponsavel())
-                .bind("id_grupo_terapeutico", idGrupoTerapeutico)
-                .executeAndReturnGeneratedKeys()
-                .mapToBean(Ficha.class)
-                .first());
+            .createUpdate(CREATE)
+            .bindBean(ficha)
+            .bind("nome", ficha.getNome())
+            .bind("id_responsavel", ficha.getIdResponsavel())
+            .bind("id_grupo_terapeutico", ficha.getIdGrupoTerapeutico())
+            .executeAndReturnGeneratedKeys()
+            .mapToBean(Ficha.class)
+            .first());
     }
 
     @Override
@@ -65,52 +64,31 @@ public class JdbiFichaRepository implements FichaRepository {
     @Override
     public Ficha update(Ficha ficha) {
         final String UPDATE = """
-                UPDATE fichas
-                SET nome = :nome,
-                id_responsavel =  :id_responsavel,
-                id_grupo_terapeutico = :id_grupo_terapeutico
-                WHERE id = :id
-                """;
-
-        GrupoTerapeutico grupo= ficha.getGrupoTerapeutico();
-        Integer idGrupoTerapeutico  = (grupo == null ? null : grupo.getId());
-
-        jdbi.useHandle(handle -> handle
-                .createUpdate(UPDATE)
-                .bind("nome", ficha.getNome())
-                .bind("id_responsavel", ficha.getIdResponsavel())
-                .bind("id_grupo_terapeutico", idGrupoTerapeutico)
-                .bind("id", ficha.getId())
-                .execute()
-        );
-
-        final String SELECT = """
-            SELECT *
-            FROM fichas
-            WHERE id = :id
-            """;
+            UPDATE fichas SET nome = :nome, id_responsavel =  :id_responsavel,
+                id_grupo_terapeutico = :id_grupo_terapeutico WHERE id = :id
+            RETURNING %s
+            """.formatted(returningColumns);
 
         return jdbi.withHandle(handle -> handle
-                .createQuery(SELECT)
-                .bind("id", ficha.getId())
-                .mapToBean(Ficha.class)
-                .findFirst()
-                .orElse(null));
+            .createUpdate(UPDATE)
+            .bind("nome", ficha.getNome())
+            .bind("id_responsavel", ficha.getIdResponsavel())
+            .bind("id_grupo_terapeutico", ficha.getIdGrupoTerapeutico())
+            .bind("id", ficha.getId())
+            .executeAndReturnGeneratedKeys()
+            .mapToBean(Ficha.class)
+            .findFirst().orElse(null));
     }
 
     @Override
     public List<Ficha> update(List<Ficha> fichas) {
-        throw new UnsupportedOperationException("Atualizações em lote não são suportadas.");
+        return fichas.stream().map(this::update).toList();
     }
 
     @Override
     public Ficha findById(Integer id) {
+        final String QUERY = "SELECT %s FROM fichas WHERE id = :id".formatted(returningColumns);
 
-        final String QUERY = """
-                SELECT *
-                FROM fichas
-                WHERE id = :id
-                """;
         Optional<Ficha> resultado = jdbi.withHandle(handle -> handle
                 .createQuery(QUERY)
                 .bind("id", id )
@@ -121,20 +99,17 @@ public class JdbiFichaRepository implements FichaRepository {
 
     @Override
     public List<Ficha> findAll() {
+        final String QUERY = "SELECT %s FROM fichas".formatted(returningColumns);
 
-        final String QUERY = """
-                SELECT *
-                FROM fichas
-                """;
         return jdbi.withHandle(handle -> handle
-                .createQuery(QUERY)
-                .mapToBean(Ficha.class)
-                .list());
+            .createQuery(QUERY)
+            .mapToBean(Ficha.class)
+            .list());
     }
 
     @Override
     public List<Ficha> findById(List<Integer> ids) {
-        final String QUERY = "SELECT * FROM fichas WHERE id IN (<ids>)";
+        final String QUERY = "SELECT * FROM fichas WHERE id IN (%s)".formatted("<ids>");
 
         return jdbi.withHandle(handle -> handle
                 .createQuery(QUERY)
@@ -149,10 +124,10 @@ public class JdbiFichaRepository implements FichaRepository {
 
         BidiMap<UUID, Integer> results = new DualHashBidiMap<>();
         Map<String, Object> mapping = jdbi.withHandle(handle -> handle
-                .createQuery(SELECT)
-                .bind("uuid", uuid)
-                .mapToMap()
-                .findFirst().orElse(null));
+            .createQuery(SELECT)
+            .bind("uuid", uuid)
+            .mapToMap()
+            .findFirst().orElse(null));
 
         mapIds(results, mapping);
 
@@ -168,7 +143,7 @@ public class JdbiFichaRepository implements FichaRepository {
     @Override
     public BidiMap<UUID, Integer> findIds(List<UUID> uuids) {
         final String SELECT = "SELECT uid, id FROM fichas WHERE uid IN (%s) LIMIT %d"
-                .formatted("<uuids>", uuids.size());
+            .formatted("<uuids>", uuids.size());
 
         BidiMap<UUID, Integer> results = new DualHashBidiMap<>();
         List<Map<String, Object>> maps = jdbi.withHandle(handle -> handle
@@ -190,36 +165,33 @@ public class JdbiFichaRepository implements FichaRepository {
             """;
 
         return jdbi.withHandle(handle -> handle
-                .createQuery(QUERY)
-                .bind("id", id)
-                .mapTo(Boolean.class)
-                .findFirst().orElse(
-    false));
+            .createQuery(QUERY)
+            .bind("id", id)
+            .mapTo(Boolean.class)
+            .findFirst().orElse(false));
         }
 
     @Override
     public int delete(Integer id) {
         final String DELETE = """
-                DELETE FROM fichas
-                WHERE id = :id
-                """;
+            DELETE FROM fichas
+            WHERE id = :id
+            """;
+
         return jdbi.withHandle(handle -> handle
-                .createUpdate(DELETE)
-                .bind("id", id)
-                .execute());
+            .createUpdate(DELETE)
+            .bind("id", id)
+            .execute());
     }
 
     @Override
     public int delete(List<Integer> ids) {
-
-        final String DELETE = """
-            DELETE FROM fichas
-            WHERE id IN (<ids>)
-            """;
+        final String DELETE = "DELETE FROM fichas WHERE id IN (%s)".formatted("<ids>");
 
         return jdbi.withHandle(handle -> handle
                 .createUpdate(DELETE)
                 .bindList("ids", ids)
                 .execute());
     }
+
 }
