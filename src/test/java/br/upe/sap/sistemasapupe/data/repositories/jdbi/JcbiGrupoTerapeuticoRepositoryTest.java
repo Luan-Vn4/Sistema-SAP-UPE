@@ -1,11 +1,9 @@
 package br.upe.sap.sistemasapupe.data.repositories.jdbi;
 
 import br.upe.sap.sistemasapupe.configuration.DataSourceTestConfiguration;
-import br.upe.sap.sistemasapupe.data.model.funcionarios.Funcionario;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Tecnico;
 import br.upe.sap.sistemasapupe.data.model.grupos.GrupoTerapeutico;
 import br.upe.sap.sistemasapupe.data.model.pacientes.Ficha;
-import br.upe.sap.sistemasapupe.data.model.posts.Comentario;
 import org.jdbi.v3.core.Jdbi;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;

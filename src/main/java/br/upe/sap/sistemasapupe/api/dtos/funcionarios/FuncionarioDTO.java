@@ -5,7 +5,6 @@ import br.upe.sap.sistemasapupe.data.model.funcionarios.Estagiario;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Funcionario;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Tecnico;
 import lombok.Builder;
-
 import java.util.UUID;
 
 @Builder
@@ -21,7 +20,7 @@ public record FuncionarioDTO (UUID id, String nome, String sobrenome, String ema
     public Funcionario toFuncionario() {
         if (cargo.equals(Cargo.TECNICO)) {
             return Tecnico.tecnicoBuilder()
-                .uid(uid())
+                .uid(id())
                 .nome(nome())
                 .sobrenome(sobrenome())
                 .email(email())
@@ -29,7 +28,7 @@ public record FuncionarioDTO (UUID id, String nome, String sobrenome, String ema
                 .isAtivo(isAtivo()).build();
         }
         return Estagiario.estagiarioBuilder()
-            .uid(uid())
+            .uid(id())
             .nome(nome())
             .sobrenome(sobrenome())
             .email(email())
