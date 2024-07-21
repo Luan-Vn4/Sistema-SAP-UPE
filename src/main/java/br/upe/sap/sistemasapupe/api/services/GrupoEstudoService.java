@@ -54,7 +54,7 @@ public class GrupoEstudoService {
     public List<GrupoEstudoDTO> getAll() {
         return grupoEstudoRepository.findAll().stream()
                 .map(grupoEstudo -> {
-                    UUID donoUUID = grupoEstudo.getUid();
+                    UUID donoUUID = funcionarioRepository.findById(grupoEstudo.getDono()).getUid();
                     return GrupoEstudoDTO.from(grupoEstudo, donoUUID);
                 })
                 .toList();
@@ -95,7 +95,7 @@ public class GrupoEstudoService {
         int id = funcionarioRepository.findIds(uid).get(uid);
         return grupoEstudoRepository.findByFuncionario(id).stream()
                 .map(grupoEstudo -> {
-                    UUID donoUUID = funcionarioRepository.findById(grupoEstudo.getId()).getUid();
+                    UUID donoUUID = funcionarioRepository.findById(grupoEstudo.getDono()).getUid();
                     return GrupoEstudoDTO.from(grupoEstudo, donoUUID);
                 })
                 .toList();
