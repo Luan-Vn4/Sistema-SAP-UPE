@@ -26,27 +26,13 @@ public class GrupoTerapeuticoService {
     FuncionarioRepository funcionarioRepository;
     FichaRepository fichaRepository;
 
-    public GrupoTerapeuticoDTO create(CreateGrupoTerapeuticoDTO grupo){
-        GrupoTerapeutico grupoTerapeutico = CreateGrupoTerapeuticoDTO.toGrupo(grupo, 0, null, 0);
+    public GrupoTerapeuticoDTO create(CreateGrupoTerapeuticoDTO grupo) {
+        Integer idDono = funcionarioRepository.findIds(grupo.idDono()).get(grupo.idDono());
+        GrupoTerapeutico grupoTerapeutico = CreateGrupoTerapeuticoDTO.toGrupo(grupo, idDono);
         GrupoTerapeutico grupoCriado = grupoTerapeuticoRepository.create(grupoTerapeutico);
-
-        grupoTerapeutico.setId(grupoCriado.getId());
-        grupoTerapeutico.setUid(grupoCriado.getUid());
-        grupoTerapeutico.setIdDono(grupoCriado.getIdDono());
-
         return GrupoTerapeuticoDTO.from(grupoCriado, funcionarioRepository.findById(
                 grupoCriado.getIdDono()).getUid());
     }
-
-//    public List<GrupoTerapeuticoDTO> create(List<GrupoTerapeutico> grupos){
-//        grupos = grupoTerapeuticoRepository.create(grupos);
-//
-//        List<GrupoTerapeuticoDTO> dtos = new ArrayList<>();
-//        for (GrupoTerapeutico grupo: grupos){
-//            dtos.add(GrupoTerapeuticoDTO.from(grupo, funcionarioRepository.findById(grupo.getIdDono()).getUid()));
-//        }
-//        return dtos;
-//    }
 
     public GrupoTerapeuticoDTO update(GrupoTerapeuticoDTO grupoAtualizado){
         Integer idGrupo = grupoTerapeuticoRepository.findIds(grupoAtualizado.uid()).get(grupoAtualizado.uid());
