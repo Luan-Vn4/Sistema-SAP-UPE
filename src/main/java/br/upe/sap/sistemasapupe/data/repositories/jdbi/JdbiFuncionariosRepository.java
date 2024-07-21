@@ -346,7 +346,7 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
 
     @Override
     public BidiMap<UUID, Integer> findIds(UUID uuid) {
-        final String SELECT = "SELECT uid, id FROM funcionarios WHERE uid = :uuid LIMIT 1";
+        final String SELECT = "SELECT uid, id FROM funcionarios WHERE uid = CAST(:uuid AS UUID) LIMIT 1";
 
         BidiMap<UUID, Integer> results = new DualHashBidiMap<>();
         Map<String, Object> mapping = jdbi.withHandle(handle -> handle
