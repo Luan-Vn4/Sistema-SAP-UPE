@@ -25,6 +25,7 @@ public class GrupoEstudoService {
         int idDono = funcionarioRepository.findIds(grupoEstudoDTO.dono()).get(grupoEstudoDTO.dono());
         GrupoEstudo grupoEstudo = CreateGrupoEstudoDTO.to(grupoEstudoDTO, idDono);
         GrupoEstudo grupoCriado = grupoEstudoRepository.create(grupoEstudo);
+        addFuncionario(grupoEstudoDTO.dono(), grupoCriado.getUid());
         return GrupoEstudoDTO.from(grupoCriado, grupoEstudoDTO.dono());
     }
 
