@@ -6,9 +6,11 @@ import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 import org.jdbi.v3.core.statement.Slf4JSqlLogger;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy;
 
 import javax.sql.DataSource;
@@ -16,6 +18,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 @TestConfiguration
+@Profile("Test")
 @ComponentScan(basePackages = {"br.upe.sap.sistemasapupe.data"})
 public class DataSourceTestConfiguration {
 
@@ -27,6 +30,7 @@ public class DataSourceTestConfiguration {
     }
 
     @Bean
+    @Qualifier("jdbiTest")
     public Jdbi jdbi(DataSource dataSource, List<JdbiPlugin> plugins, List<RowMapper<?>> rowMappers) {
         var proxy = new TransactionAwareDataSourceProxy(dataSource);
         Jdbi jdbi = Jdbi.create(proxy);

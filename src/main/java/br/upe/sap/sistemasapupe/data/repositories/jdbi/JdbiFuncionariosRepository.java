@@ -51,18 +51,18 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
 
         return jdbi.inTransaction(handle -> {
             Estagiario estagiarioResult = handle
-                    .createUpdate(CREATE_ESTAGIARIO)
-                    .bindBean(estagiario)
-                    .executeAndReturnGeneratedKeys()
-                    .mapToBean(Estagiario.class)
-                    .findFirst().orElseThrow(EntityNotFoundException::new);
+                .createUpdate(CREATE_ESTAGIARIO)
+                .bindBean(estagiario)
+                .executeAndReturnGeneratedKeys()
+                .mapToBean(Estagiario.class)
+                .findFirst().orElseThrow(EntityNotFoundException::new);
 
             estagiarioResult.setSupervisor(estagiario.getSupervisor());
 
             handle.createUpdate(CREATE_SUPERVISAO)
-                    .bind("id_estagiario", estagiarioResult.getId())
-                    .bind("id_supervisor", estagiarioResult.getSupervisor().getId())
-                    .execute();
+                .bind("id_estagiario", estagiarioResult.getId())
+                .bind("id_supervisor", estagiarioResult.getSupervisor().getId())
+                .execute();
 
             return estagiarioResult;
         });
@@ -176,6 +176,16 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
         });
     }
 
+    @Override
+    public void updatePassword(Integer idFuncionario, String newPassword) {
+        final String UPDATE = "UPDATE funcionarios SET senha = :password WHERE id = :idFuncionario";
+
+        jdbi.useHandle(handle -> handle
+            .createUpdate(UPDATE)
+            .bind("idFuncionario",idFuncionario)
+            .bind("password", newPassword)
+            .execute());
+    }
 
     // READ
     @Override
@@ -251,26 +261,22 @@ public class JdbiFuncionariosRepository implements FuncionarioRepository {
 
     @Override
     public List<Estagiario> findSupervisionados(Integer idTecnico) {
+        Funcionario funcionario = findById(idTecnico);
+
+        if (funcionario == null) throw new EntityNotFoundException("O funcionário fornecido não existe");
+        if (funcionario instanceof Estagiario estagiario) throw new IllegalArgumentException(
+                "O funcionário fornecido não é um técnico. ID: " + idTecnico);
+
         final String QUERY = """
-            WITH inf_sup AS (
-                SELECT id inf_sup_id, is_tecnico inf_sup_cargo FROM funcionarios WHERE id = :id LIMIT 1
-            ),
-            sup_est AS (
-                SELECT inf_sup_id, inf_sup_cargo, id_estagiario FROM inf_sup LEFT JOIN supervisoes
-                    ON inf_sup_id = id_supervisor LIMIT 10)
-            SELECT inf_sup_id, inf_sup_cargo, id, uid, nome, sobrenome, email, senha,
-                url_imagem urlImagem, is_tecnico tecnico, is_ativo ativo
-                    FROM funcionarios RIGHT JOIN sup_est ON id_estagiario = id LIMIT 10
-            """;
+            SELECT %s from funcionarios INNER JOIN
+                supervisoes ON id = id_estagiario AND id_supervisor = :idTecnico
+            """.formatted(returningColumns);
 
         return jdbi.withHandle(handle ->
             handle.createQuery(QUERY)
-            .bind("id", idTecnico)
-            .map((rs, ctx) -> {
-                if (!rs.getBoolean("inf_sup_cargo"))
-                    throw new IllegalArgumentException("O funcionário fornecido não é um técnico. id - " + idTecnico);
-                return BeanMapper.of(Estagiario.class).map(rs, ctx);
-            }).collectIntoList());
+            .bind("idTecnico", idTecnico)
+            .map((rs, ctx) -> (Estagiario) mapByCargo(rs, ctx))
+            .collectIntoList());
     }
 
     @Nullable
