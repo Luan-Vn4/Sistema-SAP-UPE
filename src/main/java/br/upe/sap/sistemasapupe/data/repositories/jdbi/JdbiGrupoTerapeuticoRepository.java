@@ -236,7 +236,7 @@ public class JdbiGrupoTerapeuticoRepository implements GrupoTerapeuticoRepositor
     }
 
     @Override
-    public void addFicha(Integer idFicha, Integer idGrupoTerapeutico) {
+    public GrupoTerapeutico addFicha(Integer idFicha, Integer idGrupoTerapeutico) {
         final String query = """
             UPDATE fichas
             SET id_grupo_terapeutico = :id_grupo_terapeutico
@@ -248,10 +248,12 @@ public class JdbiGrupoTerapeuticoRepository implements GrupoTerapeuticoRepositor
                 .bind("id_grupo_terapeutico", idGrupoTerapeutico)
                 .bind("idFicha", idFicha)
                 .execute());
+
+        return findById(idGrupoTerapeutico);
     }
 
     @Override
-    public void addFicha(List<Integer> idsFicha, Integer idGrupoTerapeutico) {
+    public GrupoTerapeutico addFicha(List<Integer> idsFicha, Integer idGrupoTerapeutico) {
         final String query = """
         UPDATE fichas
         SET id_grupo_terapeutico = :id_grupo_terapeutico
@@ -268,6 +270,8 @@ public class JdbiGrupoTerapeuticoRepository implements GrupoTerapeuticoRepositor
             batch.execute();
             return null;
         });
+
+        return findById(idGrupoTerapeutico);
     }
 
     @Override

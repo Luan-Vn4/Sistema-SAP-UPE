@@ -9,7 +9,6 @@ import br.upe.sap.sistemasapupe.data.model.enums.TipoSala;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Estagiario;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Funcionario;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Tecnico;
-import br.upe.sap.sistemasapupe.data.model.grupos.GrupoTerapeutico;
 import br.upe.sap.sistemasapupe.data.model.pacientes.Ficha;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.FichaRepository;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.FuncionarioRepository;
@@ -141,10 +140,10 @@ public class JdbiAtividadeRepositoryFacadeTest {
 
     }
 
-    private Ficha registerFicha(int idResponsavel, GrupoTerapeutico grupoTerapeutico) {
+    private Ficha registerFicha(int idResponsavel, Integer idGrupoTerapeutico) {
         Ficha ficha = getFichas().get(0);
         ficha.setIdResponsavel(idResponsavel);
-        ficha.setGrupoTerapeutico(grupoTerapeutico);
+        ficha.setIdGrupoTerapeutico(idGrupoTerapeutico);
         return fichaRepository.create(ficha);
     }
 

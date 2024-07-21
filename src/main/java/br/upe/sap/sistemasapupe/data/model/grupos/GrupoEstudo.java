@@ -19,4 +19,5 @@ public class GrupoEstudo {
         this.descricao = descricao;
         this.dono = dono;
     }
+
 }

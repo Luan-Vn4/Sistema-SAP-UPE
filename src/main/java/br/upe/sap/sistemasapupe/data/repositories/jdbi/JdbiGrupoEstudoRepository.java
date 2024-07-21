@@ -25,7 +25,7 @@ public class JdbiGrupoEstudoRepository implements GrupoEstudoRepository {
     Jdbi jdbi;
     FuncionarioRepository funcionarioRepository;
 
-    private final String returningColumns = "id, uid, id_dono, tema, descricao";
+    private final String returningColumns = "id, uid, id_dono dono, tema, descricao";
 
     private GrupoEstudo mapGrupoEstudo(ResultSet rs, StatementContext stx) throws SQLException {
         return BeanMapper.of(GrupoEstudo.class).map(rs, stx);
@@ -73,18 +73,19 @@ public class JdbiGrupoEstudoRepository implements GrupoEstudoRepository {
     @Override
     public GrupoEstudo create(GrupoEstudo grupoEstudo) {
         String CREATE = """
-                INSERT INTO grupos_estudo (id_dono, tema, descricao)
-                VALUES (:id_dono, :tema, :descricao)
-                """;
+            INSERT INTO grupos_estudo (id_dono, tema, descricao)
+            VALUES (:id_dono, :tema, :descricao)
+            RETURNING %s
+            """.formatted(returningColumns);
         return jdbi.withHandle(handle -> handle
-                .createUpdate(CREATE)
-                .bind("id_dono", grupoEstudo.getDono())
-                .bind("tema", grupoEstudo.getTema())
-                .bind("descricao", grupoEstudo.getDescricao())
-                .executeAndReturnGeneratedKeys()
-                .map(this::mapGrupoEstudo)
-                .findFirst()
-                .orElse(null));
+            .createUpdate(CREATE)
+            .bind("id_dono", grupoEstudo.getDono())
+            .bind("tema", grupoEstudo.getTema())
+            .bind("descricao", grupoEstudo.getDescricao())
+            .executeAndReturnGeneratedKeys()
+            .map(this::mapGrupoEstudo)
+            .findFirst()
+            .orElse(null));
 
     }
 
@@ -95,8 +96,10 @@ public class JdbiGrupoEstudoRepository implements GrupoEstudoRepository {
 
     @Override
     public GrupoEstudo update(GrupoEstudo grupoEstudo) {
-        final String UPDATE = "UPDATE grupos_estudo SET id_dono = :id_dono, tema = :tema, descricao = :descricao WHERE id = :id RETURNING %s"
-                .formatted(returningColumns);
+        final String UPDATE = """
+            UPDATE grupos_estudo SET id_dono = :id_dono, tema = :tema, descricao = :descricao
+                WHERE id = :id RETURNING %s
+            """.formatted(returningColumns);
 
         return jdbi.withHandle(handle -> handle
                 .createUpdate(UPDATE)
@@ -120,39 +123,36 @@ public class JdbiGrupoEstudoRepository implements GrupoEstudoRepository {
     @Override
     public GrupoEstudo findById(Integer id) {
         final String query = """
-                SELECT id, uid, tema, descricao, id_dono FROM grupos_estudo WHERE id = :id
-                """;
+            SELECT %s FROM grupos_estudo WHERE id = :id
+            """.formatted(returningColumns);
+
         return jdbi.withHandle(handle -> handle
-                .createQuery(query)
-                .bind("id", id)
-                .map(this::mapGrupoEstudo)
-                .findFirst().orElse(null));
+            .createQuery(query)
+            .bind("id", id)
+            .map(this::mapGrupoEstudo)
+            .findFirst().orElse(null));
     }
 
     @Override
     public List<GrupoEstudo> findAll() {
-        final String query = """
-                SELECT *
-                FROM grupos_estudo
-                """;
+        final String query = "SELECT %s FROM grupos_estudo".formatted(returningColumns);
+
         return jdbi.withHandle(handle -> handle
-                .createQuery(query)
-                .mapToBean(GrupoEstudo.class)
-                .collectIntoList());
+            .createQuery(query)
+            .mapToBean(GrupoEstudo.class)
+            .collectIntoList());
     }
 
     @Override
     public List<GrupoEstudo> findById(List<Integer> ids) {
-        final String query = """
-                SELECT *
-                FROM grupos_estudo
-                WHERE id IN (<ids>)
-                """;
+        final String query = "SELECT %s FROM grupos_estudo WHERE id IN (%s)"
+            .formatted(returningColumns, "<ids>");
+
         return jdbi.withHandle(handle -> handle
-                .createQuery(query)
-                .bindList("ids", ids)
-                .mapToBean(GrupoEstudo.class)
-                .collectIntoList());
+            .createQuery(query)
+            .bindList("ids", ids)
+            .mapToBean(GrupoEstudo.class)
+            .collectIntoList());
     }
 
     @Override
@@ -160,9 +160,9 @@ public class JdbiGrupoEstudoRepository implements GrupoEstudoRepository {
         final String DELETE = "DELETE FROM grupos_estudo WHERE id = :id";
 
         return jdbi.withHandle(handle -> handle
-                        .createUpdate(DELETE)
-                        .bind("id", id))
-                .execute();
+            .createUpdate(DELETE)
+            .bind("id", id))
+            .execute();
     }
 
     @Override
@@ -174,24 +174,24 @@ public class JdbiGrupoEstudoRepository implements GrupoEstudoRepository {
         final String DELETE = "DELETE FROM grupos_estudo WHERE id IN (<ids>)";
 
         return jdbi.withHandle(handle -> handle
-                .createUpdate(DELETE)
-                .bindList("ids", ids)
-                .execute());
+            .createUpdate(DELETE)
+            .bindList("ids", ids)
+            .execute());
     }
 
     @Override
     public List<GrupoEstudo> findByFuncionario(Integer idFuncionario) {
         final String query = """
-            SELECT g.id, g.uid, g.tema, g.descricao, g.id_dono
-            FROM grupos_estudo g
-            JOIN participacao_grupos_estudo pge ON g.id = pge.id_grupo_estudo
-            WHERE pge.id_participante = :id_participante
-            """;
+            SELECT %s FROM grupos_estudo
+                JOIN participacao_grupos_estudo ON id = id_grupo_estudo
+                    WHERE id_participante = :id_participante
+            """.formatted(returningColumns);
+
         return jdbi.withHandle(handle -> handle
-                .createQuery(query)
-                .bind("id_participante", idFuncionario)
-                .mapToBean(GrupoEstudo.class)
-                .list());
+            .createQuery(query)
+            .bind("id_participante", idFuncionario)
+            .mapToBean(GrupoEstudo.class)
+            .list());
     }
 
     @Override
@@ -202,11 +202,11 @@ public class JdbiGrupoEstudoRepository implements GrupoEstudoRepository {
                 RETURNING id_participante
                 """;
         return jdbi.withHandle(handle -> handle
-                .createQuery(query)
-                .bind("id_participante", idFuncionario)
-                .bind("id_grupo_estudo", idGrupoEstudo)
-                .map(this::mapFuncionario)
-                .findFirst().orElse(null));
+            .createQuery(query)
+            .bind("id_participante", idFuncionario)
+            .bind("id_grupo_estudo", idGrupoEstudo)
+            .map(this::mapFuncionario)
+            .findFirst().orElse(null));
     }
 
     private Funcionario mapFuncionario(ResultSet rs, StatementContext sc) throws SQLException{
