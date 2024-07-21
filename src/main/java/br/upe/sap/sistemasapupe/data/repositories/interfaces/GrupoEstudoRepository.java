@@ -2,19 +2,21 @@ package br.upe.sap.sistemasapupe.data.repositories.interfaces;
 
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Funcionario;
 import br.upe.sap.sistemasapupe.data.model.grupos.GrupoEstudo;
+import org.apache.commons.collections4.BidiMap;
 
+import java.util.List;
 import java.util.UUID;
 
-public interface GrupoEstudoRepository extends BasicRepository<GrupoEstudo, UUID> {
+public interface GrupoEstudoRepository extends BasicRepository<GrupoEstudo, Integer> {
 
-    GrupoEstudo findById(int idGrupoEstudo);
+    GrupoEstudo findByFuncionario(Integer idFuncionario);
 
-    GrupoEstudo findByFuncionario(UUID idFuncionario);
+    BidiMap<UUID, Integer> findIds(UUID uuid);
 
-    void deleteGrupoEstudo(GrupoEstudo grupoEstudo);
+    BidiMap<UUID, Integer> findIds(List<UUID> uuids);
 
-    Funcionario addFuncionario(Funcionario funcionario);
+    Funcionario addFuncionario(Integer idFuncionario, Integer idGrupoEstudo);
 
-    void deleteFuncionario(UUID idFuncionario);
+    int deleteParticipacao(int idParticipante);
 
 }

@@ -9,10 +9,5 @@ import java.util.UUID;
 
 @Builder
 public record GrupoEstudoDTO (UUID uid, String temaEstudo, List<FuncionarioDTO> participantes) {
-    public static GrupoEstudoDTO from(GrupoEstudo grupoEstudo) {
-        List<FuncionarioDTO> participantes = grupoEstudo.getParticipantes().stream()
-                .map(FuncionarioDTO::from).toList();
-        return new GrupoEstudoDTO(grupoEstudo.getUid(),grupoEstudo.getTemaEstudo(),
-                participantes);
-    }
+
 }
