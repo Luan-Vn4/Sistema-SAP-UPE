@@ -47,7 +47,7 @@ class AuxAtividadeRepository {
     Atividade create(Atividade atividade) {
         final String CREATE = """
             INSERT INTO atividades (id_funcionario, id_sala, tempo_inicio, tempo_fim, status)
-                VALUES (:idAutor, :idSala, :tempoInicio, :tempoFim, :status)
+                VALUES (:idAutor, :idSala, :tempoInicio, :tempoFim, CAST(:status AS status_atividade))
                     RETURNING %s
             """.formatted(returningAtividadeColumns);
 

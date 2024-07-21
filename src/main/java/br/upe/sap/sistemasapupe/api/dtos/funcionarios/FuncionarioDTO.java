@@ -9,7 +9,7 @@ import lombok.Builder;
 import java.util.UUID;
 
 @Builder
-public record FuncionarioDTO (UUID uid, String nome, String sobrenome, String email, Cargo cargo,
+public record FuncionarioDTO (UUID id, String nome, String sobrenome, String email, Cargo cargo,
                               String urlImagem, Boolean isAtivo) {
 
     public static FuncionarioDTO from(Funcionario funcionario) {

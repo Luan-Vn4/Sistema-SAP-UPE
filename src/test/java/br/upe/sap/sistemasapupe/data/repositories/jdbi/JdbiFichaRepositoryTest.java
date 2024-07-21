@@ -46,13 +46,13 @@ public class JdbiFichaRepositoryTest {
         return List.of(tecnico1, tecnico2);
     }
     private List<Ficha> getFichas() {
-        Ficha ficha1 = Ficha.fichaBuilder()
+        Ficha ficha1 = Ficha.builder()
                 .nome("Pedin")
-                .funcionario(1)
+                .idFuncionario(1)
                 .build();
-        Ficha ficha2 = Ficha.fichaBuilder()
+        Ficha ficha2 = Ficha.builder()
                 .nome("Luan")
-                .funcionario(1)
+                .idFuncionario(1)
                 .build();
 
         return List.of(ficha1, ficha2);
@@ -68,9 +68,9 @@ public class JdbiFichaRepositoryTest {
     public void givenRecord_whenCreate_thenReturnRecordWithGeneratedKeys (){
        Tecnico supervisor = (Tecnico) funcionariosRepository.create(getTecnicos().get(0));
 
-       Ficha ficha = Ficha.fichaBuilder()
+       Ficha ficha = Ficha.builder()
                .nome("Pedin")
-               .funcionario(supervisor.getId())
+               .idFuncionario(supervisor.getId())
                .build();
 
        Ficha createdFicha = repository.create(ficha);
@@ -95,9 +95,9 @@ public class JdbiFichaRepositoryTest {
     public void givenRecord_whenFindById_thenReturnRecord() {
         Tecnico supervisor = (Tecnico) funcionariosRepository.create(getTecnicos().get(0));
 
-        Ficha ficha = Ficha.fichaBuilder()
+        Ficha ficha = Ficha.builder()
                 .nome("Pedin")
-                .funcionario(supervisor.getId())
+                .idFuncionario(supervisor.getId())
                 .build();
 
         Ficha createdFicha = repository.create(ficha);
@@ -113,15 +113,15 @@ public class JdbiFichaRepositoryTest {
     public void givenRecord_whenUpdate_thenReturnUpdatedRecord() {
         Tecnico supervisor = (Tecnico) funcionariosRepository.create(getTecnicos().get(0));
 
-        Ficha ficha = Ficha.fichaBuilder()
+        Ficha ficha = Ficha.builder()
                 .nome("Pedin")
-                .funcionario(supervisor.getId())
+                .idFuncionario(supervisor.getId())
                 .build();
         Ficha createdFicha = repository.create(ficha);
 
-        Ficha fichaParaAtualizar  = Ficha.fichaBuilder()
+        Ficha fichaParaAtualizar  = Ficha.builder()
                 .nome("Pedrita")
-                .funcionario(supervisor.getId())
+                .idFuncionario(supervisor.getId())
                 .build();
         fichaParaAtualizar.setId(createdFicha.getId());
         fichaParaAtualizar.setUid(createdFicha.getUid());
@@ -137,9 +137,9 @@ public class JdbiFichaRepositoryTest {
     @DisplayName("Dado um ID de uma ficha, quando deletar, então remover a ficha correspondente")
     public void givenRecordId_whenDelete_thenRemoveRecord() {
         Tecnico supervisor = (Tecnico) funcionariosRepository.create(getTecnicos().get(0));
-        Ficha ficha = Ficha.fichaBuilder()
+        Ficha ficha = Ficha.builder()
                 .nome("Pedin")
-                .funcionario(supervisor.getId())
+                .idFuncionario(supervisor.getId())
                 .build();
 
         Ficha createdFicha = repository.create(ficha);
