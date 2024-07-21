@@ -69,7 +69,7 @@ public class FuncionarioControllerTest {
     @AfterEach
     public void clean() {
         jdbi.useHandle(handle -> handle.execute("DELETE FROM funcionarios WHERE uid <> ?",
-            userInfo.funcionario().uid()));
+            userInfo.funcionario().id()));
     }
 
     private void registerTecnico(RegisterTecnicoDTO dto) {
@@ -95,7 +95,7 @@ public class FuncionarioControllerTest {
         return RegisterEstagiarioDTO.builder()
             .nome("Junin").sobrenome("Do Grau")
             .email("pop100@gmail.com").senha("123")
-            .urlImagem("abc").uidTecnico(userInfo.funcionario().uid())
+            .urlImagem("abc").uidTecnico(userInfo.funcionario().id())
             .build();
     }
 
@@ -152,14 +152,14 @@ public class FuncionarioControllerTest {
         List<FuncionarioDTO> funcionarios = restTemplate.exchange("/api/v1/funcionarios/many/all",
                 HttpMethod.GET, request1, new ParameterizedTypeReference<List<FuncionarioDTO>>() {}).getBody();
 
-        List<UUID> uuids = funcionarios.stream().map(FuncionarioDTO::uid).toList();
+        List<UUID> uuids = funcionarios.stream().map(FuncionarioDTO::id).toList();
 
         HttpEntity<?> request2 = createAuthorizedHttpEntity(uuids);
         List<FuncionarioDTO> funcionarios2 = restTemplate.exchange("/api/v1/funcionarios/many/uids",
                 HttpMethod.POST, request2, new ParameterizedTypeReference<List<FuncionarioDTO>>() {}).getBody();
 
         logFuncionariosRetornados(funcionarios2);
-        List<UUID> returned = funcionarios2.stream().map(FuncionarioDTO::uid).toList();
+        List<UUID> returned = funcionarios2.stream().map(FuncionarioDTO::id).toList();
 
         Assertions.assertEquals(uuids, returned, "Uuids retornados são diferentes");
     }

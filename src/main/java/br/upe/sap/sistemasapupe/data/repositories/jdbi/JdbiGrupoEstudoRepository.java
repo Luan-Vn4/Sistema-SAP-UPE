@@ -146,8 +146,8 @@ public class JdbiGrupoEstudoRepository implements GrupoEstudoRepository {
         final String query = """
                 SELECT *
                 FROM grupos_estudo
-                WHERE id IN (%s)
-                """.formatted("<ids>");
+                WHERE id IN (<ids>)
+                """;
         return jdbi.withHandle(handle -> handle
                 .createQuery(query)
                 .bindList("ids", ids)
@@ -180,7 +180,7 @@ public class JdbiGrupoEstudoRepository implements GrupoEstudoRepository {
     }
 
     @Override
-    public GrupoEstudo findByFuncionario(Integer idFuncionario) {
+    public List<GrupoEstudo> findByFuncionario(Integer idFuncionario) {
         final String query = """
             SELECT g.id, g.uid, g.tema, g.descricao, g.id_dono
             FROM grupos_estudo g
@@ -191,7 +191,7 @@ public class JdbiGrupoEstudoRepository implements GrupoEstudoRepository {
                 .createQuery(query)
                 .bind("id_participante", idFuncionario)
                 .mapToBean(GrupoEstudo.class)
-                .findFirst().orElse(null));
+                .list());
     }
 
     @Override

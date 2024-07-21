@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public interface GrupoEstudoRepository extends BasicRepository<GrupoEstudo, Integer> {
 
-    GrupoEstudo findByFuncionario(Integer idFuncionario);
+    List<GrupoEstudo> findByFuncionario(Integer idFuncionario);
 
     BidiMap<UUID, Integer> findIds(UUID uuid);
 
