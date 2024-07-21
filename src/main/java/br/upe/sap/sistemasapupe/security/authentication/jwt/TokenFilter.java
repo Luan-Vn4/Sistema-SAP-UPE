@@ -37,6 +37,8 @@ public class TokenFilter extends OncePerRequestFilter {
             TokenDTO tokenDTO = this.tokenService.validateToken(token);
             UserDetails user = this.userDetailsService.loadUserByUID(UUID.fromString(tokenDTO.subject()));
 
+            if (user == null) filterChain.doFilter(request,response);
+
             var authentication = new UsernamePasswordAuthenticationToken(
                     user, null, user.getAuthorities());
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
