@@ -3,13 +3,14 @@ package br.upe.sap.sistemasapupe.api.controllers;
 import br.upe.sap.sistemasapupe.api.dtos.funcionarios.FuncionarioDTO;
 import br.upe.sap.sistemasapupe.api.dtos.funcionarios.UpdateFuncionarioDTO;
 import br.upe.sap.sistemasapupe.api.services.FuncionarioService;
+import br.upe.sap.sistemasapupe.exceptions.utils.HttpErrorUtils;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -17,86 +18,86 @@ import java.util.UUID;
 @AllArgsConstructor
 public class FuncionarioController {
 
+    // DEPENDÊNCIAS
     FuncionarioService funcionarioService;
 
 
-    // GET
-    public enum Search {
-        ALL, ATIVOS, INATIVOS, UIDS, TECNICOS, UID, SUPERVISIONADOS;
-
-        public static Search from(String value) {
-            return Search.valueOf(value.toUpperCase());
-        }
+    // BUSCAS
+    @GetMapping("/many/all")
+    public ResponseEntity<List<FuncionarioDTO>> searchAll() {
+        return ResponseEntity.ok().body(funcionarioService.getAll());
     }
 
-    @GetMapping(value = "/many")
-    public ResponseEntity<List<FuncionarioDTO>> getMany(
-            @RequestParam(name="by", required=false) String searchType,
-            @RequestParam(name = "uid", required=false) UUID uid,
-            @RequestBody(required = false) Map<String, List<UUID>> uids) throws BadRequestException{
+    @PostMapping(value = "/many/uids")
+    public ResponseEntity<List<FuncionarioDTO>> searchByUids(@RequestBody List<UUID> uids)
+                                                             throws BadRequestException{
+        if (uids == null) throw new BadRequestException("Nenhuma lista de uids fornecida no corpo da " +
+                                                        "requisição");
+        if (uids.isEmpty()) return ResponseEntity.ok(List.of());
 
+        List<FuncionarioDTO> result = funcionarioService.getByUids(uids);
+        return ResponseEntity.ok().body(result);
+    }
+
+    @GetMapping(value = "/many/ativos")
+    public ResponseEntity<List<FuncionarioDTO>> searchByAtivos() {
+        return ResponseEntity.ok(funcionarioService.getByAtivo(true));
+    }
+
+    @GetMapping(value = "/many/inativos")
+    public ResponseEntity<List<FuncionarioDTO>> searchByInativos() {
+        return ResponseEntity.ok(funcionarioService.getByAtivo(false));
+    }
+
+    @GetMapping(value = "/many/tecnicos")
+    public ResponseEntity<List<FuncionarioDTO>> searchByTecnicos() {
+        return ResponseEntity.ok(funcionarioService.getAllTecnicos());
+    }
+
+    @GetMapping(value = "/many/supervisionados", params = {"uid"})
+    public ResponseEntity<List<FuncionarioDTO>> searchBySupervisionados(@RequestParam UUID uid) {
         List<FuncionarioDTO> result;
-        switch (Search.from(searchType)) {
-            case ATIVOS -> result = funcionarioService.getByAtivo(true);
-            case INATIVOS -> result = funcionarioService.getByAtivo(false);
-            case UIDS -> result = searchByUids(uids);
-            case TECNICOS -> result = funcionarioService.getAllTecnicos();
-            case SUPERVISIONADOS -> result = searchSupervisionados(uid);
-            default -> result = funcionarioService.getAll();
+        try {
+            result = funcionarioService.getSupervisionados(uid);
+        } catch (IllegalArgumentException e) {
+            throw HttpErrorUtils.unprocessableEntityException(e.getMessage(), null, null);
+        } catch (EntityNotFoundException e) {
+            throw HttpErrorUtils.notFoundException(e.getMessage(), null,null);
         }
-
-        return ResponseEntity.ok().body(result);
+        return ResponseEntity.ok(result);
     }
 
-    private List<FuncionarioDTO> searchByUids(Map<String, List<UUID>> uids) {
-        if (uids == null) throw new RuntimeException();
-        return funcionarioService.getByUids(uids.get("uids"));
-    }
-
-    private List<FuncionarioDTO> searchSupervisionados(UUID uidTecnico) throws BadRequestException{
-        if (uidTecnico == null) throw new BadRequestException("Não foi fornecido um uid de técnico para buscar " +
-                                                              "os supervisonados");
-
-        return funcionarioService.getSupervisionados(uidTecnico);
-    }
-
-    @GetMapping(value = "/one")
-    public ResponseEntity<FuncionarioDTO> getOne(
-            @RequestParam(name="by", required=false) String searchType,
-            @RequestParam(name="uid", required=false) UUID uid) throws BadRequestException{
-
-        FuncionarioDTO result;
-        switch (Search.from(searchType)) {
-            case UID -> result = searchByUid(uid);
-            default -> throw new BadRequestException("Não foram fornecido um tipo de busca válido");
-        }
-
-        return ResponseEntity.ok().body(result);
-    }
-
-    private FuncionarioDTO searchByUid(UUID uid) throws BadRequestException{
-        if (uid == null) throw new BadRequestException("Não foi fornecido um uid válido");
-
-        return funcionarioService.getByUid(uid);
+    @GetMapping(value = "/one", params = {"uid"})
+    public ResponseEntity<FuncionarioDTO> searchByUid(@RequestParam UUID uid) {
+        return ResponseEntity.ok(funcionarioService.getByUid(uid));
     }
 
 
-    // PUT
+    // UPDATES
     @PutMapping("/one")
     public ResponseEntity<FuncionarioDTO> updateCredentials(@RequestBody UpdateFuncionarioDTO dto) {
-        return ResponseEntity.ok().body(funcionarioService.updateCredentials(dto));
+        try {
+            return ResponseEntity.ok().body(funcionarioService.updateCredentials(dto));
+        } catch (EntityNotFoundException e) {
+            throw HttpErrorUtils.notFoundException(e.getMessage(),null,null);
+        }
     }
 
-    @PutMapping("/activation")
+    @PutMapping("/one/activation")
     public ResponseEntity<FuncionarioDTO> changeAtivo(@RequestParam(name="uid") UUID uid,
                                                       @RequestParam(name="status") boolean status) {
         return ResponseEntity.ok().body(funcionarioService.updateActivation(uid, status));
     }
 
+    @PutMapping(value = "/one/supervisor", params = {"uid-funcionario", "uid-supervisor"})
     public ResponseEntity<FuncionarioDTO> changeSupervisor(
                                           @RequestParam(name="uid-funcionario") UUID uidFuncionario,
                                           @RequestParam(name="uid-supervisor") UUID uidSupervisor) {
-        return ResponseEntity.ok().body(funcionarioService.changeSupervisor(uidFuncionario, uidSupervisor));
+        try {
+            return ResponseEntity.ok().body(funcionarioService.changeSupervisor(uidFuncionario, uidSupervisor));
+        } catch (IllegalArgumentException e) {
+            throw HttpErrorUtils.unprocessableEntityException(e.getMessage(), null, null);
+        }
     }
 
 }

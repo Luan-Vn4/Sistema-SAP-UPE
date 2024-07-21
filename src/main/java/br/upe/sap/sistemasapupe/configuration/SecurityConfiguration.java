@@ -47,6 +47,9 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(configurer -> configurer
+                .requestMatchers("/v3/**").permitAll()
+                .requestMatchers("/swagger-ui/**").permitAll()
+                .requestMatchers("/swagger-ui/index.css").permitAll()
                 .requestMatchers("/api/v1/authentication/login").permitAll()
                 .requestMatchers("/api/v1/authentication/register-tecnico").permitAll()
                 .requestMatchers("/api/v1/authentication/register-estagiario").hasRole(Cargo.TECNICO.getRole())

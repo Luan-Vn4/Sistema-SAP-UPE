@@ -3,11 +3,8 @@ package br.upe.sap.sistemasapupe.data.repositories.jdbi;
 import br.upe.sap.sistemasapupe.configuration.DataSourceTestConfiguration;
 import br.upe.sap.sistemasapupe.data.model.atividades.Sala;
 import br.upe.sap.sistemasapupe.data.model.enums.TipoSala;
-import br.upe.sap.sistemasapupe.data.model.funcionarios.Tecnico;
-import br.upe.sap.sistemasapupe.data.model.posts.Post;
 import org.jdbi.v3.core.Jdbi;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,8 +52,5 @@ public class JdbiSalaRepositoryTest {
         assertEquals(expected.getTipoSala(), actual.getTipoSala(), "Tipo sala não coincide");
         assertEquals(expected.getNome(), actual.getNome(), "Nome não coincide");
     }
-
-    @Test
-    @DisplayName("Dado uma sala existente, achar ess")
 
 }
