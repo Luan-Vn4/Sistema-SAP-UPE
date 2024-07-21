@@ -1,5 +1,4 @@
 package br.upe.sap.sistemasapupe.exceptions.handlers;
-
 import br.upe.sap.sistemasapupe.exceptions.handlers.responses.ExceptionBody;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
@@ -10,7 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.client.HttpClientErrorException.Unauthorized;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
 
 import java.time.Instant;
 
@@ -49,7 +50,7 @@ public class AuthenticationAdviser extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ExceptionBody> handleBadCredentialsException(BadCredentialsException exception,
-                                                              HttpServletRequest request) {
+                                                                       HttpServletRequest request) {
         var response = ExceptionBody.builder()
                 .HttpStatus(HttpStatus.UNAUTHORIZED.value())
                 .error("Credenciais incorretas")
@@ -61,5 +62,10 @@ public class AuthenticationAdviser extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
+    @ExceptionHandler(Unauthorized.class)
+    public ResponseEntity<ExceptionBody> handleUnauthorizedException(Unauthorized exception,
+                                                                     HttpServletRequest request) {
+        return handleBadCredentialsException(null, request);
+    }
 
 }

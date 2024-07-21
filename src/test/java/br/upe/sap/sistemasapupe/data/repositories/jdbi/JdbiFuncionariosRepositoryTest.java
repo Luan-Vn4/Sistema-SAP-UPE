@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 @JdbcTest
 @ContextConfiguration(classes = {DataSourceTestConfiguration.class})
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ActiveProfiles("Test")
 public class JdbiFuncionariosRepositoryTest {
 
     @Autowired
@@ -35,7 +37,7 @@ public class JdbiFuncionariosRepositoryTest {
         jdbi.withHandle(handle -> handle.execute("TRUNCATE TABLE funcionarios, supervisoes CASCADE"));
     }
 
-    private List<Tecnico> getTecnicos() {
+    public List<Tecnico> getTecnicos() {
         Tecnico tecnico1 = Tecnico.tecnicoBuilder()
                 .nome("Carlinhos").sobrenome("Carlos")
                 .email("carlos@gmail.com").senha("123456")
@@ -48,7 +50,7 @@ public class JdbiFuncionariosRepositoryTest {
         return List.of(tecnico1, tecnico2);
     }
 
-    private List<Estagiario> getEstagiarios() {
+    public List<Estagiario> getEstagiarios() {
         Estagiario estagiario1 = Estagiario.estagiarioBuilder()
                 .nome("Luan").sobrenome("Vilaça")
                 .email("luan@gmail.com").senha("1234")

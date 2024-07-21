@@ -64,6 +64,7 @@ class AuxAtividadeRepository {
     Atividade mapAtividade(ResultSet rs, StatementContext ctx,
                                    Class<? extends Atividade> clazz, boolean eager) throws SQLException {
         Atividade atividade = BeanMapper.of(clazz).map(rs, ctx);
+        atividade.setSala(salaRepository.findById(rs.getInt("id_sala")));
         atividade.setStatus(StatusAtividade.valueOf(rs.getString("status")));
         if (eager) fillAtividadeFields(atividade, rs);
         return atividade;

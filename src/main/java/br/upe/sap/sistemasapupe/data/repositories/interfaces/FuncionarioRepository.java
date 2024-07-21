@@ -4,12 +4,13 @@ import br.upe.sap.sistemasapupe.data.model.funcionarios.Funcionario;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Tecnico;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Cargo;
 import org.apache.commons.collections4.BidiMap;
-
+import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.UUID;
 
 public interface FuncionarioRepository extends BasicRepository<Funcionario, Integer> {
 
+    // CREATE //
     /**
      * Cria um {@link Estagiario} e estabelece uma relação de supervisão com um {@link Tecnico}
      * existente. O supervisor do estagiário passado já deve estar salvo para que aquele seja criado.<br><br>
@@ -41,11 +42,21 @@ public interface FuncionarioRepository extends BasicRepository<Funcionario, Inte
      * algum cargo específico, verifique o método de criação específico daquele cargo.
      * @param funcionario {@link Funcionario} que deseja salvar
      * @return {@link Funcionario} com os dados e tipo da instância definida conforme o cargo identificado
+     * @throws
      */
     @Override
     Funcionario create(Funcionario funcionario);
 
-    List<Estagiario> findSupervisionados(Integer uidTecnico);
+
+    // READ //
+    /**
+     * Procura pelos supervisionados do técnico fornecido
+     * @param idTecnico uid do técnico cujos supervisionados serão buscados
+     * @return {@link List} com todos os estagiários supervisionados por aquele técnico
+     * @throws IllegalArgumentException caso o id passado não corresponda a um técnico
+     * @throws EntityNotFoundException caso não exista um funcionário com o id passado
+     */
+    List<Estagiario> findSupervisionados(Integer idTecnico);
 
     List<Funcionario> findByAtivo(boolean ativo);
 
@@ -59,8 +70,12 @@ public interface FuncionarioRepository extends BasicRepository<Funcionario, Inte
 
     boolean exists(Integer id);
 
+
+    // UPDATE //
     Estagiario updateSupervisao(Integer uidEstagiario, Integer uidSupervisor);
 
     boolean updateAtivo(Integer uidFuncionario, boolean isAtivo);
+
+    void updatePassword(Integer idFuncionario, String newPassword);
 
 }
