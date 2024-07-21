@@ -19,7 +19,7 @@ import java.util.List;
 public class PostsController {
     PostsService postsService;
 
-    @PostMapping
+    @PostMapping("/")
     public ResponseEntity<PostDTO> createPost(@RequestBody CreatePostDTO postDTO) {
         Post post = postsService.convertToPost(postDTO);
         PostDTO createdPost = postsService.createPost(post);

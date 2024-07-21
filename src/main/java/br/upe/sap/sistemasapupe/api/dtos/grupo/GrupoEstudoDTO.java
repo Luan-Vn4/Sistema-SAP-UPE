@@ -5,7 +5,7 @@ import lombok.Builder;
 import java.util.UUID;
 
 @Builder
-public record GrupoEstudoDTO (UUID uid, String tema, String descricao, int dono) {
+public record GrupoEstudoDTO (UUID id, String tema, String descricao, int dono) {
     public static GrupoEstudoDTO from(GrupoEstudo grupoEstudo) {
         return new GrupoEstudoDTO(grupoEstudo.getUid(), grupoEstudo.getTema(), grupoEstudo.getDescricao(), grupoEstudo.getDono());
     }

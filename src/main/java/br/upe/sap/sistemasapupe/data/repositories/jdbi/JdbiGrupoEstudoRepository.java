@@ -18,8 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-@Repository
 @AllArgsConstructor
+@Repository
 public class JdbiGrupoEstudoRepository implements GrupoEstudoRepository {
 
     Jdbi jdbi;
@@ -37,10 +37,10 @@ public class JdbiGrupoEstudoRepository implements GrupoEstudoRepository {
 
         BidiMap<UUID, Integer> results = new DualHashBidiMap<>();
         Map<String, Object> mapping = jdbi.withHandle(handle -> handle
-            .createQuery(SELECT)
-            .bind("uuid", uuid)
-            .mapToMap()
-            .findFirst().orElse(null));
+                .createQuery(SELECT)
+                .bind("uuid", uuid)
+                .mapToMap()
+                .findFirst().orElse(null));
 
         mapIds(results, mapping);
 
@@ -60,10 +60,10 @@ public class JdbiGrupoEstudoRepository implements GrupoEstudoRepository {
 
         BidiMap<UUID, Integer> results = new DualHashBidiMap<>();
         List<Map<String, Object>> maps = jdbi.withHandle(handle -> handle
-            .createQuery(SELECT)
-            .bindList("uuids", uuids)
-            .mapToMap()
-            .collectIntoList());
+                .createQuery(SELECT)
+                .bindList("uuids", uuids)
+                .mapToMap()
+                .collectIntoList());
 
         maps.forEach(x -> mapIds(results, x));
 
@@ -180,7 +180,7 @@ public class JdbiGrupoEstudoRepository implements GrupoEstudoRepository {
     }
 
     @Override
-    public GrupoEstudo findByFuncionario(Integer idFuncionario) {
+    public List<GrupoEstudo> findByFuncionario(Integer idFuncionario) {
         final String query = """
             SELECT %s FROM grupos_estudo
                 JOIN participacao_grupos_estudo ON id = id_grupo_estudo
@@ -191,7 +191,7 @@ public class JdbiGrupoEstudoRepository implements GrupoEstudoRepository {
             .createQuery(query)
             .bind("id_participante", idFuncionario)
             .mapToBean(GrupoEstudo.class)
-            .findFirst().orElse(null));
+            .list());
     }
 
     @Override
