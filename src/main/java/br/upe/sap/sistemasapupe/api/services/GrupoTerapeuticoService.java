@@ -225,14 +225,12 @@ public class GrupoTerapeuticoService {
                 funcionarioRepository.findById(grupoTerapeutico.getIdDono()).getUid());
     }
 
-    public boolean deleteGrupoTerapeutico(GrupoTerapeuticoDTO dto){
-        Integer idGrupo = grupoTerapeuticoRepository.findIds(dto.uid()).get(dto.uid());
-        Integer idDono = funcionarioRepository.findIds(dto.idDono()).get(dto.idDono());
-
-
-        GrupoTerapeutico grupoTerapeutico = GrupoTerapeuticoDTO.convertToGrupo(dto,idGrupo, idDono);
-        grupoTerapeuticoRepository.delete(grupoTerapeutico.getId());
-
-        return grupoTerapeutico.getId() != 0;
+    public void deleteGrupoTerapeutico(UUID uidGrupo){
+        Integer idGrupo = grupoTerapeuticoRepository.findIds(uidGrupo).get(uidGrupo);
+        GrupoTerapeutico grupo = grupoTerapeuticoRepository.findById(idGrupo);
+        if (grupo == null){
+            throw new EntityNotFoundException("Não foi possivel encontrar um grupo terapêutico com esse UUID");
+        }
+        grupoTerapeuticoRepository.delete(idGrupo);
     }
 }
