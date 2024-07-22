@@ -1,13 +1,12 @@
 package br.upe.sap.sistemasapupe.api.services.atividades;
 
 import br.upe.sap.sistemasapupe.api.dtos.atividades.AtendimentoGrupoDTO;
-import br.upe.sap.sistemasapupe.api.dtos.atividades.AtendimentoIndividualDTO;
 import br.upe.sap.sistemasapupe.api.dtos.atividades.CreateAtendimentoGrupoDTO;
 import br.upe.sap.sistemasapupe.data.model.atividades.AtendimentoGrupo;
-import br.upe.sap.sistemasapupe.data.model.atividades.AtendimentoIndividual;
+import br.upe.sap.sistemasapupe.data.model.atividades.Atividade;
 import br.upe.sap.sistemasapupe.data.model.atividades.Sala;
+import br.upe.sap.sistemasapupe.data.model.enums.StatusAtividade;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Funcionario;
-import br.upe.sap.sistemasapupe.data.model.pacientes.Ficha;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.FuncionarioRepository;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.GrupoTerapeuticoRepository;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.atividades.AtividadeRepositoryFacade;
@@ -16,7 +15,9 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -75,5 +76,25 @@ public class AtendimentoGrupoService {
 
 
         return AtendimentoGrupoDTO.to(atividadeExistente, uidGrupoTerapeutico);
+    }
+
+    public List<AtendimentoGrupoDTO> getByStatus(StatusAtividade status){
+        List<Atividade> atividades = atividadeRepository.findByStatus(status);
+
+        return atividades.stream()
+                .filter(atividade -> atividade instanceof AtendimentoGrupo)
+                .map(atividade -> (AtendimentoGrupo) atividade)
+                .map(atendimentoGrupo -> {
+                    int idGrupoTerapeutico = atendimentoGrupo.getIdGrupoTerapeutico();
+                    UUID uidGrupoTerapeutico = grupoTerapeuticoRepository.findById(idGrupoTerapeutico).getUid();
+                    return AtendimentoGrupoDTO.to(atendimentoGrupo, uidGrupoTerapeutico);
+                })
+                .collect(Collectors.toList());
+    }
+
+    public boolean deleteById(UUID uid) {
+        int id = atividadeRepository.findIds(uid).get(uid);
+        int rowsAffected = atividadeRepository.delete(id);
+        return rowsAffected > 0;
     }
 }
