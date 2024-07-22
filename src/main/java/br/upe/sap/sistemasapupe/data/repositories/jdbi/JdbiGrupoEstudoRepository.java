@@ -236,6 +236,23 @@ public class JdbiGrupoEstudoRepository implements GrupoEstudoRepository {
                 .mapTo(Integer.class)
                 .list());
     }
+
+    @Override
+    public List<Integer> findGruposEstudoNaoParticipadosPor(Integer idParticipante) {
+        final String QUERY = """
+                            SELECT id
+                            FROM grupos_estudo
+                            WHERE id NOT IN (SELECT id_grupo_estudo
+                            FROM participacao_grupos_estudo
+                            WHERE id_participante = :id_participante)
+                            """;
+
+        return jdbi.withHandle(handle -> handle
+                .createQuery(QUERY)
+                .bind("id_participante", idParticipante)
+                .mapTo(Integer.class)
+                .list());
+    }
 }
 
 
