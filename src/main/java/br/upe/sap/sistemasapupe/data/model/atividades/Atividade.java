@@ -27,7 +27,7 @@ public abstract class Atividade {
     private StatusAtividade status;
 
 
-    public Atividade(int id, UUID uid, Sala sala, LocalDateTime tempoInicio, LocalDateTime tempoFim,
+    public Atividade(Integer id, UUID uid, Sala sala, LocalDateTime tempoInicio, LocalDateTime tempoFim,
                      StatusAtividade status, Funcionario funcionario) {
         this.setId(id);
         this.setUid(uid);

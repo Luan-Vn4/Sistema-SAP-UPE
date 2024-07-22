@@ -129,6 +129,9 @@ public class GrupoEstudoService {
     }
 
     public FuncionarioDTO addFuncionario(UUID uid, UUID uidGrupo) {
+        if (uid == null || uidGrupo == null) {
+            throw new EntityNotFoundException("Valor não pode ser nulo");
+        }
         int id = funcionarioRepository.findIds(uid).get(uid);
         int idGrupo = grupoEstudoRepository.findIds(uidGrupo).get(uidGrupo);
         grupoEstudoRepository.addFuncionario(id, idGrupo);

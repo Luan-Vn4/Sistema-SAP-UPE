@@ -43,7 +43,7 @@ public class AtendimentoGrupoService {
         Funcionario funcionario = funcionarioService.getFuncionarioByUid(atendimentoGrupoDTO.idFuncionario());
         GrupoTerapeutico grupoTerapeutico = grupoTerapeuticoService.getGrupoTerapeuticoByUid(atendimentoGrupoDTO.idGrupoTerapeutico());
 
-        AtendimentoGrupo received = atendimentoGrupoDTO.toAtendimentoGrupo(grupoTerapeutico.getId(), sala, funcionario);
+        AtendimentoGrupo received = atendimentoGrupoDTO.toAtendimentoGrupo(grupoTerapeutico.getId(), sala, funcionario); //aqui
         AtendimentoGrupo result = (AtendimentoGrupo) atividadeRepository.create(received);
         return AtendimentoGrupoDTO.from(result, grupoTerapeutico.getUid());
     }
