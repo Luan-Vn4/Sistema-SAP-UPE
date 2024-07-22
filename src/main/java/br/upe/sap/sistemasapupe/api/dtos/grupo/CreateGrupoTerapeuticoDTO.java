@@ -6,7 +6,11 @@ import java.util.UUID;
 
 public record CreateGrupoTerapeuticoDTO(String tema, String descricao, UUID idDono) {
 
-    public static GrupoTerapeutico toGrupo(CreateGrupoTerapeuticoDTO dto, Integer id, UUID uid, Integer idDono){
-        return new GrupoTerapeutico(id, uid, dto.tema(), dto.tema(), idDono);
+    public static GrupoTerapeutico toGrupo(CreateGrupoTerapeuticoDTO dto, Integer idDono){
+        return GrupoTerapeutico.grupoTerapeuticoBuilder()
+                .descricao(dto.descricao)
+                .idDono(idDono)
+                .tema(dto.tema)
+                .build();
     }
 }

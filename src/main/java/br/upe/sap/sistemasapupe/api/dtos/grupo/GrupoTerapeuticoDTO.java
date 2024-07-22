@@ -18,7 +18,7 @@ public record GrupoTerapeuticoDTO(UUID uid, String tema,
                 grupoTerapeutico.getDescricao(), idDono);
     }
 
-    public static GrupoTerapeutico convertToGrupo(GrupoTerapeuticoDTO dto, Integer idGrupo, Integer idDono){
-        return new GrupoTerapeutico(idGrupo, dto.uid(), dto.tema(), dto.descricao(), idDono);
+    public static GrupoTerapeutico convertToGrupo(GrupoTerapeuticoDTO dto, Integer idDono){
+        return new GrupoTerapeutico(dto.tema(), dto.descricao(), idDono);
     }
 }
