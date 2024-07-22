@@ -1,17 +1,17 @@
 package br.upe.sap.sistemasapupe.api.dtos.atividades.atendimentoindividual;
 
+import br.upe.sap.sistemasapupe.api.dtos.atividades.geral.AtividadeDTO;
 import br.upe.sap.sistemasapupe.data.model.atividades.AtendimentoIndividual;
 import br.upe.sap.sistemasapupe.data.model.atividades.Sala;
 import br.upe.sap.sistemasapupe.data.model.enums.StatusAtividade;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Funcionario;
 import br.upe.sap.sistemasapupe.data.model.pacientes.Ficha;
-
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public record AtendimentoIndividualDTO(UUID id, UUID sala, UUID funcionario, LocalDateTime tempoInicio,
+public record AtendimentoIndividualDTO(UUID id, UUID idSala, UUID idFuncionario, LocalDateTime tempoInicio,
                                        LocalDateTime tempoFim, StatusAtividade statusAtividade,
-                                       UUID terapeuta, UUID ficha) {
+                                       UUID idTerapeuta, UUID idFicha) implements AtividadeDTO {
 
     public static AtendimentoIndividual toAtendimentoIndividual(AtendimentoIndividualDTO atendimentoIndividualDTO, Sala sala,
                                              Funcionario funcionario, Funcionario terapeuta, Ficha ficha){

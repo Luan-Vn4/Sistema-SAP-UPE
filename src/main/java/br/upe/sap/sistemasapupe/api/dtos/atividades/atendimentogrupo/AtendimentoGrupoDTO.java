@@ -10,8 +10,8 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Builder
-public record AtendimentoGrupoDTO (UUID id, UUID sala, LocalDateTime tempoInicio,
-                                   LocalDateTime tempoFim, UUID funcionario, StatusAtividade statusAtividade,
+public record AtendimentoGrupoDTO (UUID id, UUID idSala, LocalDateTime tempoInicio,
+                                   LocalDateTime tempoFim, UUID idFuncionario, StatusAtividade statusAtividade,
                                    UUID idGrupoTerapeutico){
 
     public static AtendimentoGrupo to(AtendimentoGrupoDTO atendimentoGrupoDTO, Sala sala,
