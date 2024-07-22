@@ -7,7 +7,7 @@ import java.util.UUID;
 @NoArgsConstructor
 public class Ficha {
 
-    private int id;
+    private Integer id;
     private UUID uid;
     private int idResponsavel;
     private String nome;
@@ -15,7 +15,7 @@ public class Ficha {
 
 
     @Builder
-    public Ficha(int id, UUID uid, int idResponsavel, String nome, Integer idGrupoTerapeutico) {
+    public Ficha(Integer id, UUID uid, int idResponsavel, String nome, Integer idGrupoTerapeutico) {
         this.id = id;
         this.uid = uid;
         this.idResponsavel = idResponsavel;
