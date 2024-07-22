@@ -53,7 +53,7 @@ public class SecurityConfiguration {
                 .requestMatchers("/api/v1/authentication/login").permitAll()
                 .requestMatchers("/api/v1/authentication/register-tecnico").permitAll()
                 .requestMatchers("/api/v1/authentication/register-estagiario").hasRole(Cargo.TECNICO.getRole())
-                .requestMatchers("/api/v1/funcionarios/**").hasRole(Cargo.TECNICO.getRole())
+                .requestMatchers(HttpMethod.GET,"/api/v1/funcionarios/one").permitAll()
                 .requestMatchers("/api/v1/funcionarios/**").hasRole(Cargo.TECNICO.getRole())
                 .requestMatchers("/error/**").permitAll()
                 .requestMatchers(HttpMethod.POST,"/api/v1/posts").hasRole(Cargo.TECNICO.getRole())
@@ -63,6 +63,8 @@ public class SecurityConfiguration {
                 .requestMatchers("/api/v1/comentarios/**").permitAll()
                 .requestMatchers("/api/v1/sala").hasRole(Cargo.TECNICO.getRole())
                 .requestMatchers("/api/v1/sala/**").permitAll()
+                .requestMatchers(HttpMethod.GET,"/api/v1/grupo**/**").permitAll()
+
                 .anyRequest().authenticated())
             .csrf(CsrfConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
