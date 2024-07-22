@@ -10,14 +10,32 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record AtendimentoIndividualDTO(UUID id, UUID sala, LocalDateTime tempoInicio,
-                                      LocalDateTime tempoFim, StatusAtividade statusAtividade,
-                                      UUID terapeuta, UUID ficha, UUID funcionario) {
+                                       LocalDateTime tempoFim, StatusAtividade statusAtividade,
+                                       UUID terapeuta, UUID ficha, UUID funcionario) {
 
     public static AtendimentoIndividual from(AtendimentoIndividualDTO atendimentoIndividualDTO, Sala sala,
                                              Funcionario funcionario, Funcionario terapeuta, Ficha ficha){
-            return AtendimentoIndividual.builder().sala(sala).terapeuta(terapeuta).funcionario(funcionario)
-                    .ficha(ficha).tempoInicio(atendimentoIndividualDTO.tempoInicio)
-                    .tempoFim(atendimentoIndividualDTO.tempoFim)
-                    .statusAtividade(atendimentoIndividualDTO.statusAtividade).build();
+        return AtendimentoIndividual.builder()
+                .sala(sala)
+                .terapeuta(terapeuta)
+                .funcionario(funcionario)
+                .ficha(ficha)
+                .tempoInicio(atendimentoIndividualDTO.tempoInicio)
+                .tempoFim(atendimentoIndividualDTO.tempoFim)
+                .statusAtividade(atendimentoIndividualDTO.statusAtividade)
+                .build();
+    }
+
+    public static AtendimentoIndividualDTO to(AtendimentoIndividual atendimentoIndividual){
+        return new AtendimentoIndividualDTO(
+                atendimentoIndividual.getUid(),
+                atendimentoIndividual.getSala().getUid(),
+                atendimentoIndividual.getTempoInicio(),
+                atendimentoIndividual.getTempoFim(),
+                atendimentoIndividual.getStatus(),
+                atendimentoIndividual.getTerapeuta().getUid(),
+                atendimentoIndividual.getFicha().getUid(),
+                atendimentoIndividual.getFuncionario().getUid()
+        );
     }
 }

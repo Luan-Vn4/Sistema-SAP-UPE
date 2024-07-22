@@ -2,6 +2,7 @@ package br.upe.sap.sistemasapupe.api.services.atividades;
 
 import br.upe.sap.sistemasapupe.api.dtos.atividades.AtendimentoIndividualDTO;
 import br.upe.sap.sistemasapupe.api.dtos.atividades.CreateAtendimentoIndividualDTO;
+import br.upe.sap.sistemasapupe.data.model.atividades.AtendimentoIndividual;
 import br.upe.sap.sistemasapupe.data.model.atividades.Atividade;
 import br.upe.sap.sistemasapupe.data.model.atividades.Sala;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Funcionario;
@@ -23,16 +24,17 @@ public class AtendimentoIndividualService {
     FichaRepository fichaRepository;
     SalaRepository salaRepository;
 
-    public Atividade create(CreateAtendimentoIndividualDTO createDTO){
+    public AtendimentoIndividualDTO create(CreateAtendimentoIndividualDTO createDTO){
         Sala sala = salaRepository.findById(salaRepository.findIds(createDTO.sala()).get(createDTO.sala()));
         Funcionario funcionario = funcionarioRepository.findById(funcionarioRepository.findIds(createDTO.funcionario()).get(createDTO.funcionario()));
         Funcionario terapeuta = funcionarioRepository.findById(funcionarioRepository.findIds(createDTO.terapeuta()).get(createDTO.terapeuta()));
         Ficha ficha = fichaRepository.findById(fichaRepository.findIds(createDTO.ficha()).get(createDTO.ficha()));
         Atividade atividadeTransformada = CreateAtendimentoIndividualDTO.from(createDTO, sala, funcionario, terapeuta, ficha);
-        return atividadeRepository.create(atividadeTransformada);
+        AtendimentoIndividual resultado = (AtendimentoIndividual) atividadeRepository.create(atividadeTransformada);
+        return AtendimentoIndividualDTO.to(resultado);
     }
 
-    public Atividade update(AtendimentoIndividualDTO dto){
+    public AtendimentoIndividualDTO update(AtendimentoIndividualDTO dto){
         Sala sala = salaRepository.findById(salaRepository.findIds(dto.sala()).get(dto.sala()));
         Funcionario funcionario = funcionarioRepository.findById(funcionarioRepository.findIds(dto.funcionario()).get(dto.funcionario()));
         Funcionario terapeuta = funcionarioRepository.findById(funcionarioRepository.findIds(dto.terapeuta()).get(dto.terapeuta()));
@@ -50,22 +52,23 @@ public class AtendimentoIndividualService {
         atividadeExistente.setTempoInicio(dto.tempoInicio());
         atividadeExistente.setTempoFim(dto.tempoFim());
 
-        return atividadeRepository.update(atividadeExistente);
+        AtendimentoIndividual resultado = (AtendimentoIndividual) atividadeRepository.update(atividadeExistente);
+        return AtendimentoIndividualDTO.to(resultado);
     }
 
-    public Atividade getById(AtendimentoIndividualDTO dto){
+    public AtendimentoIndividualDTO getById(AtendimentoIndividualDTO dto){
         Sala sala = salaRepository.findById(salaRepository.findIds(dto.sala()).get(dto.sala()));
         Funcionario funcionario = funcionarioRepository.findById(funcionarioRepository.findIds(dto.funcionario()).get(dto.funcionario()));
         Funcionario terapeuta = funcionarioRepository.findById(funcionarioRepository.findIds(dto.terapeuta()).get(dto.terapeuta()));
         Ficha ficha = fichaRepository.findById(fichaRepository.findIds(dto.ficha()).get(dto.ficha()));
 
-        Atividade atividadeExistente = atividadeRepository
+        AtendimentoIndividual atividadeExistente = (AtendimentoIndividual) atividadeRepository
                 .findById(atividadeRepository.findIds(dto.id()).get(dto.id()));
         if (atividadeExistente == null) {
             throw new EntityNotFoundException("Grupo de estudos não encontrado para o id " + atividadeRepository.findIds(dto.id()).get(dto.id()));
         }
 
-        return atividadeExistente;
+        return AtendimentoIndividualDTO.to(atividadeExistente);
     }
 
 
