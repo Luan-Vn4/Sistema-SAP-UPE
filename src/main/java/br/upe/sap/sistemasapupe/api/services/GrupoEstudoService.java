@@ -3,6 +3,7 @@ package br.upe.sap.sistemasapupe.api.services;
 import br.upe.sap.sistemasapupe.api.dtos.funcionarios.FuncionarioDTO;
 import br.upe.sap.sistemasapupe.api.dtos.grupo.CreateGrupoEstudoDTO;
 import br.upe.sap.sistemasapupe.api.dtos.grupo.GrupoEstudoDTO;
+import br.upe.sap.sistemasapupe.data.model.funcionarios.Funcionario;
 import br.upe.sap.sistemasapupe.data.model.grupos.GrupoEstudo;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.FuncionarioRepository;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.GrupoEstudoRepository;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class GrupoEstudoService {
 
+    private final FuncionarioService funcionarioService;
     FuncionarioRepository funcionarioRepository;
     GrupoEstudoRepository grupoEstudoRepository;
 
@@ -159,6 +161,13 @@ public class GrupoEstudoService {
         return resultadoBD.stream()
                 .map(participanteId -> funcionarioRepository.findById(participanteId).getUid())
                 .collect(Collectors.toList());
+    }
+
+    public List<UUID> getGruposNaoParticipados(UUID uidParticipante){
+        Funcionario funcionario = funcionarioService.getFuncionarioByUid(uidParticipante);
+        List<Integer> resultadoDB = grupoEstudoRepository.findGruposEstudoNaoParticipadosPor(funcionario.getId());
+        return resultadoDB.stream()
+                .map(idGrupo -> grupoEstudoRepository.findById(idGrupo).getUid()).toList();
     }
 
 }
