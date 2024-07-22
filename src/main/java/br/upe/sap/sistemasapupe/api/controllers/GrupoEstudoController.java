@@ -57,6 +57,12 @@ public class GrupoEstudoController {
         return ids != null ? ResponseEntity.ok(ids) : ResponseEntity.notFound().build();
     }
 
+    @GetMapping("/grupo-nao-participados/many/{uidFuncionario}")
+    public ResponseEntity<List<UUID>> getGruposNaoParticipados(@PathVariable UUID uidFuncionario){
+        List<UUID> retorno = grupoEstudoService.getGruposNaoParticipados(uidFuncionario);
+        return retorno != null ? ResponseEntity.ok(retorno) : ResponseEntity.notFound().build();
+    }
+
     @PutMapping("/update")
     public ResponseEntity<GrupoEstudoDTO> update(@RequestBody GrupoEstudoDTO grupoEstudo) {
         GrupoEstudoDTO grupoEstudoDTO  = grupoEstudoService.update(grupoEstudo);
@@ -82,4 +88,5 @@ public class GrupoEstudoController {
         Boolean deleted = grupoEstudoService.deleteManyByIds(ids);
         return deleted ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
     }
+
 }

@@ -110,4 +110,10 @@ public class GrupoTerapeuticoController {
         GrupoTerapeuticoDTO grupoSemFicha = service.removerFicha(uidFicha, uidGrupo);
         return grupoSemFicha != null ? ResponseEntity.ok(grupoSemFicha) : ResponseEntity.notFound().build();
     }
+
+    @GetMapping(value = "/grupo-nao-participados/many", params = {"uid-funcionario"})
+    public ResponseEntity<List<UUID>> getGruposNaoParticipados(@RequestParam(name = "uid-funcionario") UUID uidFuncionario){
+        List<UUID> retorno = service.getGruposNaoParticipados(uidFuncionario);
+        return retorno != null ? ResponseEntity.ok(retorno) : ResponseEntity.notFound().build();
+    }
 }
