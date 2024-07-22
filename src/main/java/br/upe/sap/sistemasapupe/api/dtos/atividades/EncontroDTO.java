@@ -5,6 +5,7 @@ import br.upe.sap.sistemasapupe.api.dtos.grupo.GrupoEstudoDTO;
 import lombok.Builder;
 
 import java.util.List;
+import java.util.UUID;
 
 @Builder
-public record EncontroDTO (GrupoEstudoDTO grupoEstudo, List<FuncionarioDTO> presentes) {}
+public record EncontroDTO (AtividadesDTO atividadesDTO, UUID idGrupoEstudo, List<UUID> idsPresentes) {}

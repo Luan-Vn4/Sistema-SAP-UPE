@@ -14,19 +14,18 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class FichaService {
-    private final GrupoTerapeuticoRepository grupoTerapeuticoRepository;
+    GrupoTerapeuticoRepository grupoTerapeuticoRepository;
     FichaRepository fichaRepository;
     FuncionarioRepository funcionarioRepository;
 
     public FichaDTO createFicha (CreateFichaDTO fichaDTO){
         Ficha ficha = CreateFichaDTO.fromDTO(fichaDTO);
         Ficha fichaCriada = fichaRepository.create(ficha);
-        return FichaDTO.from(fichaCriada);
+        return FichaDTO.from(fichaCriada, null);
     }
 
     public FichaDTO updateFicha (UpdateFichaDTO fichaDTO) {
@@ -49,7 +48,7 @@ public class FichaService {
         fichaExistente.setIdGrupoTerapeutico(valueOrElse(idGrupoTerapeutico, fichaExistente.getIdGrupoTerapeutico()));
 
         Ficha fichaAtualizada = fichaRepository.update(fichaExistente);
-        return FichaDTO.from(fichaAtualizada);
+        return FichaDTO.from(fichaAtualizada, uidGrupoTerapeutico);
     }
 
     private <T> T valueOrElse(T value, T alternative) {
@@ -59,12 +58,14 @@ public class FichaService {
     public FichaDTO getFichaByUid (UUID uid){
         Integer id = fichaRepository.findIds(uid).get(uid);
         Ficha fichaEncontrada = fichaRepository.findById(id);
+        Integer idGrupoTerapeutico = fichaEncontrada.getIdGrupoTerapeutico();
+        UUID uidGrupoTerapeutico = grupoTerapeuticoRepository.findById(idGrupoTerapeutico).getUid();
 
         if (fichaEncontrada == null){
             throw new EntityNotFoundException("Ficha não encontrada para o UID: " + uid);
         }
 
-        return FichaDTO.from(fichaEncontrada);
+        return FichaDTO.from(fichaEncontrada, uidGrupoTerapeutico);
     }
 
     public List<FichaDTO> getFichaByUids (List<UUID> uids) {
@@ -74,11 +75,21 @@ public class FichaService {
             throw new EntityNotFoundException("Fichas não encontradas para os IDs: " + ids);
         }
 
-        return fichasEncontradas.stream().map(FichaDTO::from).collect(Collectors.toList());
+        return fichaRepository.findById(ids).stream()
+                .map(ficha -> {
+                    UUID uidGrupoTerapeutico = grupoTerapeuticoRepository.findById(ficha.getIdGrupoTerapeutico()).getUid();
+                    return FichaDTO.from(ficha, uidGrupoTerapeutico);
+                })
+                .toList();
     }
 
+
     public List<FichaDTO> getAll(){
-        return fichaRepository.findAll().stream().map(FichaDTO::from).collect(Collectors.toList());
+        return fichaRepository.findAll().stream().map(ficha -> {
+                    UUID uidGrupoTerapeutico = grupoTerapeuticoRepository.findById(ficha.getIdGrupoTerapeutico()).getUid();
+                    return FichaDTO.from(ficha, uidGrupoTerapeutico);
+                })
+                .toList();
     }
     public List<FichaDTO> getFichaByFuncionario(UUID uidFuncionario){
         Integer idFuncionario = funcionarioRepository.findIds(uidFuncionario).get(uidFuncionario);
@@ -87,7 +98,11 @@ public class FichaService {
         if (fichasEncontradas.isEmpty()) {
             throw new EntityNotFoundException("Fichas não encontradas para o UID do funcionario: " + uidFuncionario);
         }
-        return fichasEncontradas.stream().map(FichaDTO::from).collect(Collectors.toList());
+        return fichasEncontradas.stream().map(ficha -> {
+                    UUID uidGrupoTerapeutico = grupoTerapeuticoRepository.findById(ficha.getIdGrupoTerapeutico()).getUid();
+                    return FichaDTO.from(ficha, uidGrupoTerapeutico);
+                })
+                .toList();
     }
 
     public Boolean deleteFichaByUid(UUID uid) {
