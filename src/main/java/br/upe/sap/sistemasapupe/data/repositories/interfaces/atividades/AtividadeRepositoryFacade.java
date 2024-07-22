@@ -2,13 +2,20 @@ package br.upe.sap.sistemasapupe.data.repositories.interfaces.atividades;
 
 import br.upe.sap.sistemasapupe.data.model.atividades.*;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.BasicRepository;
+import org.apache.commons.collections4.BidiMap;
+
 import java.util.List;
+import java.util.UUID;
 
 public interface AtividadeRepositoryFacade extends BasicRepository<Atividade, Integer> {
 
     // CREATE //
         // Relacionado - AtendimentoGrupo
     int addParticipanteToAtendimentoGrupo(int idFicha, int idAtividade);
+
+    BidiMap<UUID, Integer> findIds(UUID uuid);
+
+    BidiMap<UUID, Integer> findIds(List<UUID> uuids);
 
     List<Integer> addParticipantesToAtendimentoGrupo(List<Integer> idFicha, int idAtividade);
 
