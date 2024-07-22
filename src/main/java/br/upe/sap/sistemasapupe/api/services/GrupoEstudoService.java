@@ -49,7 +49,8 @@ public class GrupoEstudoService {
     public GrupoEstudoDTO getById(UUID uid) throws EntityNotFoundException {
         int id = grupoEstudoRepository.findIds(uid).get(uid);
         GrupoEstudo grupoEncontrado = grupoEstudoRepository.findById(id);
-        return GrupoEstudoDTO.from(grupoEncontrado, uid);
+        UUID dono = funcionarioRepository.findById(grupoEncontrado.getDono()).getUid();
+        return GrupoEstudoDTO.from(grupoEncontrado, dono);
     }
 
     public List<GrupoEstudoDTO> getAll() {
