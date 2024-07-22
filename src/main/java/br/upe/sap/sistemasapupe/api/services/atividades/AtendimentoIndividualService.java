@@ -73,6 +73,7 @@ public class AtendimentoIndividualService {
         return AtendimentoIndividualDTO.to(atividadeExistente);
     }
 
+    //n meche pfv
     public List<AtendimentoIndividualDTO> getByStatus(StatusAtividade status){
         List<Atividade> atividades = atividadeRepository.findByStatus(status);
 
