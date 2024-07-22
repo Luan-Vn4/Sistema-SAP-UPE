@@ -22,9 +22,7 @@ public class GrupoTerapeutico {
 
 
     @Builder(builderMethodName = "grupoTerapeuticoBuilder")
-    public GrupoTerapeutico(int id, UUID uid, String tema, String descricao, int idDono) {
-        this.id = id;
-        this.uid = uid;
+    public GrupoTerapeutico(String tema, String descricao, int idDono) {
         this.tema = tema;
         this.descricao = descricao;
         this.idDono = idDono;
