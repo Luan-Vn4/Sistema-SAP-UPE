@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -24,6 +25,7 @@ public class GrupoEstudoService {
         int idDono = funcionarioRepository.findIds(grupoEstudoDTO.dono()).get(grupoEstudoDTO.dono());
         GrupoEstudo grupoEstudo = CreateGrupoEstudoDTO.to(grupoEstudoDTO, idDono);
         GrupoEstudo grupoCriado = grupoEstudoRepository.create(grupoEstudo);
+        addFuncionario(grupoEstudoDTO.dono(), grupoCriado.getUid());
         return GrupoEstudoDTO.from(grupoCriado, grupoEstudoDTO.dono());
     }
 
@@ -47,13 +49,14 @@ public class GrupoEstudoService {
     public GrupoEstudoDTO getById(UUID uid) throws EntityNotFoundException {
         int id = grupoEstudoRepository.findIds(uid).get(uid);
         GrupoEstudo grupoEncontrado = grupoEstudoRepository.findById(id);
-        return GrupoEstudoDTO.from(grupoEncontrado, uid);
+        UUID dono = funcionarioRepository.findById(grupoEncontrado.getDono()).getUid();
+        return GrupoEstudoDTO.from(grupoEncontrado, dono);
     }
 
     public List<GrupoEstudoDTO> getAll() {
         return grupoEstudoRepository.findAll().stream()
                 .map(grupoEstudo -> {
-                    UUID donoUUID = grupoEstudo.getUid();
+                    UUID donoUUID = funcionarioRepository.findById(grupoEstudo.getDono()).getUid();
                     return GrupoEstudoDTO.from(grupoEstudo, donoUUID);
                 })
                 .toList();
@@ -67,18 +70,19 @@ public class GrupoEstudoService {
         }
         return grupoEstudoRepository.findById(ids).stream()
                 .map(grupoEstudo -> {
-                    UUID donoUUID = grupoEstudo.getUid();
+                    UUID donoUUID = funcionarioRepository.findById(grupoEstudo.getDono()).getUid();
                     return GrupoEstudoDTO.from(grupoEstudo, donoUUID);
                 })
                 .toList();
     }
 
     public Boolean deleteById(UUID uid) {
-        int id = grupoEstudoRepository.findIds(uid).get(uid);
-        if (grupoEstudoRepository.findById(id) == null){
+        Integer id = grupoEstudoRepository.findIds(uid).get(uid);
+        if (grupoEstudoRepository.findById(id) == null) {
             throw new EntityNotFoundException("Grupo não encontrado para o id " + id);
         }
-        return grupoEstudoRepository.delete(id) > 0;
+        grupoEstudoRepository.delete(id);
+        return true;
     }
 
     public Boolean deleteManyByIds(List<UUID> uids) {
@@ -93,7 +97,7 @@ public class GrupoEstudoService {
         int id = funcionarioRepository.findIds(uid).get(uid);
         return grupoEstudoRepository.findByFuncionario(id).stream()
                 .map(grupoEstudo -> {
-                    UUID donoUUID = grupoEstudo.getUid();
+                    UUID donoUUID = funcionarioRepository.findById(grupoEstudo.getDono()).getUid();
                     return GrupoEstudoDTO.from(grupoEstudo, donoUUID);
                 })
                 .toList();
@@ -112,11 +116,21 @@ public class GrupoEstudoService {
         return FuncionarioDTO.from(funcionarioRepository.findById(id));
     }
 
-    public Boolean deletedParticipacao(UUID uid) {
-        int id = funcionarioRepository.findIds(uid).get(uid);
-        if (funcionarioRepository.findById(id) == null){
+    public Boolean deletedParticipacao(UUID uidParticipante, UUID uidGrupoEstudo) {
+        int idParticipante = funcionarioRepository.findIds(uidParticipante).get(uidParticipante);
+        int idGrupoEstudo = grupoEstudoRepository.findIds(uidGrupoEstudo).get(uidGrupoEstudo);
+        if (funcionarioRepository.findById(idParticipante) == null){
             throw new EntityNotFoundException("Funcionario não encontrado");
         }
-        return grupoEstudoRepository.deleteParticipacao(id) > 0;
+        return grupoEstudoRepository.deleteParticipacao(idParticipante, idGrupoEstudo) > 0;
     }
+
+    public List<UUID> getParticipantesByGrupoEsudo(UUID idGrupoEstudo){
+        int id = grupoEstudoRepository.findIds(idGrupoEstudo).get(idGrupoEstudo);
+        List<Integer> resultadoBD = grupoEstudoRepository.findParticipantesByGrupoEstudo(id);
+        return resultadoBD.stream()
+                .map(participanteId -> funcionarioRepository.findById(participanteId).getUid())
+                .collect(Collectors.toList());
+    }
+
 }

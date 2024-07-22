@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS participacao_grupos_estudo(
 
 CREATE TABLE IF NOT EXISTS encontros(
     id INT PRIMARY KEY REFERENCES atividades(id) ON DELETE CASCADE,
-    id_grupo_estudo INT REFERENCES grupos_estudo(id) ON DELETE CASCADE
+    id_grupo_estudo INT REFERENCES grupos_estudo(id) ON DELETE CASCADE NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS comparecimento_encontros(

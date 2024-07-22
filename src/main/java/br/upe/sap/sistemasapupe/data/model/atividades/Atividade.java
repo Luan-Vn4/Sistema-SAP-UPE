@@ -8,11 +8,11 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Getter @Setter
-@ToString
+@Data
+@NoArgsConstructor
 public abstract class Atividade {
 
-    private int id;
+    private Integer id;
 
     private UUID uid;
 
@@ -25,6 +25,7 @@ public abstract class Atividade {
     private LocalDateTime tempoFim;
 
     private StatusAtividade status;
+
 
     public Atividade(int id, UUID uid, Sala sala, LocalDateTime tempoInicio, LocalDateTime tempoFim,
                      StatusAtividade status, Funcionario funcionario) {

@@ -97,13 +97,16 @@ public class JdbiGrupoEstudoRepository implements GrupoEstudoRepository {
     @Override
     public GrupoEstudo update(GrupoEstudo grupoEstudo) {
         final String UPDATE = """
-            UPDATE grupos_estudo SET id_dono = :id_dono, tema = :tema, descricao = :descricao
-                WHERE id = :id RETURNING %s
-            """.formatted(returningColumns);
+        UPDATE grupos_estudo SET id_dono = :id_dono, tema = :tema, descricao = :descricao
+            WHERE id = :id RETURNING id, uid, id_dono dono, tema, descricao
+    """;
 
         return jdbi.withHandle(handle -> handle
                 .createUpdate(UPDATE)
-                .bindBean(grupoEstudo)
+                .bind("id", grupoEstudo.getId())
+                .bind("id_dono", grupoEstudo.getDono())
+                .bind("tema", grupoEstudo.getTema())
+                .bind("descricao", grupoEstudo.getDescricao())
                 .executeAndReturnGeneratedKeys()
                 .map(this::mapGrupoEstudo)
                 .findFirst().orElse(null));
@@ -161,8 +164,8 @@ public class JdbiGrupoEstudoRepository implements GrupoEstudoRepository {
 
         return jdbi.withHandle(handle -> handle
             .createUpdate(DELETE)
-            .bind("id", id))
-            .execute();
+            .bind("id", id)
+            .execute());
     }
 
     @Override
@@ -214,13 +217,24 @@ public class JdbiGrupoEstudoRepository implements GrupoEstudoRepository {
     }
 
     @Override
-    public int deleteParticipacao(int idParticipante) {
-        final String DELETE = "DELETE FROM participacao_grupos_estudo WHERE id_participante = :id_participante";
+    public int deleteParticipacao(int idParticipante, int idGrupoEstudo) {
+        final String DELETE = "DELETE FROM participacao_grupos_estudo WHERE id_participante = :id_participante AND id_grupo_estudo = :id_grupo_estudo";
 
         return jdbi.withHandle(handle -> handle
                 .createUpdate(DELETE)
                 .bind("id_participante", idParticipante)
+                .bind("id_grupo_estudo", idGrupoEstudo)
                 .execute());
+    }
+    @Override
+    public List<Integer> findParticipantesByGrupoEstudo(Integer idGrupoEstudo) {
+        final String QUERY = "SELECT id_participante FROM participacao_grupos_estudo WHERE id_grupo_estudo = :id_grupo_estudo";
+
+        return jdbi.withHandle(handle -> handle
+                .createQuery(QUERY)
+                .bind("id_grupo_estudo", idGrupoEstudo)
+                .mapTo(Integer.class)
+                .list());
     }
 }
 

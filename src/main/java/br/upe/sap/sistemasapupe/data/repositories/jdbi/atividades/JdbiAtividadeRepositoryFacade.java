@@ -32,7 +32,6 @@ public class JdbiAtividadeRepositoryFacade implements AtividadeRepositoryFacade 
 
     AuxAtividadeRepository auxRepository;
 
-
     // CREATE //
     public Atividade create(Atividade atividade) {
         if (atividade instanceof AtendimentoIndividual) {
@@ -112,7 +111,7 @@ public class JdbiAtividadeRepositoryFacade implements AtividadeRepositoryFacade 
     @Override
     public Atividade findById(Integer id) {
         final String QUERY = """
-            SELECT id, CASE id
+            SELECT id, CASE
                 WHEN id IN (SELECT id FROM atendimentos_individuais) THEN 'ATENDIMENTO_INDIVIDUAL'
                 WHEN id IN (SELECT id FROM atendimentos_grupo) THEN 'ATENDIMENTO_GRUPO'
                 ELSE 'ENCONTRO' END AS tipo_atividade
@@ -144,7 +143,7 @@ public class JdbiAtividadeRepositoryFacade implements AtividadeRepositoryFacade 
     @Override
     public List<Atividade> findById(List<Integer> ids) {
         final String QUERY = """
-            SELECT id, CASE id
+            SELECT id, CASE
                 WHEN id IN (SELECT id FROM atendimentos_individuais) THEN 'ATENDIMENTO_INDIVIDUAL'
                 WHEN id IN (SELECT id FROM atendimentos_grupo) THEN 'ATENDIMENTO_GRUPO'
                 ELSE 'ENCONTRO' END AS tipo_atividade
@@ -161,7 +160,7 @@ public class JdbiAtividadeRepositoryFacade implements AtividadeRepositoryFacade 
     @Override
     public List<Atividade> findAll() {
         final String QUERY = """
-            SELECT id, CASE id
+            SELECT id, CASE
                 WHEN id IN (SELECT id FROM atendimentos_individuais) THEN 'ATENDIMENTO_INDIVIDUAL'
                 WHEN id IN (SELECT id FROM atendimentos_grupo) THEN 'ATENDIMENTO_GRUPO'
                 ELSE 'ENCONTRO' END AS tipo_atividade

@@ -33,13 +33,13 @@ class JdbiEncontroRepository implements EncontroRepository {
                 VALUES (:id, :idGrupoEstudo) RETURNING id, id_grupo_estudo idGrupoEstudo
             """;
 
-        var atividade = (Encontro) auxRepository.create(encontro);
+        var result = (Encontro) auxRepository.create(encontro);
         return jdbi.withHandle(handle -> handle
-                .createQuery(CREATE)
-                .bind("id", encontro.getId())
-                .bind("idGrupoEstudo", encontro.getIdGrupoEstudo())
-                .map((rs, ctx) -> fillEncontro(rs, ctx, atividade))
-                .findFirst().orElse(null));
+            .createQuery(CREATE)
+            .bind("id", result.getId())
+            .bind("idGrupoEstudo", encontro.getIdGrupoEstudo())
+            .map((rs, ctx) -> fillEncontro(rs, ctx, result))
+            .findFirst().orElse(null));
     }
 
     private Encontro fillEncontro(ResultSet rs, StatementContext ctx, Encontro atv) throws SQLException {

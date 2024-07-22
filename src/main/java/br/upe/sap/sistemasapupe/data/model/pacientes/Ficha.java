@@ -3,9 +3,8 @@ package br.upe.sap.sistemasapupe.data.model.pacientes;
 import lombok.*;
 import java.util.UUID;
 
-@Getter @Setter
+@Data
 @NoArgsConstructor
-@ToString
 public class Ficha {
 
     private int id;

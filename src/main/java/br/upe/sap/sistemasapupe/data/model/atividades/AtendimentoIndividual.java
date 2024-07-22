@@ -16,6 +16,10 @@ public class AtendimentoIndividual extends Atividade {
 
     private Funcionario terapeuta;
 
+    public AtendimentoIndividual() {
+        super();
+    }
+
     @Builder
     public AtendimentoIndividual(int id, UUID uid, Sala sala, LocalDateTime tempoInicio,
                                  LocalDateTime tempoFim, StatusAtividade statusAtividade,
