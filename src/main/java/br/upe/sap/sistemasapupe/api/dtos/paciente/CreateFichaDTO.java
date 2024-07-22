@@ -3,11 +3,12 @@ package br.upe.sap.sistemasapupe.api.dtos.paciente;
 import br.upe.sap.sistemasapupe.data.model.pacientes.Ficha;
 import lombok.Builder;
 
-@Builder
-public record CreateFichaDTO (int idResponsavel, String nome) {
+import java.util.UUID;
 
-    public static Ficha fromDTO(CreateFichaDTO dto){
-        return Ficha.builder().idResponsavel(dto.idResponsavel())
-                .nome(dto.nome()).build();
+@Builder
+public record CreateFichaDTO (UUID idResponsavel, String nome) {
+
+    public static Ficha fromDTO(CreateFichaDTO dto, int idResponsavel){
+        return Ficha.builder().idResponsavel(idResponsavel).nome(dto.nome()).build();
     }
 }

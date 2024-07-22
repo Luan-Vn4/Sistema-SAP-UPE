@@ -20,7 +20,7 @@ public class FichaController {
     FichaService fichaService;
 
     //Criar
-    @PostMapping
+    @PostMapping("/")
     public ResponseEntity<FichaDTO> createFicha(@RequestBody CreateFichaDTO fichaDTO) {
         FichaDTO ficha = fichaService.createFicha(fichaDTO);
         return ResponseEntity.ok().body(ficha);

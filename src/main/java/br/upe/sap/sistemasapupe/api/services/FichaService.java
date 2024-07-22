@@ -23,9 +23,10 @@ public class FichaService {
     FuncionarioRepository funcionarioRepository;
 
     public FichaDTO createFicha (CreateFichaDTO fichaDTO){
-        Ficha ficha = CreateFichaDTO.fromDTO(fichaDTO);
+        int idResponsavel = funcionarioRepository.findIds(fichaDTO.idResponsavel()).get(fichaDTO.idResponsavel());
+        Ficha ficha = CreateFichaDTO.fromDTO(fichaDTO, idResponsavel);
         Ficha fichaCriada = fichaRepository.create(ficha);
-        return FichaDTO.from(fichaCriada, null);
+        return FichaDTO.from(fichaCriada, null, fichaDTO.idResponsavel());
     }
 
     public FichaDTO updateFicha (UpdateFichaDTO fichaDTO) {
@@ -48,7 +49,7 @@ public class FichaService {
         fichaExistente.setIdGrupoTerapeutico(valueOrElse(idGrupoTerapeutico, fichaExistente.getIdGrupoTerapeutico()));
 
         Ficha fichaAtualizada = fichaRepository.update(fichaExistente);
-        return FichaDTO.from(fichaAtualizada, uidGrupoTerapeutico);
+        return FichaDTO.from(fichaAtualizada, uidGrupoTerapeutico, fichaDTO.idResponsavel());
     }
 
     private <T> T valueOrElse(T value, T alternative) {
@@ -58,14 +59,11 @@ public class FichaService {
     public FichaDTO getFichaByUid (UUID uid){
         Integer id = fichaRepository.findIds(uid).get(uid);
         Ficha fichaEncontrada = fichaRepository.findById(id);
+        UUID idResponsavel = funcionarioRepository.findById(fichaEncontrada.getIdResponsavel()).getUid();
         Integer idGrupoTerapeutico = fichaEncontrada.getIdGrupoTerapeutico();
         UUID uidGrupoTerapeutico = grupoTerapeuticoRepository.findById(idGrupoTerapeutico).getUid();
 
-        if (fichaEncontrada == null){
-            throw new EntityNotFoundException("Ficha não encontrada para o UID: " + uid);
-        }
-
-        return FichaDTO.from(fichaEncontrada, uidGrupoTerapeutico);
+        return FichaDTO.from(fichaEncontrada, uidGrupoTerapeutico, idResponsavel);
     }
 
     public List<FichaDTO> getFichaByUids (List<UUID> uids) {
@@ -78,7 +76,8 @@ public class FichaService {
         return fichaRepository.findById(ids).stream()
                 .map(ficha -> {
                     UUID uidGrupoTerapeutico = grupoTerapeuticoRepository.findById(ficha.getIdGrupoTerapeutico()).getUid();
-                    return FichaDTO.from(ficha, uidGrupoTerapeutico);
+                    UUID uidResponsavel = funcionarioRepository.findById(ficha.getIdResponsavel()).getUid();
+                    return FichaDTO.from(ficha, uidGrupoTerapeutico, uidResponsavel);
                 })
                 .toList();
     }
@@ -87,7 +86,8 @@ public class FichaService {
     public List<FichaDTO> getAll(){
         return fichaRepository.findAll().stream().map(ficha -> {
                     UUID uidGrupoTerapeutico = grupoTerapeuticoRepository.findById(ficha.getIdGrupoTerapeutico()).getUid();
-                    return FichaDTO.from(ficha, uidGrupoTerapeutico);
+                    UUID uidResponsavel = funcionarioRepository.findById(ficha.getIdResponsavel()).getUid();
+                    return FichaDTO.from(ficha, uidGrupoTerapeutico, uidResponsavel);
                 })
                 .toList();
     }
@@ -100,7 +100,8 @@ public class FichaService {
         }
         return fichasEncontradas.stream().map(ficha -> {
                     UUID uidGrupoTerapeutico = grupoTerapeuticoRepository.findById(ficha.getIdGrupoTerapeutico()).getUid();
-                    return FichaDTO.from(ficha, uidGrupoTerapeutico);
+                    UUID uidResponsavel = funcionarioRepository.findById(ficha.getIdResponsavel()).getUid();
+                    return FichaDTO.from(ficha, uidGrupoTerapeutico, uidResponsavel);
                 })
                 .toList();
     }
