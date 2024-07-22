@@ -4,12 +4,6 @@ import br.upe.sap.sistemasapupe.data.model.pacientes.Ficha;
 import lombok.Builder;
 
 import java.util.UUID;
-<<<<<<< Updated upstream
-=======
-
-@Builder
-public record CreateFichaDTO (UUID idResponsavel, String nome) {
->>>>>>> Stashed changes
 
 @Builder
 public record CreateFichaDTO (UUID idResponsavel, String nome) {

@@ -13,10 +13,15 @@ public record CreateEncontroDTO (UUID idSala, LocalDateTime tempoInicio, LocalDa
                                  StatusAtividade status, UUID idFuncionario, UUID idGrupoEstudo,
                                  List<UUID> idsPresentes) {
     public static Encontro from(CreateEncontroDTO dto, Sala sala,
-                                Funcionario funcionario, Integer idGrupoEstudo, List<Integer> idsPresentes) {
-        return Encontro.builder().tempoFim(dto.tempoFim).sala(sala)
-                .tempoInicio(dto.tempoInicio).statusAtividade(dto.status())
-                .funcionario(funcionario).idsPresentes(idsPresentes).idGrupoEstudo(idGrupoEstudo).build();
+                                Funcionario funcionario, Integer idGrupoEstudo) {
+        return Encontro.builder()
+                .tempoFim(dto.tempoFim)
+                .sala(sala)
+                .tempoInicio(dto.tempoInicio)
+                .statusAtividade(dto.status())
+                .funcionario(funcionario)
+                .idGrupoEstudo(idGrupoEstudo)
+                .build();
     }
 
 }

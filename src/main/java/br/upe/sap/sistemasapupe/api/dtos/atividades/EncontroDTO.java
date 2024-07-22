@@ -10,4 +10,7 @@ import java.util.UUID;
 @Builder
 public record EncontroDTO (UUID id, UUID sala, LocalDateTime tempoInicio,
                            LocalDateTime tempoFim, StatusAtividade statusAtividade,
-                           UUID funcionario, UUID idGrupoEstudo, List<UUID> idsPresentes) {}
+                           UUID funcionario, UUID idGrupoEstudo) {
+
+
+}
