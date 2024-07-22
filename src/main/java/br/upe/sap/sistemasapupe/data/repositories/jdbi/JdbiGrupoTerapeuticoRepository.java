@@ -275,6 +275,23 @@ public class JdbiGrupoTerapeuticoRepository implements GrupoTerapeuticoRepositor
     }
 
     @Override
+    public List<Integer> findGruposTerapeuticosNaoParticipadosPor(Integer idParticipante) {
+        final String QUERY = """
+                            SELECT id
+                            FROM grupos_terapeuticos
+                            WHERE id NOT IN (SELECT id_grupo_terapeutico
+                            FROM participacao_grupo_terapeutico
+                            WHERE id_funcionario = :id_participante)
+                            """;
+
+        return jdbi.withHandle(handle -> handle
+                .createQuery(QUERY)
+                .bind("id_funcionario", idParticipante)
+                .mapTo(Integer.class)
+                .list());
+    }
+
+    @Override
     public int removerFuncionario(Integer idFuncionario, Integer idGrupoTerapeutico) {
         final String query = """
                 DELETE FROM participacao_grupo_terapeutico

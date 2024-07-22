@@ -34,6 +34,8 @@ public interface GrupoTerapeuticoRepository extends BasicRepository<GrupoTerapeu
 
     GrupoTerapeutico update(GrupoTerapeutico grupoTerapeutico);
 
+    List<Integer> findGruposTerapeuticosNaoParticipadosPor(Integer idParticipante);
+
     int removerFuncionario(Integer uidFUncionario, Integer uidGrupo);
 
     int removerFicha(Integer idFicha);

@@ -2,6 +2,7 @@ package br.upe.sap.sistemasapupe.api.services;
 
 import br.upe.sap.sistemasapupe.api.dtos.grupo.CreateGrupoTerapeuticoDTO;
 import br.upe.sap.sistemasapupe.api.dtos.grupo.GrupoTerapeuticoDTO;
+import br.upe.sap.sistemasapupe.data.model.funcionarios.Funcionario;
 import br.upe.sap.sistemasapupe.data.model.grupos.GrupoTerapeutico;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.FichaRepository;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.FuncionarioRepository;
@@ -233,4 +234,12 @@ public class GrupoTerapeuticoService {
 
         return grupoTerapeuticoRepository.findById(id);
     }
+
+    public List<UUID> getGruposNaoParticipados(UUID uidParticipante){
+        Funcionario funcionario = funcionarioService.getFuncionarioByUid(uidParticipante);
+        List<Integer> resultadoDB = grupoEstudoRepository.findGruposEstudoNaoParticipadosPor(funcionario.getId());
+        return resultadoDB.stream()
+                .map(idGrupo -> grupoEstudoRepository.findById(idGrupo).getUid()).toList();
+    }
+
 }
