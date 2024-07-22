@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.UUID;
 
 @Builder
-public record AtendimentoGrupoDTO (AtividadesDTO atividadesDTO, UUID idGrupoTerapeutico,
-                                   List<UUID> idsParticipantes, List<UUID> idsMinistrantes){
+public record AtendimentoGrupoDTO (){
 
 }
