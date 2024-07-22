@@ -12,7 +12,6 @@ import lombok.AllArgsConstructor;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.springframework.stereotype.Repository;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -211,6 +210,16 @@ public class JdbiAtividadeRepositoryFacade implements AtividadeRepositoryFacade 
     @Override
     public int deleteMinistrantesFromAtendimentoGrupo(List<Integer> idsMinistrantes, int idAtividade) {
         return atdGrupoRepository.deleteMinistrantes(idsMinistrantes, idAtividade);
+    }
+
+    @Override
+    public int deleteParticipanteFromAtendimentoGrupo(int idParticipante, int idAtividade) {
+        return atdGrupoRepository.deleteParticipante(idParticipante, idAtividade);
+    }
+
+    @Override
+    public int deleteParticipantesFromAtendimentoGrupo(List<Integer> idsParticipantes, int idAtividade) {
+        return atdGrupoRepository.deleteParticipantes(idsParticipantes, idAtividade);
     }
 
         // Relacionado - AtendimentoGrupo
