@@ -23,4 +23,5 @@ public record CreateAtendimentoGrupoDTO(UUID idSala, LocalDateTime tempoInicio, 
                     .tempoFim(dto.tempoFim())
                     .statusAtividade(dto.status()).build();
     }
+
 }
