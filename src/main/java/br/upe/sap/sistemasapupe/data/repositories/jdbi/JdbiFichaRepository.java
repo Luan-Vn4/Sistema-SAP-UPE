@@ -27,7 +27,6 @@ public class JdbiFichaRepository implements FichaRepository {
         if (idFuncionario == null) throw new IllegalArgumentException("UID do funcionário não deve ser nulo");
 
         final String SELECT = "SELECT id FROM fichas WHERE id_responsavel = :id_responsavel";
-
         List<Integer> ids = jdbi.withHandle(handle -> handle
                 .createQuery(SELECT)
                 .bind("id_responsavel", idFuncionario)
@@ -109,6 +108,9 @@ public class JdbiFichaRepository implements FichaRepository {
 
     @Override
     public List<Ficha> findById(List<Integer> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return List.of();
+        }
         final String QUERY = "SELECT * FROM fichas WHERE id IN (%s)".formatted("<ids>");
 
         return jdbi.withHandle(handle -> handle
