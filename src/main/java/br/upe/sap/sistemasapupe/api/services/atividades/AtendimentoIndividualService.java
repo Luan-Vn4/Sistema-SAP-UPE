@@ -15,6 +15,8 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 @AllArgsConstructor
 public class AtendimentoIndividualService {
@@ -56,16 +58,11 @@ public class AtendimentoIndividualService {
         return AtendimentoIndividualDTO.to(resultado);
     }
 
-    public AtendimentoIndividualDTO getById(AtendimentoIndividualDTO dto){
-        Sala sala = salaRepository.findById(salaRepository.findIds(dto.sala()).get(dto.sala()));
-        Funcionario funcionario = funcionarioRepository.findById(funcionarioRepository.findIds(dto.funcionario()).get(dto.funcionario()));
-        Funcionario terapeuta = funcionarioRepository.findById(funcionarioRepository.findIds(dto.terapeuta()).get(dto.terapeuta()));
-        Ficha ficha = fichaRepository.findById(fichaRepository.findIds(dto.ficha()).get(dto.ficha()));
-
+    public AtendimentoIndividualDTO getById(UUID id){
         AtendimentoIndividual atividadeExistente = (AtendimentoIndividual) atividadeRepository
-                .findById(atividadeRepository.findIds(dto.id()).get(dto.id()));
+                .findById(atividadeRepository.findIds(id).get(id));
         if (atividadeExistente == null) {
-            throw new EntityNotFoundException("Grupo de estudos não encontrado para o id " + atividadeRepository.findIds(dto.id()).get(dto.id()));
+            throw new EntityNotFoundException("Grupo de estudos não encontrado para o id " + atividadeRepository.findIds(id).get(id));
         }
 
         return AtendimentoIndividualDTO.to(atividadeExistente);
