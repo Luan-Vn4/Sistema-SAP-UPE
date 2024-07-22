@@ -1,5 +1,6 @@
 package br.upe.sap.sistemasapupe.api.controllers;
 
+import br.upe.sap.sistemasapupe.api.dtos.grupo.CreateGrupoTerapeuticoDTO;
 import br.upe.sap.sistemasapupe.api.dtos.grupo.GrupoTerapeuticoDTO;
 import br.upe.sap.sistemasapupe.api.services.GrupoTerapeuticoService;
 import lombok.AllArgsConstructor;
@@ -15,6 +16,13 @@ import java.util.UUID;
 public class GrupoTerapeuticoController {
 
     GrupoTerapeuticoService service;
+
+    // CREATE
+    @PostMapping("/")
+    public ResponseEntity<GrupoTerapeuticoDTO> create(@RequestBody CreateGrupoTerapeuticoDTO dto){
+        GrupoTerapeuticoDTO grupo = service.create(dto);
+        return ResponseEntity.ok().body(grupo);
+    }
 
     // MÉTODOS GET
     @GetMapping("/many/all")
