@@ -1,7 +1,7 @@
 package br.upe.sap.sistemasapupe.api.controllers.atividades;
 
-import br.upe.sap.sistemasapupe.api.dtos.atividades.AtendimentoIndividualDTO;
-import br.upe.sap.sistemasapupe.api.dtos.atividades.CreateAtendimentoIndividualDTO;
+import br.upe.sap.sistemasapupe.api.dtos.atividades.atendimentoindividual.AtendimentoIndividualDTO;
+import br.upe.sap.sistemasapupe.api.dtos.atividades.atendimentoindividual.CreateAtendimentoIndividualDTO;
 import br.upe.sap.sistemasapupe.api.services.atividades.AtendimentoIndividualService;
 import br.upe.sap.sistemasapupe.data.model.enums.StatusAtividade;
 import lombok.AllArgsConstructor;
@@ -48,7 +48,7 @@ public class AtendimentoIndividualController {
 
     @DeleteMapping("/delete/{uid}")
     public ResponseEntity<Void> deleteById(@PathVariable UUID uid) {
-        boolean deleted = atendimentoIndividualService.deleteById(uid);
+        boolean deleted = atendimentoIndividualService.deleteByUid(uid);
 
         if (deleted) {
             return ResponseEntity.noContent().build();

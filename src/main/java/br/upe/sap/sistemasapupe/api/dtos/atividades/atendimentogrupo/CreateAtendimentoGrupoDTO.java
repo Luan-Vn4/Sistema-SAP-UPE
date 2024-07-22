@@ -1,4 +1,4 @@
-package br.upe.sap.sistemasapupe.api.dtos.atividades;
+package br.upe.sap.sistemasapupe.api.dtos.atividades.atendimentogrupo;
 
 import br.upe.sap.sistemasapupe.data.model.atividades.AtendimentoGrupo;
 import br.upe.sap.sistemasapupe.data.model.atividades.Sala;

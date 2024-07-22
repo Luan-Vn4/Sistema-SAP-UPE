@@ -10,6 +10,7 @@ import br.upe.sap.sistemasapupe.data.repositories.interfaces.FuncionarioReposito
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.GrupoTerapeuticoRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
+import org.apache.commons.collections4.BidiMap;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,14 +23,14 @@ public class FichaService {
     FichaRepository fichaRepository;
     FuncionarioRepository funcionarioRepository;
 
-    public FichaDTO createFicha (CreateFichaDTO fichaDTO){
+    public FichaDTO create(CreateFichaDTO fichaDTO){
         int idResponsavel = funcionarioRepository.findIds(fichaDTO.idResponsavel()).get(fichaDTO.idResponsavel());
         Ficha ficha = CreateFichaDTO.fromDTO(fichaDTO, idResponsavel);
         Ficha fichaCriada = fichaRepository.create(ficha);
         return FichaDTO.from(fichaCriada, null, fichaDTO.idResponsavel());
     }
 
-    public FichaDTO updateFicha (UpdateFichaDTO fichaDTO) {
+    public FichaDTO update(UpdateFichaDTO fichaDTO) {
         Ficha fichaExistente = fichaRepository.findById(fichaRepository.
             findIds(fichaDTO.uid())
             .get(fichaDTO.uid()));
@@ -56,7 +57,7 @@ public class FichaService {
         return (value != null ? value : alternative);
     }
 
-    public FichaDTO getFichaByUid (UUID uid){
+    public FichaDTO getByUid(UUID uid){
         Integer id = fichaRepository.findIds(uid).get(uid);
         Ficha fichaEncontrada = fichaRepository.findById(id);
         UUID idResponsavel = funcionarioRepository.findById(fichaEncontrada.getIdResponsavel()).getUid();
@@ -66,7 +67,7 @@ public class FichaService {
         return FichaDTO.from(fichaEncontrada, uidGrupoTerapeutico, idResponsavel);
     }
 
-    public List<FichaDTO> getFichaByUids (List<UUID> uids) {
+    public List<FichaDTO> getByUids(List<UUID> uids) {
         List<Integer> ids = fichaRepository.findIds(uids).values().stream().toList();
         List<Ficha> fichasEncontradas = fichaRepository.findById(ids);
         if (fichasEncontradas.isEmpty()) {
@@ -82,7 +83,6 @@ public class FichaService {
                 .toList();
     }
 
-
     public List<FichaDTO> getAll(){
         return fichaRepository.findAll().stream().map(ficha -> {
                     UUID uidGrupoTerapeutico = grupoTerapeuticoRepository.findById(ficha.getIdGrupoTerapeutico()).getUid();
@@ -91,7 +91,8 @@ public class FichaService {
                 })
                 .toList();
     }
-    public List<FichaDTO> getFichaByFuncionario(UUID uidFuncionario){
+
+    public List<FichaDTO> getByFuncionario(UUID uidFuncionario){
         Integer idFuncionario = funcionarioRepository.findIds(uidFuncionario).get(uidFuncionario);
         List<Ficha> fichasEncontradas = fichaRepository.findByFuncionario(idFuncionario);
 
@@ -103,6 +104,22 @@ public class FichaService {
             return FichaDTO.from(ficha, uidGrupoTerapeutico, uidResponsavel);
         }).toList();
 
+    }
+
+    public Ficha getFichaByUid(UUID uid) {
+        Integer id = fichaRepository.findIds(uid).get(uid);
+
+        if (id == null) return null;
+
+        return fichaRepository.findById(id);
+    }
+
+    public List<Ficha> getFichaByUid(List<UUID> uids) {
+        BidiMap<UUID, Integer> ids = fichaRepository.findIds(uids);
+
+        if (ids.isEmpty()) return List.of();
+
+        return fichaRepository.findById(ids.values().stream().toList());
     }
 
     public Boolean deleteFichaByUid(UUID uid) {

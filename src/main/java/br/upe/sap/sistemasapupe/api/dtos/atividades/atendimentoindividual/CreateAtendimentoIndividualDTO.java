@@ -1,4 +1,4 @@
-package br.upe.sap.sistemasapupe.api.dtos.atividades;
+package br.upe.sap.sistemasapupe.api.dtos.atividades.atendimentoindividual;
 
 import br.upe.sap.sistemasapupe.data.model.atividades.AtendimentoIndividual;
 import br.upe.sap.sistemasapupe.data.model.atividades.Sala;
@@ -15,11 +15,16 @@ public record CreateAtendimentoIndividualDTO(UUID sala, LocalDateTime tempoInici
                                              LocalDateTime tempoFim, StatusAtividade statusAtividade,
                                              UUID terapeuta, UUID ficha, UUID funcionario){
 
-    public static AtendimentoIndividual from(CreateAtendimentoIndividualDTO dto, Sala sala,
-                                             Funcionario funcionario,Funcionario terapeuta, Ficha ficha) {
-        return AtendimentoIndividual.builder().tempoFim(dto.tempoFim)
-                .tempoInicio(dto.tempoInicio).statusAtividade(dto.statusAtividade)
-                .ficha(ficha).funcionario(funcionario).terapeuta(terapeuta).sala(sala).build();
+    public AtendimentoIndividual to(Sala sala, Funcionario funcionario,Funcionario terapeuta, Ficha ficha) {
+        return AtendimentoIndividual.builder()
+            .tempoFim(tempoFim())
+            .tempoInicio(tempoInicio())
+            .statusAtividade(statusAtividade())
+            .ficha(ficha)
+            .funcionario(funcionario)
+            .terapeuta(terapeuta)
+            .sala(sala)
+            .build();
     }
 
 }

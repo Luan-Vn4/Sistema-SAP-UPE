@@ -30,11 +30,8 @@ public class FuncionarioService {
      */
     @Transactional
     public FuncionarioDTO changeSupervisor(UUID uidEstagiario, UUID uidSupervisor) {
-        BidiMap<UUID, Integer> ids = funcionarioRepository.findIds(
-            List.of(uidEstagiario, uidSupervisor));
-
-        Funcionario estagiario = funcionarioRepository.findById(ids.get(uidEstagiario));
-        Funcionario supervisor = funcionarioRepository.findById(ids.get(uidSupervisor));
+        Funcionario estagiario = getFuncionarioByUid(uidEstagiario);
+        Funcionario supervisor = getFuncionarioByUid(uidSupervisor);
 
         if (!(estagiario instanceof Estagiario) || !(supervisor instanceof Tecnico)) {
             throw new IllegalArgumentException("Algum dos uids fornecidos não correspondem aos cargos " +
@@ -55,10 +52,7 @@ public class FuncionarioService {
      */
     @Transactional
     public FuncionarioDTO updateCredentials(UpdateFuncionarioDTO dto) {
-        UUID uuid = dto.id();
-        Integer id = funcionarioRepository.findIds(uuid).get(uuid);
-
-        Funcionario funcionario = funcionarioRepository.findById(id);
+        Funcionario funcionario = getFuncionarioByUid(dto.id());
 
         if (funcionario == null) throw new EntityNotFoundException("Não foi possível encontrar um funcionario " +
                 "com o UID: " + dto.id());
@@ -109,20 +103,32 @@ public class FuncionarioService {
         }
     }
 
+    public Funcionario getFuncionarioByUid(UUID uid) {
+        Integer id = funcionarioRepository.findIds(uid).get(uid);
+
+        if (id == null) return null;
+
+        return funcionarioRepository.findById(id);
+    }
+
+    public List<Funcionario> getFuncionarioByUid(List<UUID> uids) {
+        BidiMap<UUID, Integer> ids = funcionarioRepository.findIds(uids);
+
+        if (ids.isEmpty()) return List.of();
+
+        return funcionarioRepository.findById(ids.values().stream().toList());
+    }
+
     public List<FuncionarioDTO> getByAtivo(boolean ativo) {
         return mapToFuncionarioDTO(funcionarioRepository.findByAtivo(ativo));
     }
 
     public FuncionarioDTO getByUid(UUID uid) {
-        Integer id = funcionarioRepository.findIds(uid).get(uid);
-
-        return FuncionarioDTO.from(funcionarioRepository.findById(id));
+        return FuncionarioDTO.from(getFuncionarioByUid(uid));
     }
 
     public List<FuncionarioDTO> getByUids(List<UUID> uids) {
-        List<Integer> ids = funcionarioRepository.findIds(uids).values().stream().toList();
-
-        return mapToFuncionarioDTO(funcionarioRepository.findById(ids));
+        return mapToFuncionarioDTO(getFuncionarioByUid(uids));
     }
 
     public List<FuncionarioDTO> getAllTecnicos() {

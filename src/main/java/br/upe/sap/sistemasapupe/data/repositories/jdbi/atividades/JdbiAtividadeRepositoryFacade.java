@@ -15,7 +15,6 @@ import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.springframework.stereotype.Repository;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -60,22 +59,14 @@ public class JdbiAtividadeRepositoryFacade implements AtividadeRepositoryFacade 
 
     @Override
     public BidiMap<UUID, Integer> findIds(UUID uuid) {
-        final String SELECT = """
-        SELECT uid, id, CASE
-            WHEN uid IN (SELECT uid FROM atendimentos_individuais) THEN 'ATENDIMENTO_INDIVIDUAL'
-            WHEN uid IN (SELECT uid FROM atendimentos_grupo) THEN 'ATENDIMENTO_GRUPO'
-            ELSE 'ENCONTRO' END AS tipo_atividade
-        FROM atividades
-        WHERE uid = :uuid
-        LIMIT 1
-    """;
+        final String SELECT = "SELECT uid, id FROM atividades WHERE uid = :uuid LIMIT 1";
 
         BidiMap<UUID, Integer> results = new DualHashBidiMap<>();
         Map<String, Object> mapping = jdbi.withHandle(handle -> handle
-                .createQuery(SELECT)
-                .bind("uuid", uuid)
-                .mapToMap()
-                .findFirst().orElse(null));
+            .createQuery(SELECT)
+            .bind("uuid", uuid)
+            .mapToMap()
+            .findFirst().orElse(null));
 
         mapIds(results, mapping);
 
@@ -90,21 +81,14 @@ public class JdbiAtividadeRepositoryFacade implements AtividadeRepositoryFacade 
 
     @Override
     public BidiMap<UUID, Integer> findIds(List<UUID> uuids) {
-        final String SELECT = """
-        SELECT uid, id, CASE
-            WHEN uid IN (SELECT uid FROM atendimentos_individuais) THEN 'ATENDIMENTO_INDIVIDUAL'
-            WHEN uid IN (SELECT uid FROM atendimentos_grupo) THEN 'ATENDIMENTO_GRUPO'
-            ELSE 'ENCONTRO' END AS tipo_atividade
-        FROM atividades
-        WHERE uid IN (<uuids>)
-    """;
+        final String SELECT = "SELECT uid, id FROM atividades WHERE uid IN (%s)".formatted("<uuids>");
 
         BidiMap<UUID, Integer> results = new DualHashBidiMap<>();
         List<Map<String, Object>> maps = jdbi.withHandle(handle -> handle
-                .createQuery(SELECT)
-                .bindList("uuids", uuids)
-                .mapToMap()
-                .list());
+            .createQuery(SELECT)
+            .bindList("uuids", uuids)
+            .mapToMap()
+            .list());
 
         maps.forEach(map -> mapIds(results, map));
 
@@ -243,12 +227,11 @@ public class JdbiAtividadeRepositoryFacade implements AtividadeRepositoryFacade 
     """;
 
         return jdbi.withHandle(handle -> handle
-                .createQuery(SELECT)
-                .bind("status", status.getLabel())
-                .map(this::mapAtividadeByTipoAtividade)
-                .collectIntoList());
+            .createQuery(SELECT)
+            .bind("status", status.getLabel())
+            .map(this::mapAtividadeByTipoAtividade)
+            .collectIntoList());
     }
-
 
 
         // Relacionado - AtendimentoGrupo

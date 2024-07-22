@@ -8,6 +8,7 @@ import br.upe.sap.sistemasapupe.data.repositories.interfaces.FuncionarioReposito
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.GrupoEstudoRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
+import org.apache.commons.collections4.BidiMap;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -46,7 +47,7 @@ public class GrupoEstudoService {
         return GrupoEstudoDTO.from(grupoAtualizado, grupoEstudoDTO.dono());
     }
 
-    public GrupoEstudoDTO getById(UUID uid) throws EntityNotFoundException {
+    public GrupoEstudoDTO getByUid(UUID uid) throws EntityNotFoundException {
         int id = grupoEstudoRepository.findIds(uid).get(uid);
         GrupoEstudo grupoEncontrado = grupoEstudoRepository.findById(id);
         UUID dono = funcionarioRepository.findById(grupoEncontrado.getDono()).getUid();
@@ -62,7 +63,7 @@ public class GrupoEstudoService {
                 .toList();
     }
 
-    public List<GrupoEstudoDTO> getByIds(List<UUID> uids) {
+    public List<GrupoEstudoDTO> getByUid(List<UUID> uids) {
         List<Integer> ids = grupoEstudoRepository.findIds(uids).values().stream().toList();
         List<GrupoEstudo> gruposEncontrados = grupoEstudoRepository.findById(ids);
         if (gruposEncontrados.isEmpty()) {
@@ -74,6 +75,30 @@ public class GrupoEstudoService {
                     return GrupoEstudoDTO.from(grupoEstudo, donoUUID);
                 })
                 .toList();
+    }
+
+    public GrupoEstudo getGrupoEstudoByUid(UUID uid) {
+        Integer id = grupoEstudoRepository.findIds(uid).get(uid);
+
+        if (id == null) return null;
+
+        return grupoEstudoRepository.findById(id);
+    }
+
+    public List<GrupoEstudo> getGrupoEstudoByUid(List<UUID> uids) {
+        BidiMap<UUID, Integer> ids = grupoEstudoRepository.findIds(uids);
+
+        if (ids.isEmpty()) return List.of();
+
+        return grupoEstudoRepository.findById(ids.values().stream().toList());
+    }
+
+    public GrupoEstudo getGrupoEstudoById(Integer id) {
+        return grupoEstudoRepository.findById(id);
+    }
+
+    public List<GrupoEstudo> getGrupoEstudoById(List<Integer> ids) {
+        return grupoEstudoRepository.findById(ids);
     }
 
     public Boolean deleteById(UUID uid) {

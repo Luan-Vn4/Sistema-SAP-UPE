@@ -22,7 +22,7 @@ public class FichaController {
     //Criar
     @PostMapping("/")
     public ResponseEntity<FichaDTO> createFicha(@RequestBody CreateFichaDTO fichaDTO) {
-        FichaDTO ficha = fichaService.createFicha(fichaDTO);
+        FichaDTO ficha = fichaService.create(fichaDTO);
         return ResponseEntity.ok().body(ficha);
     }
 
@@ -39,25 +39,25 @@ public class FichaController {
                     "requisição");
             if (uids.isEmpty()) return ResponseEntity.ok(List.of());
 
-            List<FichaDTO> result = fichaService.getFichaByUids(uids);
+            List<FichaDTO> result = fichaService.getByUids(uids);
             return ResponseEntity.ok().body(result);
     }
 
     @GetMapping(value = "/one", params = {"uid"})
     public ResponseEntity<FichaDTO> searchByUid(@RequestParam UUID uid) {
-        return ResponseEntity.ok(fichaService.getFichaByUid(uid));
+        return ResponseEntity.ok(fichaService.getByUid(uid));
     }
 
     @GetMapping(value = "/many/funcionario", params = {"uidFuncionario"})
     public ResponseEntity<List<FichaDTO>> searchByFuncionarios(@RequestParam UUID uidFuncionario){
-        return ResponseEntity.ok(fichaService.getFichaByFuncionario(uidFuncionario));
+        return ResponseEntity.ok(fichaService.getByFuncionario(uidFuncionario));
     }
 
     // UPDATES
     @PutMapping("/one")
     public ResponseEntity<FichaDTO> updateFicha (@RequestBody UpdateFichaDTO dto){
         try {
-            return ResponseEntity.ok().body(fichaService.updateFicha(dto));
+            return ResponseEntity.ok().body(fichaService.update(dto));
         } catch (Exception e) {
             throw new RuntimeException("O update da ficha não foi realizado.", e);
         }

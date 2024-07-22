@@ -35,7 +35,7 @@ public class GrupoEstudoController {
 
     @GetMapping("/{uid}")
     public ResponseEntity<GrupoEstudoDTO> get(@PathVariable UUID uid) {
-        GrupoEstudoDTO grupoEstudo = grupoEstudoService.getById(uid);
+        GrupoEstudoDTO grupoEstudo = grupoEstudoService.getByUid(uid);
         return grupoEstudo != null ? ResponseEntity.ok(grupoEstudo) : ResponseEntity.notFound().build();
     }
 
