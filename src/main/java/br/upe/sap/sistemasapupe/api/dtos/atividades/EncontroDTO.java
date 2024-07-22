@@ -1,7 +1,5 @@
 package br.upe.sap.sistemasapupe.api.dtos.atividades;
 
-import br.upe.sap.sistemasapupe.api.dtos.funcionarios.FuncionarioDTO;
-import br.upe.sap.sistemasapupe.api.dtos.grupo.GrupoEstudoDTO;
 import br.upe.sap.sistemasapupe.data.model.enums.StatusAtividade;
 import lombok.Builder;
 
