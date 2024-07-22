@@ -25,6 +25,7 @@ public class GrupoTerapeuticoService {
         Integer idDono = funcionarioRepository.findIds(grupo.idDono()).get(grupo.idDono());
         GrupoTerapeutico grupoTerapeutico = CreateGrupoTerapeuticoDTO.toGrupo(grupo, idDono);
         GrupoTerapeutico grupoCriado = grupoTerapeuticoRepository.create(grupoTerapeutico);
+        grupoTerapeuticoRepository.addFuncionario(idDono, grupoTerapeutico.getId());
         return GrupoTerapeuticoDTO.from(grupoCriado, funcionarioRepository.findById(
                 grupoCriado.getIdDono()).getUid());
     }
