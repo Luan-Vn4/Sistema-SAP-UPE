@@ -53,7 +53,7 @@ class JdbiAtendimentoIndividualRepository implements AtendimentoIndividualReposi
     private AtendimentoIndividual fillAtendimentoIndividual(ResultSet rs, StatementContext ctx,
                                                             AtendimentoIndividual atv) throws SQLException {
         atv.setFicha(fichaRepository.findById(rs.getInt("id_ficha")));
-        atv.setTerapeuta(atv.getFuncionario());
+        atv.setTerapeuta(funcionarioRepository.findById(rs.getInt("id_terapeuta")));
         return atv;
     }
 
@@ -67,18 +67,27 @@ class JdbiAtendimentoIndividualRepository implements AtendimentoIndividualReposi
     @Override
     public AtendimentoIndividual update(AtendimentoIndividual atendimentoIndividual) {
         final String UPDATE = """
-            UPDATE atendimentos_individuais
-                SET id_ficha = :id_ficha, id_terapeuta = :id_terapeuta WHERE id = :id
-                    RETURNING id_ficha, id_terapeuta
-            """;
+        UPDATE atendimentos_individuais
+        SET id_ficha = :id_ficha, id_terapeuta = :id_terapeuta
+        WHERE id = :id
+        RETURNING id_ficha, id_terapeuta
+    """;
 
-        var result = (AtendimentoIndividual) atividadeCreator.update(atendimentoIndividual);
         return jdbi.withHandle(handle -> handle
-            .createUpdate(UPDATE)
-            .bind("id", result.getId())
-            .executeAndReturnGeneratedKeys()
-            .map((rs, ctx) -> fillAtendimentoIndividual(rs, ctx, result))
-            .findFirst().orElse(null));
+                .createUpdate(UPDATE)
+                .bind("id", atendimentoIndividual.getId())
+                .bind("id_ficha", atendimentoIndividual.getFicha().getId())
+                .bind("id_terapeuta", atendimentoIndividual.getTerapeuta().getId())
+                .executeAndReturnGeneratedKeys()
+                .mapToMap()
+                .findFirst()
+                .map(map -> {
+                    atendimentoIndividual.setFicha(fichaRepository.findById((Integer) map.get("id_ficha")));
+                    atendimentoIndividual.setTerapeuta(funcionarioRepository.findById((Integer) map.get("id_terapeuta")));
+                    return atendimentoIndividual;
+                })
+                .orElse(null)
+        );
     }
 
     @Override
