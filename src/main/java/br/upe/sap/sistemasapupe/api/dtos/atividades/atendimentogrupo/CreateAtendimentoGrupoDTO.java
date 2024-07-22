@@ -10,13 +10,14 @@ import java.util.UUID;
 public record CreateAtendimentoGrupoDTO(UUID idSala, LocalDateTime tempoInicio, LocalDateTime tempoFim,
                                         StatusAtividade status, UUID idFuncionario, UUID idGrupoTerapeutico) {
 
-    public static AtendimentoGrupo from(CreateAtendimentoGrupoDTO dto,
-                                      Integer idGrupoTerapeutico, Sala sala, Funcionario funcionario) {
-        return AtendimentoGrupo.builder().idGrupoTerapeutico(idGrupoTerapeutico)
-                    .sala(sala)
-                    .funcionario(funcionario)
-                    .tempoInicio(dto.tempoInicio())
-                    .tempoFim(dto.tempoFim())
-                    .statusAtividade(dto.status()).build();
+    public AtendimentoGrupo toAtendimentoGrupo(Integer idGrupoTerapeutico, Sala sala, Funcionario funcionario) {
+        return AtendimentoGrupo.builder()
+            .idGrupoTerapeutico(idGrupoTerapeutico)
+            .sala(sala)
+            .funcionario(funcionario)
+            .tempoInicio(tempoInicio)
+            .tempoFim(tempoFim)
+            .statusAtividade(status)
+            .build();
     }
 }

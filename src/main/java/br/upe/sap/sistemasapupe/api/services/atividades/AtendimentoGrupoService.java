@@ -1,16 +1,21 @@
 package br.upe.sap.sistemasapupe.api.services.atividades;
 
-import br.upe.sap.sistemasapupe.api.dtos.atividades.AtendimentoGrupoDTO;
+import br.upe.sap.sistemasapupe.api.dtos.atividades.atendimentogrupo.AtendimentoGrupoDTO;
 import br.upe.sap.sistemasapupe.api.dtos.atividades.atendimentogrupo.CreateAtendimentoGrupoDTO;
+import br.upe.sap.sistemasapupe.api.dtos.atividades.encontro.EncontroDTO;
+import br.upe.sap.sistemasapupe.api.services.FichaService;
+import br.upe.sap.sistemasapupe.api.services.FuncionarioService;
+import br.upe.sap.sistemasapupe.api.services.GrupoTerapeuticoService;
+import br.upe.sap.sistemasapupe.api.services.SalaService;
 import br.upe.sap.sistemasapupe.data.model.atividades.AtendimentoGrupo;
 import br.upe.sap.sistemasapupe.data.model.atividades.Atividade;
+import br.upe.sap.sistemasapupe.data.model.atividades.Encontro;
 import br.upe.sap.sistemasapupe.data.model.atividades.Sala;
 import br.upe.sap.sistemasapupe.data.model.enums.StatusAtividade;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Funcionario;
-import br.upe.sap.sistemasapupe.data.repositories.interfaces.FuncionarioRepository;
-import br.upe.sap.sistemasapupe.data.repositories.interfaces.GrupoTerapeuticoRepository;
+import br.upe.sap.sistemasapupe.data.model.grupos.GrupoEstudo;
+import br.upe.sap.sistemasapupe.data.model.grupos.GrupoTerapeutico;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.atividades.AtividadeRepositoryFacade;
-import br.upe.sap.sistemasapupe.data.repositories.interfaces.atividades.sala.SalaRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,43 +29,55 @@ import java.util.stream.Collectors;
 public class AtendimentoGrupoService {
 
     AtividadeRepositoryFacade atividadeRepository;
-    SalaRepository salaRepository;
-    FuncionarioRepository funcionarioRepository;
-    GrupoTerapeuticoRepository grupoTerapeuticoRepository;
+
+    FuncionarioService funcionarioService;
+
+    FichaService fichaService;
+
+    SalaService salaService;
+
+    GrupoTerapeuticoService grupoTerapeuticoService;
 
     public AtendimentoGrupoDTO create(CreateAtendimentoGrupoDTO atendimentoGrupoDTO){
-        int idGrupoTerapeutico = grupoTerapeuticoRepository
-                .findIds(atendimentoGrupoDTO.idGrupoTerapeutico())
-                .get(atendimentoGrupoDTO.idGrupoTerapeutico());
-        Sala sala = salaRepository.findById(salaRepository.findIds(atendimentoGrupoDTO.idSala()).get(atendimentoGrupoDTO.idSala()));
-        Funcionario funcionario = funcionarioRepository.findById(funcionarioRepository.findIds(atendimentoGrupoDTO.idFuncionario())
-                .get(atendimentoGrupoDTO.idFuncionario()));
+        Sala sala = salaService.getSalaByUid(atendimentoGrupoDTO.idSala());
+        Funcionario funcionario = funcionarioService.getFuncionarioByUid(atendimentoGrupoDTO.idFuncionario());
+        GrupoTerapeutico grupoTerapeutico = grupoTerapeuticoService.getGrupoTerapeuticoByUid(atendimentoGrupoDTO.idGrupoTerapeutico());
 
-        AtendimentoGrupo atividadeTransformada = CreateAtendimentoGrupoDTO.from(atendimentoGrupoDTO, idGrupoTerapeutico, sala, funcionario);
-        AtendimentoGrupo resultado = (AtendimentoGrupo) atividadeRepository.create(atividadeTransformada);
-        return AtendimentoGrupoDTO.to(resultado, atendimentoGrupoDTO.idGrupoTerapeutico());
+        AtendimentoGrupo received = atendimentoGrupoDTO.toAtendimentoGrupo(grupoTerapeutico.getId(), sala, funcionario);
+        AtendimentoGrupo result = (AtendimentoGrupo) atividadeRepository.create(received);
+        return AtendimentoGrupoDTO.from(result, grupoTerapeutico.getUid());
     }
 
     public AtendimentoGrupoDTO update(AtendimentoGrupoDTO dto) {
-        Sala sala = salaRepository.findById(salaRepository.findIds(dto.sala()).get(dto.sala()));
-        Funcionario funcionario = funcionarioRepository.findById(funcionarioRepository.findIds(dto.funcionario()).get(dto.funcionario()));
-        int idGrupoTerapeutico = grupoTerapeuticoRepository.findIds(dto.idGrupoTerapeutico()).get(dto.idGrupoTerapeutico());
+        var atividade = (AtendimentoGrupo) getAtividadeByUid(dto.id());
 
-        int id = atividadeRepository.findIds(dto.id()).get(dto.id());
+        if (atividade == null) throw
+                new EntityNotFoundException("Não existe um atendimento em grupo com UID: " + dto.id());
 
-        AtendimentoGrupo atendimentoGrupo = AtendimentoGrupo.builder()
-                .id(id)
-                .sala(sala)
-                .funcionario(funcionario)
-                .tempoInicio(dto.tempoInicio())
-                .tempoFim(dto.tempoFim())
-                .statusAtividade(dto.statusAtividade())
-                .idGrupoTerapeutico(idGrupoTerapeutico)
-                .build();
+        Funcionario funcionario = funcionarioService.getFuncionarioByUid(dto.funcionario());
+        Sala sala = salaService.getSalaByUid(dto.sala());
+        GrupoTerapeutico grupoTerapeutico = grupoTerapeuticoService.getGrupoTerapeuticoByUid(dto.idGrupoTerapeutico());
 
-        AtendimentoGrupo atualizado = (AtendimentoGrupo) atividadeRepository.update(atendimentoGrupo);
+        atividade.setSala(valueOrElse(sala, atividade.getSala()));
+        atividade.setFuncionario(valueOrElse(funcionario, atividade.getFuncionario()));
+        atividade.setIdGrupoTerapeutico(valueOrElse(grupoTerapeutico.getId(),atividade.getIdGrupoTerapeutico()));
+        atividade.setTempoInicio(valueOrElse(dto.tempoInicio(),atividade.getTempoInicio()));
+        atividade.setTempoFim(valueOrElse(dto.tempoFim(), atividade.getTempoFim()));
+        atividade.setStatus(valueOrElse(dto.statusAtividade(), atividade.getStatus()));
 
-        return AtendimentoGrupoDTO.to(atualizado, dto.idGrupoTerapeutico());
+        return AtendimentoGrupoDTO.from(atividade, grupoTerapeutico.getUid());
+    }
+
+    private <T> T valueOrElse(T value, T alternative) {
+        return (value != null ? value : alternative);
+    }
+
+    public Atividade getAtividadeByUid(UUID uid) {
+        Integer id = atividadeRepository.findIds(uid).get(uid);
+
+        if (id == null) return null;
+
+        return atividadeRepository.findById(id);
     }
 
     public AtendimentoGrupoDTO getById(UUID id){
@@ -71,11 +88,11 @@ public class AtendimentoGrupoService {
             throw new EntityNotFoundException("Atendimento grupo não encontrado para o id " + atividadeRepository.findIds(id).get(id));
         }
 
-        int idGrupoTerapeutico = atividadeExistente.getIdGrupoTerapeutico();
-        UUID uidGrupoTerapeutico = grupoTerapeuticoRepository.findById(idGrupoTerapeutico).getUid();
+        return AtendimentoGrupoDTO.from(atividadeExistente, getUidGrupoTerapeutico(atividadeExistente.getIdGrupoTerapeutico()));
+    }
 
-
-        return AtendimentoGrupoDTO.to(atividadeExistente, uidGrupoTerapeutico);
+    private UUID getUidGrupoTerapeutico(int idGrupoTerapeutico) {
+        return grupoTerapeuticoService.getById(idGrupoTerapeutico).getUid();
     }
 
     public List<AtendimentoGrupoDTO> getByStatus(StatusAtividade status){
@@ -83,18 +100,17 @@ public class AtendimentoGrupoService {
 
         return atividades.stream()
                 .filter(atividade -> atividade instanceof AtendimentoGrupo)
-                .map(atividade -> (AtendimentoGrupo) atividade)
-                .map(atendimentoGrupo -> {
-                    int idGrupoTerapeutico = atendimentoGrupo.getIdGrupoTerapeutico();
-                    UUID uidGrupoTerapeutico = grupoTerapeuticoRepository.findById(idGrupoTerapeutico).getUid();
-                    return AtendimentoGrupoDTO.to(atendimentoGrupo, uidGrupoTerapeutico);
-                })
-                .collect(Collectors.toList());
+                .map(atividade -> {
+                    AtendimentoGrupo atendimentoGrupo = (AtendimentoGrupo) atividade;
+                    return AtendimentoGrupoDTO.from(atendimentoGrupo, getUidGrupoTerapeutico(atendimentoGrupo.getIdGrupoTerapeutico()));
+                }).toList();
     }
 
-    public boolean deleteById(UUID uid) {
-        int id = atividadeRepository.findIds(uid).get(uid);
-        int rowsAffected = atividadeRepository.delete(id);
-        return rowsAffected > 0;
+    public void deleteById(UUID uid) {
+        Integer id = atividadeRepository.findIds(uid).get(uid);
+
+        if (id == null) throw new EntityNotFoundException("Não há uma entidade com o UID: " + uid);
+
+        atividadeRepository.delete(id);
     }
 }

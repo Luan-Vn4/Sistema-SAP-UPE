@@ -103,10 +103,12 @@ public class AtendimentoIndividualService {
             .toList();
     }
 
-    public boolean deleteByUid(UUID uid) {
-        int id = atividadeRepository.findIds(uid).get(uid);
-        int rowsAffected = atividadeRepository.delete(id);
-        return rowsAffected > 0;
+    public void deleteByUid(UUID uid) {
+        Integer id = atividadeRepository.findIds(uid).get(uid);
+
+        if (id == null) throw new jakarta.persistence.EntityNotFoundException("Não há uma entidade com o UID: " + uid);
+
+        atividadeRepository.delete(id);
     }
 
 

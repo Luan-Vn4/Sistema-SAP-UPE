@@ -19,24 +19,24 @@ public class GrupoTerapeuticoController {
     // MÉTODOS GET
     @GetMapping("/many/all")
     public ResponseEntity<List<GrupoTerapeuticoDTO>> searchAll(){
-        return ResponseEntity.ok().body(service.findAll());
+        return ResponseEntity.ok().body(service.getAll());
     }
 
     @GetMapping("/one/{uid}")
     public ResponseEntity<GrupoTerapeuticoDTO> searchByUid(@PathVariable UUID uid){
-        GrupoTerapeuticoDTO dto = service.findById(uid);
+        GrupoTerapeuticoDTO dto = service.getById(uid);
         return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.notFound().build();
     }
 
     @GetMapping("/many/{uidFuncionario}")
     public ResponseEntity<List<GrupoTerapeuticoDTO>> searchByFuncionario(@PathVariable UUID uidFuncionario){
-        List<GrupoTerapeuticoDTO> grupos = service.findByFuncionario(uidFuncionario);
+        List<GrupoTerapeuticoDTO> grupos = service.getByFuncionario(uidFuncionario);
         return grupos != null ? ResponseEntity.ok(grupos) : ResponseEntity.notFound().build();
     }
 
     @GetMapping("/{uidFicha}")
     public ResponseEntity<GrupoTerapeuticoDTO> searcByFicha(@PathVariable UUID uidFicha){
-        GrupoTerapeuticoDTO grupo = service.findByFicha(uidFicha);
+        GrupoTerapeuticoDTO grupo = service.getByFicha(uidFicha);
         return grupo != null ? ResponseEntity.ok(grupo) : ResponseEntity.notFound().build();
     }
 

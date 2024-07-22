@@ -8,15 +8,15 @@ import java.util.UUID;
 @ToString
 @NoArgsConstructor
 public class GrupoTerapeutico {
-    private int id;
+    private Integer id;
     private UUID uid;
     private String tema;
     private String descricao;
-    private int idDono;
+    private Integer idDono;
 
 
     @Builder(builderMethodName = "grupoTerapeuticoBuilder")
-    public GrupoTerapeutico(String tema, String descricao, int idDono) {
+    public GrupoTerapeutico(String tema, String descricao, Integer idDono) {
         this.tema = tema;
         this.descricao = descricao;
         this.idDono = idDono;

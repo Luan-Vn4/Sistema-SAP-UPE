@@ -23,7 +23,7 @@ public class AtendimentoGrupo extends Atividade {
     }
 
     @Builder
-    public AtendimentoGrupo(int id, UUID uid, Sala sala, LocalDateTime tempoInicio,
+    public AtendimentoGrupo(Integer id, UUID uid, Sala sala, LocalDateTime tempoInicio,
                             LocalDateTime tempoFim, StatusAtividade statusAtividade,
                             Funcionario funcionario, Integer idGrupoTerapeutico,
                             List<Integer> idsParticipantes, List<Integer> idsMinistrantes) {
