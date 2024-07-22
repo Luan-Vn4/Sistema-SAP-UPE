@@ -48,7 +48,7 @@ public class FichaController {
         return ResponseEntity.ok(fichaService.getFichaByUid(uid));
     }
 
-    @GetMapping(value = "/one/funcionario", params = {"uid"})
+    @GetMapping(value = "/many/funcionario", params = {"uidFuncionario"})
     public ResponseEntity<List<FichaDTO>> searchByFuncionarios(@RequestParam UUID uidFuncionario){
         return ResponseEntity.ok(fichaService.getFichaByFuncionario(uidFuncionario));
     }
