@@ -10,4 +10,6 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 public class AtividadeController {
     AtividadeService atividadeService;
+
+
 }

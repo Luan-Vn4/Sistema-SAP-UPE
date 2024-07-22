@@ -213,6 +213,7 @@ public class JdbiAtividadeRepositoryFacadeTest {
         Assertions.assertEquals(expected.getIdsParticipantes(), actual.getIdsParticipantes(), "Participantes diferente");
     }
 
+
     // CREATE //
     @Test
     @DisplayName("Dado um atendimento individual, ao criar, retornar atendimento individual com dados" +
@@ -273,21 +274,56 @@ public class JdbiAtividadeRepositoryFacadeTest {
 
     @Test
     public void givenIdsParticipantes_whenAddToAtendimentoGrupo_thenReturnAddedIds() {
+        Funcionario funcionario = createFuncionarios().get(0);
+        Sala sala = createSalas().get(0);
+        GrupoTerapeutico grupoTerapeutico = createGrupoTerapeutico(funcionario.getId());
+        List<Ficha> participantes = createFichas(funcionario.getId(),grupoTerapeutico.getId());
+
+        AtendimentoGrupo atividade = (AtendimentoGrupo) repository.create(
+                getAtendimentoGrupo(StatusAtividade.PENDENTE, funcionario, sala,
+                        grupoTerapeutico.getId(), List.of(), List.of()));
+
+        List<Integer> ids = participantes.stream().map(Ficha::getId).toList();
+        List<Integer> result = repository.addParticipantesToAtendimentoGrupo(ids, atividade.getId());
+
+        Assertions.assertEquals(ids.size(), result.size(), "Quantidade de resultados menor");
+        Assertions.assertEquals(ids,result,"Resultado com ids diferentes");
+    }
+
+    @Test
+    public void givenIdsMinistrantes_whenAddToAtendimentoGrupo_thenReturnAddedIds() {
         List<Funcionario> funcionarios = createFuncionarios();
         Sala sala = createSalas().get(0);
         GrupoTerapeutico grupoTerapeutico = createGrupoTerapeutico(funcionarios.get(0).getId());
+
+        funcionarios.forEach(x -> grupoTerapeuticoRepository.addFuncionario(x.getId(), grupoTerapeutico.getId()));
 
         AtendimentoGrupo atividade = (AtendimentoGrupo) repository.create(
                 getAtendimentoGrupo(StatusAtividade.PENDENTE, funcionarios.get(0), sala,
                         grupoTerapeutico.getId(), List.of(), List.of()));
 
-
-
         List<Integer> ids = funcionarios.stream().map(Funcionario::getId).toList();
-        List<Integer> result = repository.addParticipantesToAtendimentoGrupo(ids, atividade.getId());
+        List<Integer> result = repository.addMinistrantesToAtendimentoGrupo(ids, atividade.getId());
+    }
 
-        Assertions.assertEquals(ids.size(), result.size(), "Quantidade de resultados menor");
-        Assertions.assertEquals(ids,result,"Resultado com ids diferentes");
+    @Test
+    public void givenIdsComparecidos_whenAddComparecimentoToEncontro_thenReturnIdsComparecidos() {
+        List<Funcionario> funcionario = createFuncionarios();
+        Sala sala = createSalas().get(0);
+        GrupoEstudo grupoEstudo = createGrupoEstudo(funcionario.get(0).getId());
+
+        funcionario.stream()
+            .map(Funcionario::getId)
+            .forEach(id -> grupoEstudoRepository.addFuncionario(id, grupoEstudo.getId()));
+
+        Encontro atividade = (Encontro) repository.create(
+            getEncontro(StatusAtividade.PENDENTE, funcionario.get(0), sala, grupoEstudo.getId(), List.of()));
+
+        List<Integer> ids = funcionario.stream().map(Funcionario::getId).toList();
+        List<Integer> results = repository.addComparecimentosToEncontro(ids, atividade.getId());
+
+        Assertions.assertEquals(ids.size(), results.size(), "Quantidade de resultados diferente");
+        Assertions.assertEquals(ids, results,"Resultado com ids diferentes");
     }
 
 
@@ -393,6 +429,94 @@ public class JdbiAtividadeRepositoryFacadeTest {
             assertIdsNotNull(results.get(i));
             assertEqualsWithoutIds(atividades.get(i), results.get(i));
         }
+    }
+
+
+    // UPDATE //
+    @Test
+    public void givenAtividade_whenSimpleUpdate_thenReturnAtividade() {
+        Funcionario funcionario = createFuncionarios().get(0);
+        Sala sala = createSalas().get(0);
+        Ficha ficha = createFichas(funcionario.getId(),null).get(0);
+
+        var atividade = (AtendimentoIndividual) repository.create(
+                getAtendimentoIndividual(StatusAtividade.PENDENTE, funcionario, sala, ficha));
+
+        AtendimentoIndividual newAtividade = getAtendimentoIndividual(StatusAtividade.APROVADO, funcionario, sala, ficha);
+        newAtividade.setId(atividade.getId());
+        newAtividade.setUid(atividade.getUid());
+        LocalDateTime newTempoInicio = LocalDateTime.of(2014,12,1,13,40);
+        LocalDateTime newTempoFim = LocalDateTime.of(2015,12,1,13,40);
+
+        newAtividade = (AtendimentoIndividual) repository.simpleUpdate(newAtividade);
+        Assertions.assertNotNull(newAtividade, "Nova atividade nula");
+
+        var found = (AtendimentoIndividual) repository.findById(atividade.getId());
+
+        Assertions.assertEquals(newAtividade,found,"A atividade não foi atualizada" +
+                                                   "devidamente");
+
+    }
+
+
+    // DELETE //
+    @Test
+    public void givenIdsMinistrantes_whenDeleteFromAtendimentoGrupo_thenReturnIds() {
+        List<Funcionario> funcionarios = createFuncionarios();
+        Sala sala = createSalas().get(0);
+        GrupoTerapeutico grupoTerapeutico = createGrupoTerapeutico(funcionarios.get(0).getId());
+
+        AtendimentoGrupo atividade = (AtendimentoGrupo) repository.create(
+            getAtendimentoGrupo(StatusAtividade.PENDENTE, funcionarios.get(0), sala,
+                    grupoTerapeutico.getId(), List.of(), List.of()));
+
+        List<Integer> idsMinistrantes = funcionarios.stream().map(Funcionario::getId).toList();
+        grupoTerapeuticoRepository.addFuncionario(idsMinistrantes,grupoTerapeutico.getId());
+        repository.addMinistrantesToAtendimentoGrupo(idsMinistrantes, grupoTerapeutico.getId());
+        repository.deleteMinistrantesFromAtendimentoGrupo(idsMinistrantes, grupoTerapeutico.getId());
+        List<Integer> result = repository.findIdsMinistrantesFromAtendimentoGrupo(grupoTerapeutico.getId());
+
+        Assertions.assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void givenIdsParticipantes_whenDeleteFromAtendimentoGrupo_thenReturnIds() {
+        Funcionario funcionario = createFuncionarios().get(0);
+        Sala sala = createSalas().get(0);
+        GrupoTerapeutico grupoTerapeutico = createGrupoTerapeutico(funcionario.getId());
+        List<Ficha> participantes = createFichas(funcionario.getId(),grupoTerapeutico.getId());
+
+        AtendimentoGrupo atividade = (AtendimentoGrupo) repository.create(
+            getAtendimentoGrupo(StatusAtividade.PENDENTE, funcionario, sala,
+                grupoTerapeutico.getId(), List.of(), List.of()));
+
+        List<Integer> ids = participantes.stream().map(Ficha::getId).toList();
+        repository.addParticipantesToAtendimentoGrupo(ids, atividade.getId());
+        repository.deleteParticipantesFromAtendimentoGrupo(ids, atividade.getId());
+        List<Integer> result = repository.findIdsParticipantesFromAtendimentoGrupo(atividade.getId());
+
+        Assertions.assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void givenIdsComparecidos_whenDeleteFromEncontro_thenReturnIds() {
+        List<Funcionario> funcionario = createFuncionarios();
+        Sala sala = createSalas().get(0);
+        GrupoEstudo grupoEstudo = createGrupoEstudo(funcionario.get(0).getId());
+
+        funcionario.stream()
+            .map(Funcionario::getId)
+            .forEach(id -> grupoEstudoRepository.addFuncionario(id, grupoEstudo.getId()));
+
+        Encontro atividade = (Encontro) repository.create(
+                getEncontro(StatusAtividade.PENDENTE, funcionario.get(0), sala, grupoEstudo.getId(), List.of()));
+
+        List<Integer> idsComparecidos = funcionario.stream().map(Funcionario::getId).toList();
+        repository.addComparecimentosToEncontro(idsComparecidos, atividade.getId());
+        repository.deleteComparecidosFromEncontro(idsComparecidos, atividade.getId());
+        List<Integer> results = repository.findIdsComparecidosFromEncontro(atividade.getId());
+
+        Assertions.assertTrue(results.isEmpty());
     }
 
 }

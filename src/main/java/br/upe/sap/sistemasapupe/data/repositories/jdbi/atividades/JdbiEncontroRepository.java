@@ -57,14 +57,14 @@ class JdbiEncontroRepository implements EncontroRepository {
     public int addComparecimento(int idFuncionario, int idEncontro) {
         final String INSERT = """
             INSERT INTO comparecimento_encontros(id_encontro, id_participante) VALUES
-                (:idEncontro, :idAtendimentoGrupo)
+                (:idEncontro, :idFuncionario)
                     RETURNING id_participante idParticipante
             """;
 
         return jdbi.withHandle(handle -> handle
             .createUpdate(INSERT)
             .bind("idEncontro", idEncontro)
-            .bind("idAtendimentoGrupo", idEncontro)
+            .bind("idFuncionario", idFuncionario)
             .executeAndReturnGeneratedKeys()
             .mapTo(Integer.class)
             .findFirst().orElse(null));

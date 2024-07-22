@@ -42,12 +42,14 @@ public interface AtendimentoGrupoRepository extends BasicRepository<AtendimentoG
 
     List<Integer> findIdsParticipantes(int idAtividade);
 
+
+    // DELETE //
     int deleteMinistrante(int idMinistrante, int idAtividade);
 
     int deleteMinistrantes(List<Integer> idsMinistrantes, int idAtividade);
 
+    int deleteParticipante(int idFicha, int idAtendimentoGrupo);
 
-
-
+    int deleteParticipantes(List<Integer> idsParticipantes, int idAtendimentoGrupo);
 
 }

@@ -81,14 +81,18 @@ class AuxAtividadeRepository {
     // UPDATE //
     Atividade update(Atividade atividade) {
         final String UPDATE = """
-            UPDATE atividades set id_sala = :idSala, id_funcionario = :idFuncionario, tempo_fim = :tempoInicio,
-                tempo_fim = :tempo_fim, status = CAST(:status AS status_atividade)
+            UPDATE atividades set id_sala = :idSala, id_funcionario = :idFuncionario, tempo_inicio = :tempoInicio,
+                tempo_fim = :tempoFim, status = CAST(:status AS status_atividade)
                     RETURNING %s
             """.formatted(returningAtividadeColumns);
 
         return jdbi.withHandle(handle -> handle
                 .createUpdate(UPDATE)
-                .bindBean(atividade)
+                .bind("idSala", atividade.getSala().getId())
+                .bind("idFuncionario",atividade.getFuncionario().getId())
+                .bind("tempoInicio", atividade.getTempoInicio())
+                .bind("tempoFim", atividade.getTempoFim())
+                .bind("status",atividade.getStatus())
                 .executeAndReturnGeneratedKeys()
                 .map((rs, ctx) -> mapAtividade(rs, ctx, atividade.getClass(), true))
                 .findFirst().orElse(null));
