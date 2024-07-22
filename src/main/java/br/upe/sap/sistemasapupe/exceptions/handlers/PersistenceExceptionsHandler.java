@@ -26,6 +26,9 @@ public class PersistenceExceptionsHandler {
 
     private boolean isPossibleInvalidDataSent(SQLException ex) {
         String state = ex.getSQLState();
+        if (state == null || state.isEmpty()) {
+            return false;
+        }
         return state.equals(PSQLState.NOT_NULL_VIOLATION.getState())
                || state.equals(PSQLState.UNIQUE_VIOLATION.getState())
                || state.equals(PSQLState.CHECK_VIOLATION.getState());

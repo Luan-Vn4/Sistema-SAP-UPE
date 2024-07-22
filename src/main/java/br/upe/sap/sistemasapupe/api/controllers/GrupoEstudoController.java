@@ -4,13 +4,13 @@ import br.upe.sap.sistemasapupe.api.dtos.funcionarios.FuncionarioDTO;
 import br.upe.sap.sistemasapupe.api.dtos.grupo.CreateGrupoEstudoDTO;
 import br.upe.sap.sistemasapupe.api.dtos.grupo.GrupoEstudoDTO;
 import br.upe.sap.sistemasapupe.api.services.GrupoEstudoService;
-import br.upe.sap.sistemasapupe.data.model.grupos.GrupoEstudo;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -26,7 +26,9 @@ public class GrupoEstudoController {
     }
 
     @PostMapping("/addFuncionario")
-    public ResponseEntity<FuncionarioDTO> addFuncionario(@RequestBody UUID uid, @RequestBody UUID uidGrupo){
+    public ResponseEntity<FuncionarioDTO> addFuncionario(@RequestBody Map<String, UUID> request){
+        UUID uid = request.get("idParticipante");
+        UUID uidGrupo = request.get("idGrupo");
         FuncionarioDTO resposta = grupoEstudoService.addFuncionario(uid, uidGrupo);
         return ResponseEntity.ok(resposta);
     }
@@ -49,22 +51,30 @@ public class GrupoEstudoController {
         return grupoEstudo != null ? ResponseEntity.ok(grupoEstudo) : ResponseEntity.notFound().build();
     }
 
+    @GetMapping("/participantes/{uuid}")
+    public ResponseEntity<List<UUID>> getParticipantesByGrupoEstudo(@PathVariable UUID uuid){
+        List<UUID> ids = grupoEstudoService.getParticipantesByGrupoEsudo(uuid);
+        return ids != null ? ResponseEntity.ok(ids) : ResponseEntity.notFound().build();
+    }
+
     @PutMapping("/update")
     public ResponseEntity<GrupoEstudoDTO> update(@RequestBody GrupoEstudoDTO grupoEstudo) {
         GrupoEstudoDTO grupoEstudoDTO  = grupoEstudoService.update(grupoEstudo);
         return ResponseEntity.ok(grupoEstudoDTO);
     }
 
-    @DeleteMapping("delete/{uid}")
+    @DeleteMapping("/delete/{uid}")
     public ResponseEntity<GrupoEstudoDTO> delete(@PathVariable UUID uid) {
         Boolean deleted = grupoEstudoService.deleteById(uid);
         return deleted ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
     }
 
-    @DeleteMapping("deleteParticipacao/{uid}")
-    public ResponseEntity<GrupoEstudoDTO> deleteParticipacao(@PathVariable UUID uid) {
-        Boolean deleted = grupoEstudoService.deletedParticipacao(uid);
-        return deleted ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+    @DeleteMapping("/deleteParticipacao")
+    public ResponseEntity<GrupoEstudoDTO> deleteParticipacao(@RequestBody Map<String, UUID> request) {
+        UUID uid = request.get("idParticipante");
+        UUID uidGrupo = request.get("idGrupo");
+        Boolean resposta = grupoEstudoService.deletedParticipacao(uid, uidGrupo);
+        return resposta ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/delete/many")
