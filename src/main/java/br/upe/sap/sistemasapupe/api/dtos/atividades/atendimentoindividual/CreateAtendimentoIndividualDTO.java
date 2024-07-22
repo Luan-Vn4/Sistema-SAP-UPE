@@ -11,9 +11,9 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Builder
-public record CreateAtendimentoIndividualDTO(UUID sala, LocalDateTime tempoInicio,
+public record CreateAtendimentoIndividualDTO(UUID idSala, LocalDateTime tempoInicio,
                                              LocalDateTime tempoFim, StatusAtividade statusAtividade,
-                                             UUID terapeuta, UUID ficha, UUID funcionario){
+                                             UUID idTerapeuta, UUID idFicha, UUID idFuncionario){
 
     public AtendimentoIndividual to(Sala sala, Funcionario funcionario,Funcionario terapeuta, Ficha ficha) {
         return AtendimentoIndividual.builder()
