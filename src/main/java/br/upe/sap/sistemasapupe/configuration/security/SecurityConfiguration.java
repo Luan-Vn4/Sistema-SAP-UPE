@@ -1,4 +1,4 @@
-package br.upe.sap.sistemasapupe.configuration;
+package br.upe.sap.sistemasapupe.configuration.security;
 
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Cargo;
 import br.upe.sap.sistemasapupe.exceptions.handlers.FilterChainExceptionHandler;
@@ -47,22 +47,32 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(configurer -> configurer
+                // Swagger
                 .requestMatchers("/v3/**").permitAll()
                 .requestMatchers("/swagger-ui/**").permitAll()
                 .requestMatchers("/swagger-ui/index.css").permitAll()
+                // Autenticação
                 .requestMatchers("/api/v1/authentication/login").permitAll()
                 .requestMatchers("/api/v1/authentication/register-tecnico").permitAll()
                 .requestMatchers("/api/v1/authentication/register-estagiario").hasRole(Cargo.TECNICO.getRole())
+                // Funcionários
+                .requestMatchers("/api/v1/funcionarios/one").hasRole(Cargo.ESTAGIARIO.getRole())
                 .requestMatchers("/api/v1/funcionarios/**").hasRole(Cargo.TECNICO.getRole())
-                .requestMatchers("/api/v1/funcionarios/**").hasRole(Cargo.TECNICO.getRole())
+                // Posts
+                .requestMatchers(HttpMethod.POST,"/api/v1/posts/**").hasRole(Cargo.TECNICO.getRole())
+                .requestMatchers(HttpMethod.PUT,"/api/v1/posts/**").hasRole(Cargo.TECNICO.getRole())
+                .requestMatchers(HttpMethod.DELETE,"/api/v1/posts/**").hasRole(Cargo.TECNICO.getRole())
+                    // Comentários - Lógica personalizada no controller de delete
+                // Atividades
+                .requestMatchers(HttpMethod.PUT,"/api/v1/atividades/**").hasRole(Cargo.TECNICO.getRole())
+                .requestMatchers(HttpMethod.DELETE, "/api/v1/atividades/**").hasRole(Cargo.TECNICO.getRole())
+                // Salas
+                .requestMatchers(HttpMethod.POST, "/api/v1/sala/**").hasRole(Cargo.TECNICO.getRole())
+                .requestMatchers(HttpMethod.PUT, "/api/v1/sala/**").hasRole(Cargo.TECNICO.getRole())
+                .requestMatchers(HttpMethod.DELETE, "/api/v1/sala/**").hasRole(Cargo.TECNICO.getRole())
+                // Erros
                 .requestMatchers("/error/**").permitAll()
-                .requestMatchers(HttpMethod.POST,"/api/v1/posts").hasRole(Cargo.TECNICO.getRole())
-                .requestMatchers("/api/v1/posts/**").permitAll()
-                .requestMatchers("/api/v1/comentarios").permitAll()
-                .requestMatchers("/api/v1/comentarios/delete/**").hasRole(Cargo.TECNICO.getRole())
-                .requestMatchers("/api/v1/comentarios/**").permitAll()
-                .requestMatchers("/api/v1/sala").hasRole(Cargo.TECNICO.getRole())
-                .requestMatchers("/api/v1/sala/**").permitAll()
+                // Geral
                 .anyRequest().authenticated())
             .csrf(CsrfConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
