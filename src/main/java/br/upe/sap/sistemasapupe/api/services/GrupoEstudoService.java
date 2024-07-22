@@ -69,7 +69,7 @@ public class GrupoEstudoService {
         }
         return grupoEstudoRepository.findById(ids).stream()
                 .map(grupoEstudo -> {
-                    UUID donoUUID = funcionarioRepository.findById(grupoEstudo.getId()).getUid();
+                    UUID donoUUID = funcionarioRepository.findById(grupoEstudo.getDono()).getUid();
                     return GrupoEstudoDTO.from(grupoEstudo, donoUUID);
                 })
                 .toList();
