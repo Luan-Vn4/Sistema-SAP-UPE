@@ -95,9 +95,6 @@ public class FichaService {
         Integer idFuncionario = funcionarioRepository.findIds(uidFuncionario).get(uidFuncionario);
         List<Ficha> fichasEncontradas = fichaRepository.findByFuncionario(idFuncionario);
 
-        if (fichasEncontradas.isEmpty()) {
-            throw new EntityNotFoundException("Fichas não encontradas para o UID do funcionario: " + uidFuncionario);
-        }
         return fichasEncontradas.stream().map(ficha -> {
                     UUID uidGrupoTerapeutico = grupoTerapeuticoRepository.findById(ficha.getIdGrupoTerapeutico()).getUid();
                     UUID uidResponsavel = funcionarioRepository.findById(ficha.getIdResponsavel()).getUid();
