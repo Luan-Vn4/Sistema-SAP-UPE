@@ -112,8 +112,8 @@ public class GrupoTerapeuticoController {
     }
 
     @GetMapping(value = "/grupo-nao-participados/many", params = {"uid-funcionario"})
-    public ResponseEntity<List<UUID>> getGruposNaoParticipados(@RequestParam(name = "uid-funcionario") UUID uidFuncionario){
-        List<UUID> retorno = service.getGruposNaoParticipados(uidFuncionario);
+    public ResponseEntity<List<GrupoTerapeuticoDTO>> getGruposNaoParticipados(@RequestParam(name = "uid-funcionario") UUID uidFuncionario){
+        List<GrupoTerapeuticoDTO> retorno = service.getGruposNaoParticipados(uidFuncionario);
         return retorno != null ? ResponseEntity.ok(retorno) : ResponseEntity.notFound().build();
     }
 }

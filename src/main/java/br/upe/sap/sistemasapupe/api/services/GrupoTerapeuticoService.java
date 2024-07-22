@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -61,7 +62,6 @@ public class GrupoTerapeuticoService {
     }
 
     public GrupoTerapeutico getById(int id){
-
         return grupoTerapeuticoRepository.findById(id);
     }
 
@@ -224,11 +224,17 @@ public class GrupoTerapeuticoService {
         return grupoTerapeuticoRepository.findById(id);
     }
 
-    public List<UUID> getGruposNaoParticipados(UUID uidParticipante){
+    public List<GrupoTerapeuticoDTO> getGruposNaoParticipados(UUID uidParticipante){
         Funcionario funcionario = funcionarioService.getFuncionarioByUid(uidParticipante);
         List<Integer> resultadoDB = grupoTerapeuticoRepository.findGruposTerapeuticosNaoParticipadosPor(funcionario.getId());
         return resultadoDB.stream()
-                .map(idGrupo -> grupoTerapeuticoRepository.findById(idGrupo).getUid()).toList();
+                .map(this::getById)
+                .filter(Objects::nonNull)
+                .map(grupo -> {
+                    UUID uidDono = getById(grupo.getUid()).idDono();
+                    return GrupoTerapeuticoDTO.from(grupo, uidDono);
+                })
+                .toList();
     }
 
 }

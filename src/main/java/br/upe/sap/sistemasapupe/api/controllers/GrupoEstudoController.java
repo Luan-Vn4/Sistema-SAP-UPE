@@ -58,8 +58,8 @@ public class GrupoEstudoController {
     }
 
     @GetMapping("/grupo-nao-participados/many/{uidFuncionario}")
-    public ResponseEntity<List<UUID>> getGruposNaoParticipados(@PathVariable UUID uidFuncionario){
-        List<UUID> retorno = grupoEstudoService.getGruposNaoParticipados(uidFuncionario);
+    public ResponseEntity<List<GrupoEstudoDTO>> getGruposNaoParticipados(@PathVariable UUID uidFuncionario){
+        List<GrupoEstudoDTO> retorno = grupoEstudoService.getGruposNaoParticipados(uidFuncionario);
         return retorno != null ? ResponseEntity.ok(retorno) : ResponseEntity.notFound().build();
     }
 

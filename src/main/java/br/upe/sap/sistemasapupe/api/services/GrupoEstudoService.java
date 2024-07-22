@@ -13,6 +13,7 @@ import org.apache.commons.collections4.BidiMap;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -163,11 +164,18 @@ public class GrupoEstudoService {
                 .collect(Collectors.toList());
     }
 
-    public List<UUID> getGruposNaoParticipados(UUID uidParticipante){
+    public GrupoEstudoDTO getById(Integer id){
+        GrupoEstudo grupoEstudo = grupoEstudoRepository.findById(id);
+        return GrupoEstudoDTO.from(grupoEstudo, funcionarioRepository.findById(grupoEstudo.getDono()).getUid());
+    }
+
+    public List<GrupoEstudoDTO> getGruposNaoParticipados(UUID uidParticipante){
         Funcionario funcionario = funcionarioService.getFuncionarioByUid(uidParticipante);
         List<Integer> resultadoDB = grupoEstudoRepository.findGruposEstudoNaoParticipadosPor(funcionario.getId());
         return resultadoDB.stream()
-                .map(idGrupo -> grupoEstudoRepository.findById(idGrupo).getUid()).toList();
+                .map(this::getById)
+                .filter(Objects::nonNull)
+                .toList();
     }
 
 }
