@@ -89,9 +89,15 @@ public class GrupoTerapeuticoController {
     }
 
     // MÉTODOS DELETE
-    @DeleteMapping(value = "onde/grupo", params = {"uid-grupo"})
+    @DeleteMapping(value = "one/grupo", params = {"uid-grupo"})
     public ResponseEntity<Void> deleteGrupo(@RequestParam(name = "uid-grupo") UUID uidGrupo){
         service.deleteGrupoTerapeutico(uidGrupo);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("many/grupo")
+    public ResponseEntity<Void> deleteGrupo(@RequestBody List<UUID> uidsGrupos){
+        service.deleteGrupoTerapeutico(uidsGrupos);
         return ResponseEntity.ok().build();
     }
 

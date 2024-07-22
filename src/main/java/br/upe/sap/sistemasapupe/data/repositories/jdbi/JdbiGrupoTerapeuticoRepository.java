@@ -315,7 +315,15 @@ public class JdbiGrupoTerapeuticoRepository implements GrupoTerapeuticoRepositor
     }
 
     @Override
-    public int delete(List<Integer> uuids) {
-        return 0;
+    public int delete(List<Integer> ids) {
+        final String query = """
+                DELETE FROM grupos_terapeuticos
+                WHERE id IN (<ids>)
+                """;
+
+        return jdbi.withHandle(handle -> handle
+                .createUpdate(query)
+                .bindList("ids", ids)
+                .execute());
     }
 }

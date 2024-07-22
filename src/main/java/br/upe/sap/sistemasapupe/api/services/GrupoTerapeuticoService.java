@@ -2,6 +2,7 @@ package br.upe.sap.sistemasapupe.api.services;
 
 import br.upe.sap.sistemasapupe.api.dtos.grupo.CreateGrupoTerapeuticoDTO;
 import br.upe.sap.sistemasapupe.api.dtos.grupo.GrupoTerapeuticoDTO;
+import br.upe.sap.sistemasapupe.data.model.grupos.GrupoEstudo;
 import br.upe.sap.sistemasapupe.data.model.grupos.GrupoTerapeutico;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.FichaRepository;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.FuncionarioRepository;
@@ -220,6 +221,11 @@ public class GrupoTerapeuticoService {
             throw new EntityNotFoundException("Não foi possivel encontrar um grupo terapêutico com esse UUID");
         }
         grupoTerapeuticoRepository.delete(idGrupo);
+    }
+
+    public void deleteGrupoTerapeutico(List<UUID> uids){
+        List<Integer> ids = grupoTerapeuticoRepository.findIds(uids).values().stream().toList();
+        grupoTerapeuticoRepository.delete(ids);
     }
 
     public int getId(UUID uid){

@@ -40,4 +40,6 @@ public interface GrupoTerapeuticoRepository extends BasicRepository<GrupoTerapeu
 
     int delete(Integer uidGrupoTerapeutico);
 
+    int delete(List<Integer> uidsGrupo);
+
 }
