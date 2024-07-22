@@ -5,17 +5,19 @@ import br.upe.sap.sistemasapupe.api.dtos.atividades.CreateAtendimentoIndividualD
 import br.upe.sap.sistemasapupe.data.model.atividades.AtendimentoIndividual;
 import br.upe.sap.sistemasapupe.data.model.atividades.Atividade;
 import br.upe.sap.sistemasapupe.data.model.atividades.Sala;
+import br.upe.sap.sistemasapupe.data.model.enums.StatusAtividade;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Funcionario;
 import br.upe.sap.sistemasapupe.data.model.pacientes.Ficha;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.FichaRepository;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.FuncionarioRepository;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.atividades.AtividadeRepositoryFacade;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.atividades.sala.SalaRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -60,13 +62,32 @@ public class AtendimentoIndividualService {
     }
 
     public AtendimentoIndividualDTO getById(UUID id){
-        AtendimentoIndividual atividadeExistente = (AtendimentoIndividual) atividadeRepository
-                .findById(atividadeRepository.findIds(id).get(id));
-        if (atividadeExistente == null) {
-            throw new EntityNotFoundException("Grupo de estudos não encontrado para o id " + atividadeRepository.findIds(id).get(id));
+        Integer internalId = atividadeRepository.findIds(id).get(id);
+        if (internalId == null) {
+            return null;
         }
-
+        AtendimentoIndividual atividadeExistente = (AtendimentoIndividual) atividadeRepository.findById(internalId);
+        if (atividadeExistente == null) {
+            return null;
+        }
         return AtendimentoIndividualDTO.to(atividadeExistente);
+    }
+
+    //n meche pfv
+    public List<AtendimentoIndividualDTO> getByStatus(StatusAtividade status){
+        List<Atividade> atividades = atividadeRepository.findByStatus(status);
+
+        return atividades.stream()
+                .filter(atividade -> atividade instanceof AtendimentoIndividual)
+                .map(atividade -> (AtendimentoIndividual) atividade)
+                .map(AtendimentoIndividualDTO::to)
+                .collect(Collectors.toList());
+    }
+
+    public boolean deleteById(UUID uid) {
+        int id = atividadeRepository.findIds(uid).get(uid);
+        int rowsAffected = atividadeRepository.delete(id);
+        return rowsAffected > 0;
     }
 
 

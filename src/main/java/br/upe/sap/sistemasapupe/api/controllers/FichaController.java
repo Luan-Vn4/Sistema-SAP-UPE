@@ -70,8 +70,8 @@ public class FichaController {
         return deleted? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 
-    @DeleteMapping(value = "many/delete/", params = {"uid"})
-    public ResponseEntity<Void> deleteFichas(@RequestParam List<UUID> uids){
+    @DeleteMapping(value = "many/delete/")
+    public ResponseEntity<Void> deleteFichas(@RequestBody List<UUID> uids){
         boolean deleted = fichaService.deleteFichaByUids(uids);
         return deleted ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }

@@ -3,11 +3,13 @@ package br.upe.sap.sistemasapupe.api.controllers.atividades;
 import br.upe.sap.sistemasapupe.api.dtos.atividades.AtendimentoIndividualDTO;
 import br.upe.sap.sistemasapupe.api.dtos.atividades.CreateAtendimentoIndividualDTO;
 import br.upe.sap.sistemasapupe.api.services.atividades.AtendimentoIndividualService;
+import br.upe.sap.sistemasapupe.data.model.enums.StatusAtividade;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -32,6 +34,26 @@ public class AtendimentoIndividualController {
     @GetMapping("/{id}")
     public ResponseEntity<AtendimentoIndividualDTO> getById(@PathVariable UUID id) {
         AtendimentoIndividualDTO found = atendimentoIndividualService.getById(id);
+        if (found == null) {
+            return ResponseEntity.notFound().build();
+        }
         return ResponseEntity.ok(found);
+    }
+
+    @GetMapping("/status/{status}")
+    public ResponseEntity<List<AtendimentoIndividualDTO>> getByStatus(@PathVariable StatusAtividade status) {
+        List<AtendimentoIndividualDTO> atendimentos = atendimentoIndividualService.getByStatus(status);
+        return ResponseEntity.ok(atendimentos);
+    }
+
+    @DeleteMapping("/delete/{uid}")
+    public ResponseEntity<Void> deleteById(@PathVariable UUID uid) {
+        boolean deleted = atendimentoIndividualService.deleteById(uid);
+
+        if (deleted) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

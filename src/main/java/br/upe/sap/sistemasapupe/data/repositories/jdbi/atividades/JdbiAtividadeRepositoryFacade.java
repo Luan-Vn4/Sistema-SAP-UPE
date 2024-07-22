@@ -4,6 +4,7 @@ import br.upe.sap.sistemasapupe.data.model.atividades.AtendimentoGrupo;
 import br.upe.sap.sistemasapupe.data.model.atividades.AtendimentoIndividual;
 import br.upe.sap.sistemasapupe.data.model.atividades.Atividade;
 import br.upe.sap.sistemasapupe.data.model.atividades.Encontro;
+import br.upe.sap.sistemasapupe.data.model.enums.StatusAtividade;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.atividades.AtendimentoGrupoRepository;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.atividades.AtendimentoIndividualRepository;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.atividades.AtividadeRepositoryFacade;
@@ -14,6 +15,7 @@ import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.springframework.stereotype.Repository;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -228,6 +230,26 @@ public class JdbiAtividadeRepositoryFacade implements AtividadeRepositoryFacade 
             .map(this::mapAtividadeByTipoAtividade)
             .collectIntoList());
     }
+
+    @Override
+    public List<Atividade> findByStatus(StatusAtividade status) {
+        final String SELECT = """
+        SELECT id, CASE
+            WHEN id IN (SELECT id FROM atendimentos_individuais) THEN 'ATENDIMENTO_INDIVIDUAL'
+            WHEN id IN (SELECT id FROM atendimentos_grupo) THEN 'ATENDIMENTO_GRUPO'
+            ELSE 'ENCONTRO' END AS tipo_atividade
+        FROM atividades
+        WHERE status = CAST(:status AS status_atividade)
+    """;
+
+        return jdbi.withHandle(handle -> handle
+                .createQuery(SELECT)
+                .bind("status", status.getLabel())
+                .map(this::mapAtividadeByTipoAtividade)
+                .collectIntoList());
+    }
+
+
 
         // Relacionado - AtendimentoGrupo
     @Override

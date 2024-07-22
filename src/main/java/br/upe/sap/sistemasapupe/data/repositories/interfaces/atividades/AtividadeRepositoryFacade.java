@@ -1,6 +1,7 @@
 package br.upe.sap.sistemasapupe.data.repositories.interfaces.atividades;
 
 import br.upe.sap.sistemasapupe.data.model.atividades.*;
+import br.upe.sap.sistemasapupe.data.model.enums.StatusAtividade;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.BasicRepository;
 import org.apache.commons.collections4.BidiMap;
 
@@ -70,6 +71,8 @@ public interface AtividadeRepositoryFacade extends BasicRepository<Atividade, In
     @Override
     List<Atividade> update(List<Atividade> atividades);
 
+
+    List<Atividade> findByStatus(StatusAtividade status);
 
     // READ //
         // Relacionado - AtendimentoGrupo

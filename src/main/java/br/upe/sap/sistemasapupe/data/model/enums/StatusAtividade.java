@@ -2,9 +2,9 @@ package br.upe.sap.sistemasapupe.data.model.enums;
 
 public enum StatusAtividade {
 
-    PENDENTE("Pendente"),
-    APROVADO("Aprovado"),
-    REPROVADO("Reprovado");
+    PENDENTE("PENDENTE"),
+    APROVADO("APROVADO"),
+    REPROVADO("REPROVADO");
 
     private final String label;
 

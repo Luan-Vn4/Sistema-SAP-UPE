@@ -7,7 +7,7 @@ import lombok.Builder;
 import java.util.UUID;
 
 @Builder
-public record FichaDTO (UUID uid, UUID idResponsavel, String nome, UUID idGrupoTerapeutico){
+public record FichaDTO (UUID id, UUID idResponsavel, String nome, UUID idGrupoTerapeutico){
 
     public static FichaDTO from (Ficha ficha, UUID idGrupoTerapeutico, UUID idResponsavel){
         return new FichaDTO(ficha.getUid(), idResponsavel,
@@ -15,7 +15,7 @@ public record FichaDTO (UUID uid, UUID idResponsavel, String nome, UUID idGrupoT
     }
 
     public static Ficha from (FichaDTO dto, int idGrupoTerapeutico, int idResponsavel){
-        return Ficha.builder().uid(dto.uid).idResponsavel(idResponsavel)
+        return Ficha.builder().uid(dto.id).idResponsavel(idResponsavel)
                 .nome(dto.nome).idGrupoTerapeutico(idGrupoTerapeutico).build();
     }
 
