@@ -5,9 +5,8 @@ import lombok.*;
 
 import java.util.UUID;
 
-@Getter @Setter
+@Data
 @NoArgsConstructor
-@ToString
 public class Sala {
     private int id;
     private UUID uid;

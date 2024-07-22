@@ -15,6 +15,10 @@ public class Encontro extends Atividade {
 
     private List<Integer> idsPresentes;
 
+    public Encontro() {
+        super();
+    }
+
     @Builder
     public Encontro(int id, UUID uid, Sala sala, LocalDateTime tempoInicio, LocalDateTime tempoFim,
                     StatusAtividade statusAtividade, Integer idGrupoEstudo, List<Integer> idsPresentes,

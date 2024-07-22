@@ -211,7 +211,7 @@ public class JdbiGrupoEstudoRepositoryTest {
 
         grupoEstudo1 = grupoEstudoRepository.create(grupoEstudo1);
         grupoEstudoRepository.addFuncionario(estagiario.getId(), grupoEstudo1.getId());
-        grupoEstudoRepository.deleteParticipacao(estagiario.getId());
+        grupoEstudoRepository.deleteParticipacao(estagiario.getId(), grupoEstudo1.getId());
 
         List<GrupoEstudo> foundGrupoEstudo = grupoEstudoRepository.findByFuncionario(estagiario.getId());
     }

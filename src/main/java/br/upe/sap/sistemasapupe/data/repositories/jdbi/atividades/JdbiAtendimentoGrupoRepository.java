@@ -40,7 +40,7 @@ class JdbiAtendimentoGrupoRepository implements AtendimentoGrupoRepository {
         return jdbi.withHandle(handle -> handle
                 .createUpdate(CREATE)
                 .bind("id", result.getId())
-                .bind("idGrupoTerapeutico", result.getIdGrupoTerapeutico())
+                .bind("idGrupoTerapeutico", atendimentoGrupo.getIdGrupoTerapeutico())
                 .executeAndReturnGeneratedKeys()
                 .map((rs, ctx) -> fillAtendimentoGrupo(rs, ctx, result))
                 .findFirst().orElse(null));
