@@ -86,6 +86,9 @@ public interface AtividadeRepositoryFacade extends BasicRepository<Atividade, In
 
     int deleteMinistrantesFromAtendimentoGrupo(List<Integer> idsMinistrantes, int idAtividade);
 
+    int deleteParticipanteFromAtendimentoGrupo(int idParticipante, int idAtividade);
+
+    int deleteParticipantesFromAtendimentoGrupo(List<Integer> idsParticipantes, int idAtividade);
         // Relacionado - Encontro
     int deleteComparecidoFromEncontro(int idFuncionario, int idAtividade);
 

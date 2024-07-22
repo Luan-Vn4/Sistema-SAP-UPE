@@ -38,12 +38,12 @@ class JdbiAtendimentoGrupoRepository implements AtendimentoGrupoRepository {
 
         var result = (AtendimentoGrupo) auxRepository.create(atendimentoGrupo);
         return jdbi.withHandle(handle -> handle
-                .createUpdate(CREATE)
-                .bind("id", result.getId())
-                .bind("idGrupoTerapeutico", atendimentoGrupo.getIdGrupoTerapeutico())
-                .executeAndReturnGeneratedKeys()
-                .map((rs, ctx) -> fillAtendimentoGrupo(rs, ctx, result))
-                .findFirst().orElse(null));
+            .createUpdate(CREATE)
+            .bind("id", result.getId())
+            .bind("idGrupoTerapeutico", atendimentoGrupo.getIdGrupoTerapeutico())
+            .executeAndReturnGeneratedKeys()
+            .map((rs, ctx) -> fillAtendimentoGrupo(rs, ctx, result))
+            .findFirst().orElse(null));
     }
 
     private AtendimentoGrupo fillAtendimentoGrupo(ResultSet rs, StatementContext ctx,
@@ -249,14 +249,42 @@ class JdbiAtendimentoGrupoRepository implements AtendimentoGrupoRepository {
                                   int idAtendimentoGrupo) {
         final String DELETE = """
             DELETE FROM coordenacao_atendimento_grupo WHERE
-                id_funcionario = (%s) AND id_atendimento_grupo = :idAtendimentoGrupo
+                id_funcionario IN (%s) AND id_atendimento_grupo = :idAtendimentoGrupo
             """.formatted("<idsMinistrantes>");
 
         return jdbi.withHandle(handle -> handle
-                .createUpdate(DELETE)
-                .bindList("idsMinistrantes", idsMinistrantes)
-                .bind("idAtendimentoGrupo", idAtendimentoGrupo)
-                .execute());
+            .createUpdate(DELETE)
+            .bindList("idsMinistrantes", idsMinistrantes)
+            .bind("idAtendimentoGrupo", idAtendimentoGrupo)
+            .execute());
+    }
+
+    @Override
+    public int deleteParticipante(int idFicha, int idAtendimentoGrupo) {
+        final String DELETE = """
+            DELETE FROM ficha_atendimento_grupo WHERE
+                id_ficha = :idFicha AND id_atendimento_grupo = :idAtendimentoGrupo
+            """;
+
+        return jdbi.withHandle(handle -> handle
+            .createUpdate(DELETE)
+            .bind("idFicha", idFicha)
+            .bind("idAtendimentoGrupo", idAtendimentoGrupo)
+            .execute());
+    }
+
+    @Override
+    public int deleteParticipantes(List<Integer> idsParticipantes, int idAtendimentoGrupo) {
+        final String DELETE = """
+            DELETE FROM ficha_atendimento_grupo WHERE
+                id_ficha IN (%s) AND id_atendimento_grupo = :idAtendimentoGrupo
+            """.formatted("<idsParticipantes>");
+
+        return jdbi.withHandle(handle -> handle
+            .createUpdate(DELETE)
+            .bindList("idsParticipantes", idsParticipantes)
+            .bind("idAtendimentoGrupo", idAtendimentoGrupo)
+            .execute());
     }
 
     private void deleteAllMinistrantes(Integer idAtendimentoGrupo) {
@@ -282,7 +310,5 @@ class JdbiAtendimentoGrupoRepository implements AtendimentoGrupoRepository {
             .bind("idAtendimentoGrupo", idAtendimentoGrupo)
             .execute());
     }
-
-
 
 }
