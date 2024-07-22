@@ -36,26 +36,27 @@ public class AtendimentoIndividualService {
         return AtendimentoIndividualDTO.to(resultado);
     }
 
-    public AtendimentoIndividualDTO update(AtendimentoIndividualDTO dto){
+    public AtendimentoIndividualDTO update(AtendimentoIndividualDTO dto) {
         Sala sala = salaRepository.findById(salaRepository.findIds(dto.sala()).get(dto.sala()));
         Funcionario funcionario = funcionarioRepository.findById(funcionarioRepository.findIds(dto.funcionario()).get(dto.funcionario()));
         Funcionario terapeuta = funcionarioRepository.findById(funcionarioRepository.findIds(dto.terapeuta()).get(dto.terapeuta()));
         Ficha ficha = fichaRepository.findById(fichaRepository.findIds(dto.ficha()).get(dto.ficha()));
+        int id = atividadeRepository.findIds(dto.id()).get(dto.id());
 
-        Atividade atividadeExistente = atividadeRepository
-                .findById(atividadeRepository.findIds(dto.id()).get(dto.id()));
-        if (atividadeExistente == null) {
-            throw new EntityNotFoundException("Grupo de estudos não encontrado para o id " + atividadeRepository.findIds(dto.id()).get(dto.id()));
-        }
+        AtendimentoIndividual atendimentoIndividual = AtendimentoIndividual.builder()
+                .id(id)
+                .sala(sala)
+                .terapeuta(terapeuta)
+                .funcionario(funcionario)
+                .ficha(ficha)
+                .tempoInicio(dto.tempoInicio())
+                .tempoFim(dto.tempoFim())
+                .statusAtividade(dto.statusAtividade())
+                .build();
 
-        atividadeExistente.setSala(sala);
-        atividadeExistente.setFuncionario(funcionario);
-        atividadeExistente.setStatus(dto.statusAtividade());
-        atividadeExistente.setTempoInicio(dto.tempoInicio());
-        atividadeExistente.setTempoFim(dto.tempoFim());
+        AtendimentoIndividual atualizado = (AtendimentoIndividual) atividadeRepository.update(atendimentoIndividual);
 
-        AtendimentoIndividual resultado = (AtendimentoIndividual) atividadeRepository.update(atividadeExistente);
-        return AtendimentoIndividualDTO.to(resultado);
+        return AtendimentoIndividualDTO.to(atualizado);
     }
 
     public AtendimentoIndividualDTO getById(UUID id){
