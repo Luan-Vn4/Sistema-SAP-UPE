@@ -96,11 +96,13 @@ public class FichaService {
         List<Ficha> fichasEncontradas = fichaRepository.findByFuncionario(idFuncionario);
 
         return fichasEncontradas.stream().map(ficha -> {
-                    UUID uidGrupoTerapeutico = grupoTerapeuticoRepository.findById(ficha.getIdGrupoTerapeutico()).getUid();
-                    UUID uidResponsavel = funcionarioRepository.findById(ficha.getIdResponsavel()).getUid();
-                    return FichaDTO.from(ficha, uidGrupoTerapeutico, uidResponsavel);
-                })
-                .toList();
+            UUID uidGrupoTerapeutico = ficha.getIdGrupoTerapeutico() != null ?
+                    grupoTerapeuticoRepository.findById(ficha.getIdGrupoTerapeutico()).getUid() :
+                    null;
+            UUID uidResponsavel = funcionarioRepository.findById(ficha.getIdResponsavel()).getUid();
+            return FichaDTO.from(ficha, uidGrupoTerapeutico, uidResponsavel);
+        }).toList();
+
     }
 
     public Boolean deleteFichaByUid(UUID uid) {
