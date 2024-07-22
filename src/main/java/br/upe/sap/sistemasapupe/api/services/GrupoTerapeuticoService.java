@@ -38,7 +38,7 @@ public class GrupoTerapeuticoService {
         Integer idGrupo = grupoTerapeuticoRepository.findIds(grupoAtualizado.uid()).get(grupoAtualizado.uid());
         Integer idDono = funcionarioRepository.findIds(grupoAtualizado.idDono()).get(grupoAtualizado.idDono());
 
-        GrupoTerapeutico novoGrupo = GrupoTerapeuticoDTO.convertToGrupo(grupoAtualizado,idGrupo, idDono);
+        GrupoTerapeutico novoGrupo = GrupoTerapeuticoDTO.convertToGrupo(grupoAtualizado, idDono);
         GrupoTerapeutico grupoExistente = grupoTerapeuticoRepository.findById(novoGrupo.getId());
 
         if (grupoExistente == null){
