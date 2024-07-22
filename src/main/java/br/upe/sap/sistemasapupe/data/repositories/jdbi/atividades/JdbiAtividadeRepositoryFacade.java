@@ -182,18 +182,21 @@ public class JdbiAtividadeRepositoryFacade implements AtividadeRepositoryFacade 
         }
     }
 
-    public List<Integer> findBySala(Integer idSala) {
+    @Override
+    public List<Atividade> findBySala(Integer idSala) {
         final String QUERY = """
-                SELECT id, CASE
+            SELECT id, CASE
                 WHEN id IN (SELECT id FROM atendimentos_individuais) THEN 'ATENDIMENTO_INDIVIDUAL'
                 WHEN id IN (SELECT id FROM atendimentos_grupo) THEN 'ATENDIMENTO_GRUPO'
                 ELSE 'ENCONTRO' END AS tipo_atividade
-                FROM atividades WHERE id_sala = :id_sala
-                """;
+            FROM atividades WHERE id_sala = :idSala
+            """;
 
-        return  jdbi.withHandle(handle -> handle
-                .createQuery(QUERY).bind("id_sala" ,idSala)
-                .mapTo(Integer.class).list());
+        return jdbi.withHandle(handle -> handle
+            .createQuery(QUERY)
+            .bind("idSala",idSala)
+            .map(this::mapAtividadeByTipoAtividade)
+            .collectIntoList());
     }
 
     @Override
@@ -225,6 +228,23 @@ public class JdbiAtividadeRepositoryFacade implements AtividadeRepositoryFacade 
 
         return jdbi.withHandle(handle -> handle
             .createQuery(QUERY)
+            .map(this::mapAtividadeByTipoAtividade)
+            .collectIntoList());
+    }
+
+    @Override
+    public List<Atividade> findByFuncionario(int idFuncionario) {
+        final String QUERY = """
+            SELECT id, CASE
+                WHEN id IN (SELECT id FROM atendimentos_individuais) THEN 'ATENDIMENTO_INDIVIDUAL'
+                WHEN id IN (SELECT id FROM atendimentos_grupo) THEN 'ATENDIMENTO_GRUPO'
+                ELSE 'ENCONTRO' END AS tipo_atividade
+            FROM atividades WHERE id_funcionario = :idFuncionario
+            """;
+
+        return jdbi.withHandle(handle -> handle
+            .createQuery(QUERY)
+            .bind("idFuncionario", idFuncionario)
             .map(this::mapAtividadeByTipoAtividade)
             .collectIntoList());
     }

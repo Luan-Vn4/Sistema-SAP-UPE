@@ -5,8 +5,6 @@ import br.upe.sap.sistemasapupe.api.dtos.grupo.GrupoTerapeuticoDTO;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Funcionario;
 import br.upe.sap.sistemasapupe.data.model.grupos.GrupoTerapeutico;
 import br.upe.sap.sistemasapupe.data.model.pacientes.Ficha;
-import br.upe.sap.sistemasapupe.data.repositories.interfaces.FichaRepository;
-import br.upe.sap.sistemasapupe.data.repositories.interfaces.FuncionarioRepository;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.GrupoTerapeuticoRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
@@ -24,6 +22,12 @@ public class GrupoTerapeuticoService {
     FuncionarioService funcionarioService;
     FichaService fichaService;
 
+    public GrupoTerapeuticoDTO mapToDTO(GrupoTerapeutico grupoTerapeutico) {
+        UUID uidDono = funcionarioService.getFuncionarioById(grupoTerapeutico.getIdDono()).getUid();
+
+        return GrupoTerapeuticoDTO.from(grupoTerapeutico, uidDono);
+    }
+
     public GrupoTerapeuticoDTO create(CreateGrupoTerapeuticoDTO grupo) {
         Funcionario funcionario = funcionarioService.getFuncionarioByUid(grupo.idDono());
         GrupoTerapeutico grupoTerapeutico = CreateGrupoTerapeuticoDTO.toGrupo(grupo, funcionario.getId());
@@ -33,7 +37,7 @@ public class GrupoTerapeuticoService {
         return GrupoTerapeuticoDTO.from(grupoCriado, funcionario.getUid());
     }
 
-    public GrupoTerapeuticoDTO update(GrupoTerapeuticoDTO grupoTerapeuticoDTO){
+    public GrupoTerapeuticoDTO update(GrupoTerapeuticoDTO grupoTerapeuticoDTO) {
         GrupoTerapeutico grupoTerapeutico = getGrupoTerapeuticoByUid(grupoTerapeuticoDTO.uid());
         Funcionario funcionario = funcionarioService.getFuncionarioByUid(grupoTerapeuticoDTO.uid());
 
@@ -49,7 +53,7 @@ public class GrupoTerapeuticoService {
         grupoExistente.setIdDono(grupoExistente.getIdDono());
 
         GrupoTerapeutico grupoAtualizado = grupoTerapeuticoRepository.update(grupoExistente);
-        return GrupoTerapeuticoDTO.from(grupoAtualizado,funcionario.getUid());
+        return GrupoTerapeuticoDTO.from(grupoAtualizado, funcionario.getUid());
     }
 
     public GrupoTerapeuticoDTO getById(UUID idGrupo){

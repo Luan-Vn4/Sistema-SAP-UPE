@@ -33,6 +33,13 @@ public class AtendimentoGrupoService {
 
     GrupoTerapeuticoService grupoTerapeuticoService;
 
+    public AtendimentoGrupoDTO getDtoFrom(AtendimentoGrupo atendimentoGrupo) {
+        UUID uidGrupoTerapeutico = grupoTerapeuticoService.getById(
+                atendimentoGrupo.getIdGrupoTerapeutico()).getUid();
+
+        return AtendimentoGrupoDTO.from(atendimentoGrupo, uidGrupoTerapeutico);
+    }
+
     public AtendimentoGrupoDTO create(CreateAtendimentoGrupoDTO atendimentoGrupoDTO){
         Sala sala = salaService.getSalaByUid(atendimentoGrupoDTO.idSala());
         Funcionario funcionario = funcionarioService.getFuncionarioByUid(atendimentoGrupoDTO.idFuncionario());
@@ -49,8 +56,8 @@ public class AtendimentoGrupoService {
         if (atividade == null) throw
                 new EntityNotFoundException("Não existe um atendimento em grupo com UID: " + dto.id());
 
-        Funcionario funcionario = funcionarioService.getFuncionarioByUid(dto.funcionario());
-        Sala sala = salaService.getSalaByUid(dto.sala());
+        Funcionario funcionario = funcionarioService.getFuncionarioByUid(dto.idFuncionario());
+        Sala sala = salaService.getSalaByUid(dto.idSala());
         GrupoTerapeutico grupoTerapeutico = grupoTerapeuticoService.getGrupoTerapeuticoByUid(dto.idGrupoTerapeutico());
 
         atividade.setSala(valueOrElse(sala, atividade.getSala()));

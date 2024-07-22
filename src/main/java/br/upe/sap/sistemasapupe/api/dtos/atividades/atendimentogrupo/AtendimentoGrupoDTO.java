@@ -1,5 +1,6 @@
 package br.upe.sap.sistemasapupe.api.dtos.atividades.atendimentogrupo;
 
+import br.upe.sap.sistemasapupe.api.dtos.atividades.geral.AtividadeDTO;
 import br.upe.sap.sistemasapupe.data.model.atividades.AtendimentoGrupo;
 import br.upe.sap.sistemasapupe.data.model.atividades.Sala;
 import br.upe.sap.sistemasapupe.data.model.enums.StatusAtividade;
@@ -12,7 +13,7 @@ import java.util.UUID;
 @Builder
 public record AtendimentoGrupoDTO (UUID id, UUID idSala, LocalDateTime tempoInicio,
                                    LocalDateTime tempoFim, UUID idFuncionario, StatusAtividade statusAtividade,
-                                   UUID idGrupoTerapeutico){
+                                   UUID idGrupoTerapeutico) implements AtividadeDTO {
 
     public static AtendimentoGrupo to(AtendimentoGrupoDTO atendimentoGrupoDTO, Sala sala,
                                         Funcionario funcionario, Integer idGrupoTerapeutico){

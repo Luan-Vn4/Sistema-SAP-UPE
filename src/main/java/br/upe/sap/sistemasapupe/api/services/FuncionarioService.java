@@ -119,6 +119,14 @@ public class FuncionarioService {
         return funcionarioRepository.findById(ids.values().stream().toList());
     }
 
+    public Funcionario getFuncionarioById(int id) {
+        return funcionarioRepository.findById(id);
+    }
+
+    public List<Funcionario> getFuncionarioById(List<Integer> ids) {
+        return funcionarioRepository.findById(ids);
+    }
+
     public List<FuncionarioDTO> getByAtivo(boolean ativo) {
         return mapToFuncionarioDTO(funcionarioRepository.findByAtivo(ativo));
     }

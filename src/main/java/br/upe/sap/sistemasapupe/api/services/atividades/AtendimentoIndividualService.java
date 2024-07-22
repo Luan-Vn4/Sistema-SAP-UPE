@@ -32,14 +32,14 @@ public class AtendimentoIndividualService {
     SalaService salaService;
 
     public AtendimentoIndividualDTO create(CreateAtendimentoIndividualDTO createDTO) {
-        Sala sala = salaService.getSalaByUid(createDTO.sala());
-        Funcionario funcionario = funcionarioService.getFuncionarioByUid(createDTO.funcionario());
-        Funcionario terapeuta = funcionarioService.getFuncionarioByUid(createDTO.funcionario());
-        Ficha ficha = fichaService.getFichaByUid(createDTO.ficha());
+        Sala sala = salaService.getSalaByUid(createDTO.idSala());
+        Funcionario funcionario = funcionarioService.getFuncionarioByUid(createDTO.idFuncionario());
+        Funcionario terapeuta = funcionarioService.getFuncionarioByUid(createDTO.idFuncionario());
+        Ficha ficha = fichaService.getFichaByUid(createDTO.idFicha());
 
         Atividade received = createDTO.to(sala, funcionario, terapeuta, ficha);
         AtendimentoIndividual result = (AtendimentoIndividual) atividadeRepository.create(received);
-        return AtendimentoIndividualDTO.from(result);
+        return getDTOfrom(result);
     }
 
     public AtendimentoIndividualDTO update(AtendimentoIndividualDTO dto) {
@@ -48,10 +48,10 @@ public class AtendimentoIndividualService {
         if (atividade == null) throw new EntityNotFoundException("Não existe um atendimento individual com " +
                                                                  "UID: " + dto.id());
 
-        Sala sala = salaService.getSalaByUid(dto.sala());
-        Funcionario funcionario = funcionarioService.getFuncionarioByUid(dto.funcionario());
-        Funcionario terapeuta = funcionarioService.getFuncionarioByUid(dto.terapeuta());
-        Ficha ficha = fichaService.getFichaByUid(dto.ficha());
+        Sala sala = salaService.getSalaByUid(dto.idSala());
+        Funcionario funcionario = funcionarioService.getFuncionarioByUid(dto.idFuncionario());
+        Funcionario terapeuta = funcionarioService.getFuncionarioByUid(dto.idTerapeuta());
+        Ficha ficha = fichaService.getFichaByUid(dto.idFicha());
 
         atividade.setSala(valueOrElse(sala, atividade.getSala()));
         atividade.setTerapeuta(valueOrElse(terapeuta, atividade.getTerapeuta()));
@@ -61,7 +61,7 @@ public class AtendimentoIndividualService {
         atividade.setTempoFim(valueOrElse(dto.tempoFim(), atividade.getTempoFim()));
         atividade.setStatus(valueOrElse(dto.statusAtividade(), atividade.getStatus()));
 
-        return AtendimentoIndividualDTO.from((AtendimentoIndividual) atividadeRepository.update(atividade));
+        return getDTOfrom((AtendimentoIndividual) atividadeRepository.update(atividade));
     }
 
     private <T> T valueOrElse(T value, T alternative) {
@@ -90,7 +90,11 @@ public class AtendimentoIndividualService {
         if (result == null) throw new EntityNotFoundException("Não existe um atendimento individual com o" +
                                                               "UID: " + uid);
 
-        return AtendimentoIndividualDTO.from(result);
+        return getDTOfrom(result);
+    }
+
+    public AtendimentoIndividualDTO getDTOfrom(AtendimentoIndividual atividade) {
+        return AtendimentoIndividualDTO.from(atividade);
     }
 
     public List<AtendimentoIndividualDTO> getByStatus(StatusAtividade status){
@@ -99,7 +103,7 @@ public class AtendimentoIndividualService {
         return atividades.stream()
             .filter(atividade -> atividade instanceof AtendimentoIndividual)
             .map(atividade -> (AtendimentoIndividual) atividade)
-            .map(AtendimentoIndividualDTO::from)
+            .map(this::getDTOfrom)
             .toList();
     }
 

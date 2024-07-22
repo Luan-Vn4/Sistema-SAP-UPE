@@ -30,17 +30,10 @@ class AuxAtividadeRepository {
 
     FichaRepository fichaRepository;
 
+
     // AUXILIARES //
     final static String returningAtividadeColumns = "atividades.id, atividades.uid, atividades.id_sala, " +
         "atividades.id_funcionario, atividades.tempo_inicio, atividades.tempo_fim, atividades.status";
-
-    List<Integer> getIdsFichas(List<Ficha> fichas) {
-        return fichas.stream().map(Ficha::getId).toList();
-    }
-
-    List<Integer> getIdsFuncionarios(List<? extends Funcionario> funcionarios) {
-        return funcionarios.stream().map(Funcionario::getId).toList();
-    }
 
 
     // CREATE //
@@ -75,6 +68,16 @@ class AuxAtividadeRepository {
                 rs.getInt("id_sala")));
         atividade.setFuncionario(funcionarioRepository.findById(
                 rs.getInt("id_funcionario")));
+    }
+
+
+    // READ //
+    List<Integer> getIdsFichas(List<Ficha> fichas) {
+        return fichas.stream().map(Ficha::getId).toList();
+    }
+
+    List<Integer> getIdsFuncionarios(List<? extends Funcionario> funcionarios) {
+        return funcionarios.stream().map(Funcionario::getId).toList();
     }
 
 

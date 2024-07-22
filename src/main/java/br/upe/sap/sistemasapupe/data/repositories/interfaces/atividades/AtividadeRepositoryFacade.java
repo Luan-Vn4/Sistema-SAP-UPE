@@ -75,6 +75,11 @@ public interface AtividadeRepositoryFacade extends BasicRepository<Atividade, In
     List<Atividade> findByStatus(StatusAtividade status);
 
     // READ //
+    List<Atividade> findBySala(Integer idSala);
+
+    List<Atividade> findByFuncionario(int idFuncionario);
+
+
         // Relacionado - AtendimentoGrupo
     List<Integer> findIdsMinistrantesFromAtendimentoGrupo(int idAtividade);
 

@@ -31,6 +31,11 @@ public class EncontroService {
 
     GrupoEstudoService grupoEstudoService;
 
+    public EncontroDTO getDTOFrom(Encontro encontro) {
+        UUID uidGrupoEstudo = grupoEstudoService.getGrupoEstudoById(encontro.getId()).getUid();
+        return EncontroDTO.from(encontro, uidGrupoEstudo);
+    }
+
     public EncontroDTO create(CreateEncontroDTO dto) {
         // Falta tratar exceções caso não existam (retornem null)
         Funcionario funcionario = funcionarioService.getFuncionarioByUid(dto.idFuncionario());
