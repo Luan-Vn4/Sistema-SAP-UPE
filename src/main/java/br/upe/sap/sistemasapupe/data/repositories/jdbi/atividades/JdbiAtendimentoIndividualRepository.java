@@ -42,8 +42,9 @@ class JdbiAtendimentoIndividualRepository implements AtendimentoIndividualReposi
         var result = (AtendimentoIndividual) atividadeCreator.create(atendimentoIndividual);
         return jdbi.withHandle(handle -> handle
             .createUpdate(CREATE)
-            .bind("idFicha", atendimentoIndividual.getFicha())
-            .bind("idTerapeuta", atendimentoIndividual.getFuncionario().getId())
+            .bind("id", result.getId())
+            .bind("idFicha", atendimentoIndividual.getFicha().getId())
+            .bind("idTerapeuta", atendimentoIndividual.getTerapeuta().getId())
             .executeAndReturnGeneratedKeys()
             .map((rs, ctx) -> fillAtendimentoIndividual(rs, ctx, result))
             .findFirst().orElse(null));

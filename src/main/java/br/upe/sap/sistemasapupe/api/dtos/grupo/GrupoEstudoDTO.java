@@ -2,6 +2,7 @@ package br.upe.sap.sistemasapupe.api.dtos.grupo;
 
 import br.upe.sap.sistemasapupe.data.model.grupos.GrupoEstudo;
 import lombok.Builder;
+
 import java.util.UUID;
 
 @Builder

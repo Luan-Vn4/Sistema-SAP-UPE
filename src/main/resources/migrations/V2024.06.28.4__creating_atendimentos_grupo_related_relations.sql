@@ -32,18 +32,18 @@ CREATE OR REPLACE function pode_coordenar(id_funcionario INT,
 
 CREATE TABLE IF NOT EXISTS atendimentos_grupo(
     id INT PRIMARY KEY REFERENCES atividades(id) ON DELETE CASCADE,
-    id_grupo_terapeutico INT REFERENCES grupos_terapeuticos(id) ON DELETE CASCADE
+    id_grupo_terapeutico INT REFERENCES grupos_terapeuticos(id) ON DELETE CASCADE NOT NULL
 );
 
 CREATE OR REPLACE function ficha_pode_participar_atendimento_grupo(id_ficha INT,
     id_atendimento_grupo INT) RETURNS boolean AS $$
         declare is_participante boolean;
-        declare id_grupo_terapeutico INT;
+        declare this_id_grupo_terapeutico INT;
         BEGIN
             SELECT atendimentos_grupo.id_grupo_terapeutico FROM atendimentos_grupo
-            WHERE id = id_atendimento_grupo LIMIT 1 INTO id_grupo_terapeutico;
-            SELECT id_ficha IN (SELECT FROM fichas WHERE
-                fichas.id_grupo_terapeutico = id_grupo_terapeutico)
+            WHERE atendimentos_grupo.id = id_atendimento_grupo LIMIT 1 INTO this_id_grupo_terapeutico;
+            SELECT id_ficha IN (SELECT fichas.id FROM fichas WHERE
+                fichas.id_grupo_terapeutico = this_id_grupo_terapeutico)
             INTO is_participante;
             RETURN is_participante;
         END;

@@ -18,6 +18,10 @@ public class AtendimentoGrupo extends Atividade {
 
     private List<Integer> idsMinistrantes;
 
+    public AtendimentoGrupo() {
+        super();
+    }
+
     @Builder
     public AtendimentoGrupo(int id, UUID uid, Sala sala, LocalDateTime tempoInicio,
                             LocalDateTime tempoFim, StatusAtividade statusAtividade,
