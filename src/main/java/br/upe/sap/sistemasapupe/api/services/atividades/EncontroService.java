@@ -15,11 +15,11 @@ import br.upe.sap.sistemasapupe.data.repositories.interfaces.atividades.Atividad
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.apache.commons.collections4.BidiMap;
-import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.stereotype.Service;
 
-@Repository
+@Service
 @AllArgsConstructor
 public class EncontroService {
 

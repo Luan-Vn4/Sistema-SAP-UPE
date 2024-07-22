@@ -10,7 +10,7 @@ import java.util.UUID;
 public record CreateAtendimentoGrupoDTO(UUID idSala, LocalDateTime tempoInicio, LocalDateTime tempoFim,
                                         StatusAtividade status, UUID idFuncionario, UUID idGrupoTerapeutico) {
 
-    public static AtendimentoGrupo to(CreateAtendimentoGrupoDTO dto,
+    public static AtendimentoGrupo from(CreateAtendimentoGrupoDTO dto,
                                       Integer idGrupoTerapeutico, Sala sala, Funcionario funcionario) {
         return AtendimentoGrupo.builder().idGrupoTerapeutico(idGrupoTerapeutico)
                     .sala(sala)
