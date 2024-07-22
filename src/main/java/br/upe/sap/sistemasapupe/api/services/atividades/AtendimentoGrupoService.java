@@ -2,27 +2,22 @@ package br.upe.sap.sistemasapupe.api.services.atividades;
 
 import br.upe.sap.sistemasapupe.api.dtos.atividades.atendimentogrupo.AtendimentoGrupoDTO;
 import br.upe.sap.sistemasapupe.api.dtos.atividades.atendimentogrupo.CreateAtendimentoGrupoDTO;
-import br.upe.sap.sistemasapupe.api.dtos.atividades.encontro.EncontroDTO;
 import br.upe.sap.sistemasapupe.api.services.FichaService;
 import br.upe.sap.sistemasapupe.api.services.FuncionarioService;
 import br.upe.sap.sistemasapupe.api.services.GrupoTerapeuticoService;
 import br.upe.sap.sistemasapupe.api.services.SalaService;
 import br.upe.sap.sistemasapupe.data.model.atividades.AtendimentoGrupo;
 import br.upe.sap.sistemasapupe.data.model.atividades.Atividade;
-import br.upe.sap.sistemasapupe.data.model.atividades.Encontro;
 import br.upe.sap.sistemasapupe.data.model.atividades.Sala;
 import br.upe.sap.sistemasapupe.data.model.enums.StatusAtividade;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Funcionario;
-import br.upe.sap.sistemasapupe.data.model.grupos.GrupoEstudo;
 import br.upe.sap.sistemasapupe.data.model.grupos.GrupoTerapeutico;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.atividades.AtividadeRepositoryFacade;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -43,7 +38,7 @@ public class AtendimentoGrupoService {
         Funcionario funcionario = funcionarioService.getFuncionarioByUid(atendimentoGrupoDTO.idFuncionario());
         GrupoTerapeutico grupoTerapeutico = grupoTerapeuticoService.getGrupoTerapeuticoByUid(atendimentoGrupoDTO.idGrupoTerapeutico());
 
-        AtendimentoGrupo received = atendimentoGrupoDTO.toAtendimentoGrupo(grupoTerapeutico.getId(), sala, funcionario);
+        AtendimentoGrupo received = atendimentoGrupoDTO.toAtendimentoGrupo(grupoTerapeutico.getId(), sala, funcionario); //aqui
         AtendimentoGrupo result = (AtendimentoGrupo) atividadeRepository.create(received);
         return AtendimentoGrupoDTO.from(result, grupoTerapeutico.getUid());
     }
