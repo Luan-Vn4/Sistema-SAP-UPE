@@ -65,6 +65,10 @@ public class EncontroService {
         atividade.setStatus(valueOrElse(dto.statusAtividade(), atividade.getStatus()));
         atividade.setIdGrupoEstudo(valueOrElse(grupoEstudo.getId(),atividade.getIdGrupoEstudo()));
 
+        atividadeRepository.simpleUpdate(atividade);
+
+        Encontro result = (Encontro) getAtividadeByUid(dto.id());
+
         return EncontroDTO.from(atividade, grupoEstudo.getUid());
     }
 

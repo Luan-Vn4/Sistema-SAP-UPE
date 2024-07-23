@@ -67,7 +67,11 @@ public class AtendimentoGrupoService {
         atividade.setTempoFim(valueOrElse(dto.tempoFim(), atividade.getTempoFim()));
         atividade.setStatus(valueOrElse(dto.statusAtividade(), atividade.getStatus()));
 
-        return AtendimentoGrupoDTO.from(atividade, grupoTerapeutico.getUid());
+        atividadeRepository.update(atividade);
+
+        AtendimentoGrupo result = (AtendimentoGrupo) getAtividadeByUid(dto.id());
+
+        return AtendimentoGrupoDTO.from(result, grupoTerapeutico.getUid());
     }
 
     private <T> T valueOrElse(T value, T alternative) {

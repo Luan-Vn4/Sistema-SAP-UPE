@@ -47,7 +47,7 @@ public class AtendimentoIndividualController {
         return ResponseEntity.ok(atendimentos);
     }
 
-    @DeleteMapping(value = "/one/{uid}", params = {"uid"})
+    @DeleteMapping(value = "/one/uid/{uid}", params = {"uid"})
     public ResponseEntity<String> deleteByUid(@PathVariable("uid") UUID uid) {
         if (uid == null) throw new EntityNotFoundException("UID nulo");
         atendimentoIndividualService.deleteByUid(uid);

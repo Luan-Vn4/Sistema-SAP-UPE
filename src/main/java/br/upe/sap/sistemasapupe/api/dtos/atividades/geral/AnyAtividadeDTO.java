@@ -58,8 +58,6 @@ public record AnyAtividadeDTO (List<AtendimentoIndividualDTO> atendimentosIndivi
             return new AnyAtividadeDTO(atdIndividuais, atdGrupo, encontros);
         }
 
-
-
     }
 
     public static class AtividadeDTOCollector implements
@@ -79,9 +77,10 @@ public record AnyAtividadeDTO (List<AtendimentoIndividualDTO> atendimentosIndivi
                     accumulator.addAtendimentoGrupo(atdGrupoDto);
                 } else if (dto instanceof EncontroDTO encontroDto) {
                     accumulator.addEncontro(encontroDto);
+                } else {
+                    throw new ClassCastException("O tipo de AtividadeDTO passado " +
+                                                 "não é suportado: " + dto.getClass());
                 }
-                throw new ClassCastException("O tipo de AtividadeDTO passado " +
-                                             "não é suportado: " + dto.getClass());
             };
         }
 

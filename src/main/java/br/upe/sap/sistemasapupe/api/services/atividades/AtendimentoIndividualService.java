@@ -61,7 +61,9 @@ public class AtendimentoIndividualService {
         atividade.setTempoFim(valueOrElse(dto.tempoFim(), atividade.getTempoFim()));
         atividade.setStatus(valueOrElse(dto.statusAtividade(), atividade.getStatus()));
 
-        return getDTOfrom((AtendimentoIndividual) atividadeRepository.update(atividade));
+        atividadeRepository.update(atividade);
+
+        return getDTOfrom((AtendimentoIndividual) getAtividadeByUid(dto.id()));
     }
 
     private <T> T valueOrElse(T value, T alternative) {

@@ -32,6 +32,14 @@ public class AtividadeService {
 
     SalaService salaService;
 
+    public AtividadeDTO updateStatus(StatusAtividade statusAtividade, UUID uidAtividade) {
+        Atividade atividade = getAtividadeByUid(uidAtividade);
+
+        atividade.setStatus(statusAtividade);
+
+        return mapToDTO(getAtividadeByUid(uidAtividade));
+    }
+
     public AtividadeDTO getByUid(UUID uid) {
         Atividade atividade = getAtividadeByUid(uid);
 
