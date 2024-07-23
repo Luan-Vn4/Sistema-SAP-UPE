@@ -144,6 +144,16 @@ public class JdbiAtividadeRepositoryFacade implements AtividadeRepositoryFacade 
     }
 
     @Override
+    public List<AtendimentoGrupo> findByGrupoTerapeutico(Integer id) {
+        return atdGrupoRepository.findByGrupoTerapeutico(id);
+    }
+
+    @Override
+    public List<Encontro> findByGrupoEstudo(Integer id) {
+        return encontroRepository.findByGrupoEstudo(id);
+    }
+
+    @Override
     public List<Atividade> update(List<Atividade> atividades) {
         return atividades.stream().map(this::update).toList();
     }

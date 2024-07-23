@@ -2,6 +2,7 @@ package br.upe.sap.sistemasapupe.api.services.atividades;
 
 import br.upe.sap.sistemasapupe.api.dtos.atividades.atendimentogrupo.AtendimentoGrupoDTO;
 import br.upe.sap.sistemasapupe.api.dtos.atividades.atendimentogrupo.CreateAtendimentoGrupoDTO;
+import br.upe.sap.sistemasapupe.api.dtos.grupo.GrupoTerapeuticoDTO;
 import br.upe.sap.sistemasapupe.api.services.FichaService;
 import br.upe.sap.sistemasapupe.api.services.FuncionarioService;
 import br.upe.sap.sistemasapupe.api.services.GrupoTerapeuticoService;
@@ -48,6 +49,15 @@ public class AtendimentoGrupoService {
         AtendimentoGrupo received = atendimentoGrupoDTO.toAtendimentoGrupo(grupoTerapeutico.getId(), sala, funcionario); //aqui
         AtendimentoGrupo result = (AtendimentoGrupo) atividadeRepository.create(received);
         return AtendimentoGrupoDTO.from(result, grupoTerapeutico.getUid());
+    }
+
+    public List<AtendimentoGrupoDTO> getByGrupoTerapeutico(UUID idGrupoTerapeutico) {
+        GrupoTerapeutico grupoTerapeutico = grupoTerapeuticoService.getGrupoTerapeuticoByUid(idGrupoTerapeutico);
+        List<AtendimentoGrupo> result = atividadeRepository.findByGrupoTerapeutico(grupoTerapeutico.getId());
+
+        return result.stream()
+                .map(atendimentoGrupo -> AtendimentoGrupoDTO.from(atendimentoGrupo, grupoTerapeuticoService.getById(atendimentoGrupo.getUid()).uid()))
+                .toList();
     }
 
     public AtendimentoGrupoDTO update(AtendimentoGrupoDTO dto) {

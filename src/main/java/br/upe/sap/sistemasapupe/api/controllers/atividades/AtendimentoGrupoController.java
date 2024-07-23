@@ -47,6 +47,12 @@ public class AtendimentoGrupoController {
         return ResponseEntity.ok(atendimentos);
     }
 
+    @GetMapping("/many/id-grupo/{idGrupo}")
+    public ResponseEntity<List<AtendimentoGrupoDTO>> getByIdGrupo(@PathVariable UUID idGrupo){
+        List<AtendimentoGrupoDTO> atendimentoGrupo = atendimentoGrupoService.getByGrupoTerapeutico(idGrupo);
+        return ResponseEntity.ok(atendimentoGrupo);
+    }
+
     @DeleteMapping(value = "/one", params = {"uid"})
     public ResponseEntity<String> deleteByUid(@RequestParam(name = "uid") UUID uid) {
         if (uid == null) {
