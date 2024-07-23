@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -34,7 +35,7 @@ public class AtividadeService {
     public AtividadeDTO getByUid(UUID uid) {
         Atividade atividade = getAtividadeByUid(uid);
 
-        if (atividade != null) throw new EntityNotFoundException("Não há uma atividade com o UID: " + uid);
+        if (atividade == null) throw new EntityNotFoundException("Não há uma atividade com o UID: " + uid);
 
         return mapToDTO(atividade);
     }
@@ -116,6 +117,11 @@ public class AtividadeService {
 
     public void delete(List<UUID> uidsAtividades) {
         BidiMap<UUID, Integer> ids = atividadeRepository.findIds(uidsAtividades);
+
+        for (Map.Entry<UUID, Integer> entry : ids.entrySet()) {
+            if (!atividadeRepository.exists(entry.getValue())) throw
+                new EntityNotFoundException("Não há um entidade com o UID: " + entry.getKey());
+        }
 
         atividadeRepository.delete(ids.values().stream().toList());
     }

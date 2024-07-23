@@ -25,6 +25,12 @@ public record AnyAtividadeDTO (List<AtendimentoIndividualDTO> atendimentosIndivi
         return new AtividadeDTOCollector();
     }
 
+    public boolean isEmpty() {
+        return atendimentosIndividuais.isEmpty()
+               && atendimentosGrupo.isEmpty()
+               && encontros.isEmpty();
+    }
+
     public static class AnyAtividadeDTOBuilder {
 
         private final List<AtendimentoIndividualDTO> atdIndividuais = new ArrayList<>();
