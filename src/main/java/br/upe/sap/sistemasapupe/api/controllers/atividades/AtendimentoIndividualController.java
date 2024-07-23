@@ -32,8 +32,8 @@ public class AtendimentoIndividualController {
         return ResponseEntity.ok(updated);
     }
 
-    @GetMapping(value = "/one", params = {"uid"})
-    public ResponseEntity<AtendimentoIndividualDTO> getById(@RequestParam(name = "id") UUID id) {
+    @GetMapping(value = "/one/uid/{uid}")
+    public ResponseEntity<AtendimentoIndividualDTO> getById(@PathVariable("uid") UUID id) {
         AtendimentoIndividualDTO found = atendimentoIndividualService.getById(id);
         if (found == null) {
             return ResponseEntity.notFound().build();
@@ -41,14 +41,14 @@ public class AtendimentoIndividualController {
         return ResponseEntity.ok(found);
     }
 
-    @GetMapping(value = "/one", params = {"status"})
-    public ResponseEntity<List<AtendimentoIndividualDTO>> getByStatus(@RequestParam(name = "status") StatusAtividade status) {
+    @GetMapping(value = "/one/status/{status}", params = {"status"})
+    public ResponseEntity<List<AtendimentoIndividualDTO>> getByStatus(@PathVariable("status") StatusAtividade status) {
         List<AtendimentoIndividualDTO> atendimentos = atendimentoIndividualService.getByStatus(status);
         return ResponseEntity.ok(atendimentos);
     }
 
-    @DeleteMapping(value = "/one", params = {"uid"})
-    public ResponseEntity<String> deleteByUid(@RequestParam(name = "uid") UUID uid) {
+    @DeleteMapping(value = "/one/{uid}", params = {"uid"})
+    public ResponseEntity<String> deleteByUid(@PathVariable("uid") UUID uid) {
         if (uid == null) throw new EntityNotFoundException("UID nulo");
         atendimentoIndividualService.deleteByUid(uid);
         return ResponseEntity.ok("Atendimento Individual com UID " + uid + " deletado com sucesso");
