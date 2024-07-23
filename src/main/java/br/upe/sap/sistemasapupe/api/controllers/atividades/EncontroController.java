@@ -48,9 +48,9 @@ public class EncontroController {
     }
 
     @GetMapping("/many/id-grupo/{idGrupo}")
-    public ResponseEntity<EncontroDTO> getByGrupo(@PathVariable UUID idGrupo) {
+    public ResponseEntity<List<EncontroDTO>> getByGrupo(@PathVariable UUID idGrupo) {
         List<EncontroDTO> encontros = encontroService.getByGrupoEstudo(idGrupo);
-        return ResponseEntity.ok(encontros.get(0));
+        return ResponseEntity.ok(encontros);
     }
 
     @DeleteMapping(value = "/one", params = {"uid"})
