@@ -1,7 +1,12 @@
 package br.upe.sap.sistemasapupe.data.repositories.jdbi;
 
+import br.upe.sap.sistemasapupe.data.model.funcionarios.Funcionario;
 import br.upe.sap.sistemasapupe.data.model.grupos.GrupoTerapeutico;
+import br.upe.sap.sistemasapupe.data.model.pacientes.Ficha;
+import br.upe.sap.sistemasapupe.data.repositories.interfaces.FichaRepository;
+import br.upe.sap.sistemasapupe.data.repositories.interfaces.FuncionarioRepository;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.GrupoTerapeuticoRepository;
+import lombok.AllArgsConstructor;
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.jdbi.v3.core.Jdbi;
@@ -11,13 +16,18 @@ import org.springframework.stereotype.Repository;
 import java.util.*;
 
 @Repository
+@AllArgsConstructor
 public class JdbiGrupoTerapeuticoRepository implements GrupoTerapeuticoRepository {
+
+    // DEPENDÊNCIAS //
     Jdbi jdbi;
 
-    public JdbiGrupoTerapeuticoRepository(Jdbi jdbi){
-        this.jdbi = jdbi;
-    }
+    FuncionarioRepository funcionarioRepository;
 
+    FichaRepository fichaRepository;
+
+
+    // CREATE //
     private String createGrupoTerapeuticoSQL(){
         return """
             INSERT INTO grupos_terapeuticos(id_dono, tema, descricao) VALUES
@@ -45,6 +55,87 @@ public class JdbiGrupoTerapeuticoRepository implements GrupoTerapeuticoRepositor
         return grupoTerapeuticos.stream().map(this::create).toList();
     }
 
+    @Override
+    public GrupoTerapeutico addFuncionario(Integer idFuncionario, Integer idGrupoTerapeutico) {
+        final String query = """
+            WITH id_func AS (
+            SELECT id FROM funcionarios WHERE id = :id_funcionario LIMIT 1),
+            id_grupo AS (
+            SELECT id FROM grupos_terapeuticos WHERE id = :id_grupo LIMIT 1)
+            INSERT INTO participacao_grupo_terapeutico(id_funcionario, id_grupo_terapeutico)
+            VALUES ((SELECT id FROM id_func), (SELECT id FROM id_grupo))
+            """;
+
+        jdbi.withHandle(handle -> handle
+                .createUpdate(query)
+                .bind("id_funcionario", idFuncionario)
+                .bind("id_grupo", idGrupoTerapeutico)
+                .execute());
+
+        return findById(idGrupoTerapeutico);
+    }
+
+    @Override
+    public GrupoTerapeutico addFuncionario(List<Integer> idsFuncionarios, Integer idGrupoTerapeutico) {
+        final String query = """
+            INSERT INTO participacao_grupo_terapeutico(id_funcionario, id_grupo_terapeutico)
+            VALUES (:id_funcionario, :id_grupo)
+            ON CONFLICT (id_funcionario, id_grupo_terapeutico) DO NOTHING
+            """;
+
+        jdbi.useTransaction(handle -> {
+            for (Integer idFuncionario : idsFuncionarios) {
+                handle.createUpdate(query)
+                        .bind("id_funcionario", idFuncionario)
+                        .bind("id_grupo", idGrupoTerapeutico)
+                        .execute();
+            }
+        });
+
+        return findById(idGrupoTerapeutico);
+    }
+
+    @Override
+    public GrupoTerapeutico addFicha(Integer idFicha, Integer idGrupoTerapeutico) {
+        final String query = """
+            UPDATE fichas
+            SET id_grupo_terapeutico = :id_grupo_terapeutico
+            WHERE id = :idFicha
+            """;
+
+        jdbi.withHandle(handle -> handle
+                .createUpdate(query)
+                .bind("id_grupo_terapeutico", idGrupoTerapeutico)
+                .bind("idFicha", idFicha)
+                .execute());
+
+        return findById(idGrupoTerapeutico);
+    }
+
+    @Override
+    public GrupoTerapeutico addFicha(List<Integer> idsFicha, Integer idGrupoTerapeutico) {
+        final String query = """
+        UPDATE fichas
+        SET id_grupo_terapeutico = :id_grupo_terapeutico
+        WHERE id = :idFicha
+        """;
+
+        jdbi.withHandle(handle -> {
+            PreparedBatch batch = handle.prepareBatch(query);
+            for (Integer idFicha : idsFicha) {
+                batch.bind("id_grupo_terapeutico", idGrupoTerapeutico)
+                        .bind("idFicha", idFicha)
+                        .add();
+            }
+            batch.execute();
+            return null;
+        });
+
+        return findById(idGrupoTerapeutico);
+    }
+
+
+    // UPDATE //
     @Override
     public GrupoTerapeutico update(GrupoTerapeutico grupoTerapeutico) {
         final String query = """
@@ -75,7 +166,8 @@ public class JdbiGrupoTerapeuticoRepository implements GrupoTerapeuticoRepositor
         });
     }
 
-    // procurar o grupo pelo id dele mesmo
+
+    // READ //
     @Override
     public GrupoTerapeutico findById(Integer id) {
         final String query = """
@@ -96,8 +188,8 @@ public class JdbiGrupoTerapeuticoRepository implements GrupoTerapeuticoRepositor
     public List<GrupoTerapeutico> findById(List<Integer> ids) {
         final String QUERY = """
             SELECT * FROM grupos_terapeuticos
-            WHERE id IN (<ids>)
-            """;
+                WHERE id IN (%s)
+            """.formatted("<ids>");
 
         return jdbi.withHandle(handle -> handle
             .createQuery(QUERY)
@@ -196,93 +288,41 @@ public class JdbiGrupoTerapeuticoRepository implements GrupoTerapeuticoRepositor
     }
 
     @Override
-    public GrupoTerapeutico addFuncionario(Integer idFuncionario, Integer idGrupoTerapeutico) {
-        final String query = """
-            WITH id_func AS (
-            SELECT id FROM funcionarios WHERE id = :id_funcionario LIMIT 1),
-            id_grupo AS (
-            SELECT id FROM grupos_terapeuticos WHERE id = :id_grupo LIMIT 1)
-            INSERT INTO participacao_grupo_terapeutico(id_funcionario, id_grupo_terapeutico)
-            VALUES ((SELECT id FROM id_func), (SELECT id FROM id_grupo))
+    public List<Funcionario> findCoordenadores(Integer idGrupoTerapeutico) {
+        final String QUERY = """
+            SELECT id_funcionario FROM participacao_grupo_terapeutico
+                WHERE id_grupo_terapeutico = :idGrupoTerapeutico
             """;
 
-        jdbi.withHandle(handle -> handle
-                .createUpdate(query)
-                .bind("id_funcionario", idFuncionario)
-                .bind("id_grupo", idGrupoTerapeutico)
-                .execute());
+        List<Integer> ids = jdbi.withHandle(handle -> handle
+            .createQuery(QUERY)
+            .bind("idGrupoTerapeutico",idGrupoTerapeutico)
+            .mapTo(Integer.class)
+            .collectIntoList());
 
-        return findById(idGrupoTerapeutico);
+        return funcionarioRepository.findById(ids);
     }
 
     @Override
-    public GrupoTerapeutico addFuncionario(List<Integer> idsFuncionarios, Integer idGrupoTerapeutico) {
-        final String query = """
-            INSERT INTO participacao_grupo_terapeutico(id_funcionario, id_grupo_terapeutico)
-            VALUES (:id_funcionario, :id_grupo)
-            ON CONFLICT (id_funcionario, id_grupo_terapeutico) DO NOTHING
-            """;
+    public List<Ficha> findFichas(Integer idGrupoTerapeutico) {
+        final String QUERY = "SELECT id FROM fichas WHERE id_grupo_terapeutico = :idGrupoTerapeutico";
 
-        jdbi.useTransaction(handle -> {
-            for (Integer idFuncionario : idsFuncionarios) {
-                handle.createUpdate(query)
-                        .bind("id_funcionario", idFuncionario)
-                        .bind("id_grupo", idGrupoTerapeutico)
-                        .execute();
-            }
-        });
+        List<Integer> ids = jdbi.withHandle(handle -> handle
+            .createQuery(QUERY)
+            .bind("idGrupoTerapeutico", idGrupoTerapeutico)
+            .mapTo(Integer.class)
+            .collectIntoList());
 
-        return findById(idGrupoTerapeutico);
-    }
-
-    @Override
-    public GrupoTerapeutico addFicha(Integer idFicha, Integer idGrupoTerapeutico) {
-        final String query = """
-            UPDATE fichas
-            SET id_grupo_terapeutico = :id_grupo_terapeutico
-            WHERE id = :idFicha
-            """;
-
-        jdbi.withHandle(handle -> handle
-                .createUpdate(query)
-                .bind("id_grupo_terapeutico", idGrupoTerapeutico)
-                .bind("idFicha", idFicha)
-                .execute());
-
-        return findById(idGrupoTerapeutico);
-    }
-
-    @Override
-    public GrupoTerapeutico addFicha(List<Integer> idsFicha, Integer idGrupoTerapeutico) {
-        final String query = """
-        UPDATE fichas
-        SET id_grupo_terapeutico = :id_grupo_terapeutico
-        WHERE id = :idFicha
-        """;
-
-        jdbi.withHandle(handle -> {
-            PreparedBatch batch = handle.prepareBatch(query);
-            for (Integer idFicha : idsFicha) {
-                batch.bind("id_grupo_terapeutico", idGrupoTerapeutico)
-                        .bind("idFicha", idFicha)
-                        .add();
-            }
-            batch.execute();
-            return null;
-        });
-
-        return findById(idGrupoTerapeutico);
+        return fichaRepository.findById(ids);
     }
 
     @Override
     public List<Integer> findGruposTerapeuticosNaoParticipadosPor(Integer idFuncionario) {
         final String QUERY = """
-                            SELECT id
-                            FROM grupos_terapeuticos
-                            WHERE id NOT IN (SELECT id_grupo_terapeutico
-                            FROM participacao_grupo_terapeutico
-                            WHERE id_funcionario = :id_funcionario)
-                            """;
+        SELECT id FROM grupos_terapeuticos
+            WHERE id NOT IN (SELECT id_grupo_terapeutico
+                FROM participacao_grupo_terapeutico WHERE id_funcionario = :id_funcionario)
+        """;
 
         return jdbi.withHandle(handle -> handle
                 .createQuery(QUERY)
@@ -291,6 +331,8 @@ public class JdbiGrupoTerapeuticoRepository implements GrupoTerapeuticoRepositor
                 .list());
     }
 
+
+    // DELETE //
     @Override
     public int removerFuncionario(Integer idFuncionario, Integer idGrupoTerapeutico) {
         final String query = """

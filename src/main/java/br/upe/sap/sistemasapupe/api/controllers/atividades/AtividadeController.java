@@ -46,7 +46,7 @@ public class AtividadeController {
     }
 
     @GetMapping(value = "/many/id-sala/{idSala}")
-    public ResponseEntity<AnyAtividadeDTO> getBySala(@PathVariable("idSala") UUID uid){
+    public ResponseEntity<AnyAtividadeDTO> getBySala(@PathVariable("idSala") UUID uid) {
         return ResponseEntity.ok(atividadeService.getBySala(uid));
     }
 

@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @Builder
 public record RegisterEstagiarioDTO(
-        @NotNull(message = "foda-se")
+        @NotNull
         @Size(max = 50)
         String nome,
 
