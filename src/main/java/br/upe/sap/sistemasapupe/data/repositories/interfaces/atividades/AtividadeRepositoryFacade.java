@@ -60,6 +60,10 @@ public interface AtividadeRepositoryFacade extends BasicRepository<Atividade, In
     @Override
     Atividade update(Atividade atividade);
 
+    List<AtendimentoGrupo> findByGrupoTerapeutico(Integer id);
+
+    List<Encontro> findByGrupoEstudo(Integer id);
+
     /**
      * <b>ATENÇÃO:</b> esse método atualiza todos os dados daquele tipo específico de atividade. Por exemplo,
      * se for passado um {@link AtendimentoGrupo} todos os participantes e ministrantes serão atualizados.

@@ -37,6 +37,8 @@ public interface AtendimentoGrupoRepository extends BasicRepository<AtendimentoG
     List<AtendimentoGrupo> update(List<AtendimentoGrupo> atendimentosGrupo);
 
 
+    List<AtendimentoGrupo> findByGrupoTerapeutico(Integer idGrupoTerapeutico);
+
     // READ //
     List<Integer> findIdsMinistrantes(int idAtividade);
 

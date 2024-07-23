@@ -31,8 +31,8 @@ public class AtendimentoGrupoController {
         return ResponseEntity.ok(updated);
     }
 
-    @GetMapping(value = "/one/uid/{uid}")
-    public ResponseEntity<AtendimentoGrupoDTO> getById(@PathVariable("uid") UUID id) {
+    @GetMapping(value = "/one", params = {"uid"})
+    public ResponseEntity<AtendimentoGrupoDTO> getById(@RequestParam(name = "id") UUID id) {
         AtendimentoGrupoDTO found = atendimentoGrupoService.getById(id);
         if (found == null) {
             return ResponseEntity.notFound().build();
@@ -40,15 +40,21 @@ public class AtendimentoGrupoController {
         return ResponseEntity.ok(found);
     }
 
-    @GetMapping(value = "/one/status/{status}")
+    @GetMapping(value = "/one", params = {"status"})
     public ResponseEntity<List<AtendimentoGrupoDTO>> getByStatus(
-                                                @PathVariable("status") StatusAtividade status) {
+                                                @RequestParam(name = "status") StatusAtividade status) {
         List<AtendimentoGrupoDTO> atendimentos = atendimentoGrupoService.getByStatus(status);
         return ResponseEntity.ok(atendimentos);
     }
 
-    @DeleteMapping(value = "/one/uid/{uid}")
-    public ResponseEntity<String> deleteByUid(@PathVariable("uid") UUID uid) {
+    @GetMapping("/many/id-grupo/{idGrupo}")
+    public ResponseEntity<List<AtendimentoGrupoDTO>> getByIdGrupo(@PathVariable UUID idGrupo){
+        List<AtendimentoGrupoDTO> atendimentoGrupo = atendimentoGrupoService.getByGrupoTerapeutico(idGrupo);
+        return ResponseEntity.ok(atendimentoGrupo);
+    }
+
+    @DeleteMapping(value = "/one", params = {"uid"})
+    public ResponseEntity<String> deleteByUid(@RequestParam(name = "uid") UUID uid) {
         if (uid == null) {
             throw new EntityNotFoundException("UID nulo");
         }

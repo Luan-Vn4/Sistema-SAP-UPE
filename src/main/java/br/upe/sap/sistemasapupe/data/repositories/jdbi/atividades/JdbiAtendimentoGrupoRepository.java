@@ -162,6 +162,22 @@ class JdbiAtendimentoGrupoRepository implements AtendimentoGrupoRepository {
     }
 
     @Override
+    public List<AtendimentoGrupo> findByGrupoTerapeutico(Integer idGrupoTerapeutico) {
+        final String QUERY = """
+                SELECT atendimentos_grupo.id_grupo_terapeutico AS idGrupoTerapeutico, %s
+                FROM atendimentos_grupo
+                INNER JOIN atividades ON atendimentos_grupo.id = atividades.id
+                WHERE atendimentos_grupo.id_grupo_terapeutico = :id_grupo_terapeutico
+                """.formatted(AuxAtividadeRepository.returningAtividadeColumns);
+
+        return jdbi.withHandle(handle -> handle
+                .createQuery(QUERY)
+                .bind("id_grupo_terapeutico", idGrupoTerapeutico)
+                .map(this::mapAtendimentoGrupo)
+                .collectIntoList());
+    }
+
+    @Override
     public List<AtendimentoGrupo> findAll() {
         final String QUERY = """
             SELECT id_grupo_terapeutico idGrupoTerapeutico, %s

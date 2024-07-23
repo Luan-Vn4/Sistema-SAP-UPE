@@ -6,6 +6,8 @@ import java.util.List;
 
 public interface EncontroRepository extends BasicRepository<Encontro, Integer> {
 
+    List<Encontro> findByGrupoEstudo(Integer idGrupoEstudo);
+
     // CREATE //
     int addComparecimento(int funcionario, int idAtividade);
 

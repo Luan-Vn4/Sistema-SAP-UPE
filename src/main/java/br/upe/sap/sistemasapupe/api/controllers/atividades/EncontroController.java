@@ -31,8 +31,8 @@ public class EncontroController {
         return ResponseEntity.ok(updated);
     }
 
-    @GetMapping(value = "/one/uid/{uid}")
-    public ResponseEntity<EncontroDTO> getById(@PathVariable("uid") UUID uid) {
+    @GetMapping(value = "/one", params = {"uid"})
+    public ResponseEntity<EncontroDTO> getById(@RequestParam(name = "uid") UUID uid) {
         EncontroDTO found = encontroService.getByUid(uid);
         if (found == null) {
             return ResponseEntity.notFound().build();
@@ -40,14 +40,21 @@ public class EncontroController {
         return ResponseEntity.ok(found);
     }
 
-    @GetMapping(value = "/one/status/{status}", params = {"status"})
-    public ResponseEntity<List<EncontroDTO>> getByStatus(@PathVariable("status") StatusAtividade status) {
+    @GetMapping(value = "/one", params = {"status"})
+    public ResponseEntity<List<EncontroDTO>> getByStatus(
+                                                @RequestParam(name = "status") StatusAtividade status) {
         List<EncontroDTO> atendimentos = encontroService.getByStatus(status);
         return ResponseEntity.ok(atendimentos);
     }
 
-    @DeleteMapping(value = "/one/uid/{uid}")
-    public ResponseEntity<String> deleteByUid(@PathVariable(name = "uid") UUID uid) {
+    @GetMapping("/many/id-grupo/{idGrupo}")
+    public ResponseEntity<EncontroDTO> getByGrupo(@PathVariable UUID idGrupo) {
+        List<EncontroDTO> encontros = encontroService.getByGrupoEstudo(idGrupo);
+        return ResponseEntity.ok(encontros.get(0));
+    }
+
+    @DeleteMapping(value = "/one", params = {"uid"})
+    public ResponseEntity<String> deleteByUid(@RequestParam(name = "uid") UUID uid) {
         if (uid == null) {
             throw new EntityNotFoundException("UID nulo");
         }

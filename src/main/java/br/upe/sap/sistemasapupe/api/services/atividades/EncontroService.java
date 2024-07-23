@@ -1,16 +1,19 @@
 package br.upe.sap.sistemasapupe.api.services.atividades;
 
+import br.upe.sap.sistemasapupe.api.dtos.atividades.atendimentogrupo.AtendimentoGrupoDTO;
 import br.upe.sap.sistemasapupe.api.dtos.atividades.encontro.CreateEncontroDTO;
 import br.upe.sap.sistemasapupe.api.dtos.atividades.encontro.EncontroDTO;
 import br.upe.sap.sistemasapupe.api.services.FuncionarioService;
 import br.upe.sap.sistemasapupe.api.services.GrupoEstudoService;
 import br.upe.sap.sistemasapupe.api.services.SalaService;
+import br.upe.sap.sistemasapupe.data.model.atividades.AtendimentoGrupo;
 import br.upe.sap.sistemasapupe.data.model.atividades.Atividade;
 import br.upe.sap.sistemasapupe.data.model.atividades.Encontro;
 import br.upe.sap.sistemasapupe.data.model.atividades.Sala;
 import br.upe.sap.sistemasapupe.data.model.enums.StatusAtividade;
 import br.upe.sap.sistemasapupe.data.model.funcionarios.Funcionario;
 import br.upe.sap.sistemasapupe.data.model.grupos.GrupoEstudo;
+import br.upe.sap.sistemasapupe.data.model.grupos.GrupoTerapeutico;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.atividades.AtividadeRepositoryFacade;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
@@ -109,6 +112,15 @@ public class EncontroService {
         if (id == null) return null;
 
         return atividadeRepository.findById(id);
+    }
+
+    public List<EncontroDTO> getByGrupoEstudo(UUID idGrupoEstudo) {
+        GrupoEstudo grupoEstudo = grupoEstudoService.getGrupoEstudoByUid(idGrupoEstudo);
+        List<Encontro> result = atividadeRepository.findByGrupoEstudo(grupoEstudo.getId());
+
+        return result.stream()
+                .map(encontro -> EncontroDTO.from(encontro, grupoEstudoService.getGrupoEstudoById(encontro.getIdGrupoEstudo()).getUid()))
+                .toList();
     }
 
     public List<Atividade> getAtividadeByUids(List<UUID> uids) {
