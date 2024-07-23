@@ -4,7 +4,6 @@ import br.upe.sap.sistemasapupe.api.dtos.atividades.atendimentoindividual.Atendi
 import br.upe.sap.sistemasapupe.api.dtos.atividades.atendimentoindividual.CreateAtendimentoIndividualDTO;
 import br.upe.sap.sistemasapupe.api.services.atividades.AtendimentoIndividualService;
 import br.upe.sap.sistemasapupe.data.model.enums.StatusAtividade;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,10 +46,4 @@ public class AtendimentoIndividualController {
         return ResponseEntity.ok(atendimentos);
     }
 
-    @DeleteMapping(value = "/one/uid/{uid}", params = {"uid"})
-    public ResponseEntity<String> deleteByUid(@PathVariable("uid") UUID uid) {
-        if (uid == null) throw new EntityNotFoundException("UID nulo");
-        atendimentoIndividualService.deleteByUid(uid);
-        return ResponseEntity.ok("Atendimento Individual com UID " + uid + " deletado com sucesso");
-    }
 }
