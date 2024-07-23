@@ -59,8 +59,9 @@ class JdbiEncontroRepository implements EncontroRepository {
 
         return jdbi.withHandle(handle -> handle
                 .createQuery(QUERY)
+                .bind("id_grupo_estudo", idGrupoEstudo)
                 .map(this::mapEncontro)
-                .collectIntoList());
+                .list());
     }
 
     @Override

@@ -172,6 +172,7 @@ class JdbiAtendimentoGrupoRepository implements AtendimentoGrupoRepository {
 
         return jdbi.withHandle(handle -> handle
                 .createQuery(QUERY)
+                .bind("id_grupo_terapeutico", idGrupoTerapeutico)
                 .map(this::mapAtendimentoGrupo)
                 .collectIntoList());
     }
