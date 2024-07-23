@@ -5,6 +5,7 @@ import br.upe.sap.sistemasapupe.data.model.enums.StatusAtividade;
 import br.upe.sap.sistemasapupe.data.repositories.interfaces.BasicRepository;
 import org.apache.commons.collections4.BidiMap;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -82,6 +83,8 @@ public interface AtividadeRepositoryFacade extends BasicRepository<Atividade, In
     List<Atividade> findBySala(Integer idSala);
 
     List<Atividade> findByFuncionario(int idFuncionario);
+
+    List<Atividade> findBySalaAndDate(Integer idSala, LocalDate date);
 
     boolean exists(Integer idAtividade);
 

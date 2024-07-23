@@ -9,7 +9,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -48,6 +48,12 @@ public class AtividadeController {
     @GetMapping(value = "/many/id-sala/{idSala}")
     public ResponseEntity<AnyAtividadeDTO> getBySala(@PathVariable("idSala") UUID uid){
         return ResponseEntity.ok(atividadeService.getBySala(uid));
+    }
+
+    @GetMapping(value = "/many/sala-date/", params = {"uid-sala", "date"})
+    public ResponseEntity<AnyAtividadeDTO> getBySalaAndDate(@RequestParam(name = "uid-sala") UUID uidSala,
+                                                            @RequestParam(name = "date") LocalDate date) {
+        return ResponseEntity.ok(atividadeService.getBySalaAndDate(uidSala, date));
     }
 
     @PutMapping(value = "/one/status/", params = {"status", "uid"})
