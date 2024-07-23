@@ -17,6 +17,7 @@ import org.jdbi.v3.core.statement.StatementContext;
 import org.springframework.stereotype.Repository;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -195,6 +196,24 @@ public class JdbiAtividadeRepositoryFacade implements AtividadeRepositoryFacade 
         return jdbi.withHandle(handle -> handle
             .createQuery(QUERY)
             .bind("idSala",idSala)
+            .map(this::mapAtividadeByTipoAtividade)
+            .collectIntoList());
+    }
+
+    @Override
+    public List<Atividade> findBySalaAndDate(Integer idSala, LocalDate date) {
+        final String QUERY = """
+            SELECT id, CASE
+                WHEN id IN (SELECT id FROM atendimentos_individuais) THEN 'ATENDIMENTO_INDIVIDUAL'
+                WHEN id IN (SELECT id FROM atendimentos_grupo) THEN 'ATENDIMENTO_GRUPO'
+                ELSE 'ENCONTRO' END AS tipo_atividade
+            FROM atividades WHERE id_sala = :idSala AND tempo_inicio::DATE = :date
+            """;
+
+        return jdbi.withHandle(handle -> handle
+            .createQuery(QUERY)
+            .bind("date", date)
+            .bind("idSala", idSala)
             .map(this::mapAtividadeByTipoAtividade)
             .collectIntoList());
     }

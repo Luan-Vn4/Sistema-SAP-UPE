@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 @ControllerAdvice
 public class PersistenceExceptionsHandler {
 
-    private Logger log = Logger.getLogger(this.getClass().getName());
+    private final Logger log = Logger.getLogger(this.getClass().getName());
 
     RequestsExceptionHandler requestsExceptionHandler;
 

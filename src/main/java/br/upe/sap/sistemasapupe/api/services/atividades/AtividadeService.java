@@ -12,6 +12,7 @@ import org.apache.commons.collections4.BidiMap;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -85,6 +86,23 @@ public class AtividadeService {
             .collect(AnyAtividadeDTO.collector());
     }
 
+    /**
+     * Procura as atividades que tenham sido marcadas naquela sala e que ocorrerão no mesmo dia
+     * @param uidSala {@link UUID} da sala
+     * @param date {@link LocalDate} do dia que será filtrado
+     * @return {@link AnyAtividadeDTO}
+     * @throws EntityNotFoundException caso não ache uma sala com o UID passado
+     */
+    public AnyAtividadeDTO getBySalaAndDate(UUID uidSala, LocalDate date) {
+        Sala sala = salaService.getSalaByUid(uidSala);
+
+        if (sala == null) throw new EntityNotFoundException("Não existe uma sala com o UID: " + uidSala);
+
+        return atividadeRepository.findBySalaAndDate(sala.getId(), date).stream()
+            .map(this::mapToDTO)
+            .collect(AnyAtividadeDTO.collector());
+    }
+
     private AtividadeDTO mapToDTO(Atividade atividade) {
         if (atividade instanceof AtendimentoIndividual atendimentoIndividual) {
             return atdIndividualService.getDTOfrom(atendimentoIndividual);
@@ -123,6 +141,11 @@ public class AtividadeService {
         atividadeRepository.delete(ids.values().stream().toList());
     }
 
+    /**
+     * Deleta as atividades com os uids passados
+     * @param uidsAtividades {@link UUID} das atividades que deseja apagar
+     * @throws EntityNotFoundException caso seja passado algum uid que não exista
+     */
     public void delete(List<UUID> uidsAtividades) {
         BidiMap<UUID, Integer> ids = atividadeRepository.findIds(uidsAtividades);
 
