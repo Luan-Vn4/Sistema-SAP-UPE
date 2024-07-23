@@ -79,6 +79,7 @@ public interface AtividadeRepositoryFacade extends BasicRepository<Atividade, In
 
     List<Atividade> findByFuncionario(int idFuncionario);
 
+    boolean exists(Integer idAtividade);
 
         // Relacionado - AtendimentoGrupo
     List<Integer> findIdsMinistrantesFromAtendimentoGrupo(int idAtividade);

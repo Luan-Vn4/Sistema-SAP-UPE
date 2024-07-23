@@ -267,8 +267,18 @@ public class JdbiAtividadeRepositoryFacade implements AtividadeRepositoryFacade 
             .collectIntoList());
     }
 
+    @Override
+    public boolean exists(Integer idAtividade) {
+        final String QUERY = "SELECT (COUNT(*) <> 0) FROM atividades WHERE id = :idAtividade";
 
-        // Relacionado - AtendimentoGrupo
+        return jdbi.withHandle(handle -> handle
+            .createQuery(QUERY)
+            .bind("idAtividade", idAtividade)
+            .mapTo(Boolean.class)
+            .findFirst().orElse(false));
+    }
+
+    // Relacionado - AtendimentoGrupo
     @Override
     public List<Integer> findIdsMinistrantesFromAtendimentoGrupo(int idAtividade) {
         return atdGrupoRepository.findIdsMinistrantes(idAtividade);
