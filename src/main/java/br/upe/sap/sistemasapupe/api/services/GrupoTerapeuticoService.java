@@ -28,6 +28,7 @@ public class GrupoTerapeuticoService {
         GrupoTerapeutico grupoTerapeutico = CreateGrupoTerapeuticoDTO.toGrupo(grupo, idDono);
         GrupoTerapeutico grupoCriado = grupoTerapeuticoRepository.create(grupoTerapeutico);
         addFuncionario(grupo.idDono(), grupoCriado.getUid());
+
         return GrupoTerapeuticoDTO.from(grupoCriado, funcionarioRepository.findById(
                 grupoCriado.getIdDono()).getUid());
     }
@@ -120,7 +121,7 @@ public class GrupoTerapeuticoService {
 
         GrupoTerapeutico grupo = grupoTerapeuticoRepository.findById(id_grupo);
 
-        return GrupoTerapeuticoDTO.from(grupo, funcionarioRepository.findById(grupo.getIdDono()).getUid());
+        return GrupoTerapeuticoDTO.from(grupo, uidFuncionario);
     }
 
     public GrupoTerapeuticoDTO addFuncionario(List<UUID> uidsFuncionarios, UUID uidGrupo){
