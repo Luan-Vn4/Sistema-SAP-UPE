@@ -6,9 +6,7 @@ import br.upe.sap.sistemasapupe.api.services.atividades.AtividadeService;
 import br.upe.sap.sistemasapupe.data.model.enums.StatusAtividade;
 import br.upe.sap.sistemasapupe.exceptions.utils.HttpErrorUtils;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.websocket.server.PathParam;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,33 +20,43 @@ public class AtividadeController {
 
     private AtividadeService atividadeService;
 
-    @GetMapping(value = "/one", params = {"id"})
-    public ResponseEntity<AtividadeDTO> getById(@RequestParam("id") UUID uid) {
+    @GetMapping(value = "/one/uid/{uid}")
+    public ResponseEntity<AtividadeDTO> getById(@PathVariable("uid") UUID uid) {
         return ResponseEntity.ok(atividadeService.getByUid(uid));
     }
 
-    @PostMapping(value = "/many")
+    @GetMapping(value = "/many/all")
+    public ResponseEntity<AnyAtividadeDTO> getAll() {
+        return ResponseEntity.ok(atividadeService.getAll());
+    }
+
+    @PostMapping(value = "/many/uids")
     public ResponseEntity<AnyAtividadeDTO> getByIds(@RequestBody List<UUID> uids) {
         return ResponseEntity.ok(atividadeService.getByUids(uids));
     }
 
-    @GetMapping(value = "/many", params = {"status"})
-    public ResponseEntity<AnyAtividadeDTO> getByStatus(@RequestParam("status") StatusAtividade status) {
+    @GetMapping(value = "/many/status/{status}")
+    public ResponseEntity<AnyAtividadeDTO> getByStatus(@PathVariable("status") StatusAtividade status) {
         return ResponseEntity.ok(atividadeService.getByStatus(status));
     }
 
-    @GetMapping(value = "/many", params = "idFuncionario")
-    public ResponseEntity<AnyAtividadeDTO> getByFuncionario(@RequestParam("idFuncionario") UUID uid){
+    @GetMapping(value = "/many/id-funcionario/{idFuncionario}")
+    public ResponseEntity<AnyAtividadeDTO> getByFuncionario(@PathVariable("idFuncionario") UUID uid){
         return ResponseEntity.ok(atividadeService.getByFuncionario(uid));
     }
 
-    @GetMapping(value = "/many", params = "idSala")
-    public ResponseEntity<AnyAtividadeDTO> getBySala(@RequestParam("idSala") UUID uid){
+    @GetMapping(value = "/many/id-sala/{idSala}")
+    public ResponseEntity<AnyAtividadeDTO> getBySala(@PathVariable("idSala") UUID uid){
         return ResponseEntity.ok(atividadeService.getBySala(uid));
     }
 
+    @PutMapping(value = "/one/status/", params = {"status", "uid"})
+    public ResponseEntity<AtividadeDTO> updateStatus(@RequestParam("status") StatusAtividade status,
+                                                     @RequestParam("uid") UUID uid) {
+        return ResponseEntity.ok(atividadeService.updateStatus(status, uid));
+    }
 
-    @DeleteMapping(value = "/many")
+    @DeleteMapping(value = "/many/uids")
     public ResponseEntity<?> delete(@RequestBody List<UUID> uids) {
         try {
             atividadeService.delete(uids);

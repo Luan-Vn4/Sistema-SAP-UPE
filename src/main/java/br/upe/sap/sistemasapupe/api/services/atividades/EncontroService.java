@@ -35,8 +35,12 @@ public class EncontroService {
     GrupoEstudoService grupoEstudoService;
 
     public EncontroDTO getDTOFrom(Encontro encontro) {
-        UUID uidGrupoEstudo = grupoEstudoService.getGrupoEstudoById(encontro.getId()).getUid();
-        return EncontroDTO.from(encontro, uidGrupoEstudo);
+        GrupoEstudo grupoEstudo = grupoEstudoService.getGrupoEstudoById(encontro.getIdGrupoEstudo());
+
+        if (grupoEstudo == null) throw new IllegalStateException("Não foi possível encontrar um grupo de estudo" +
+                                                                 "com o id: " + encontro.getIdGrupoEstudo());
+
+        return EncontroDTO.from(encontro, grupoEstudo.getUid());
     }
 
     public EncontroDTO create(CreateEncontroDTO dto) {
@@ -67,6 +71,10 @@ public class EncontroService {
         atividade.setTempoFim(valueOrElse(dto.tempoFim(), atividade.getTempoFim()));
         atividade.setStatus(valueOrElse(dto.statusAtividade(), atividade.getStatus()));
         atividade.setIdGrupoEstudo(valueOrElse(grupoEstudo.getId(),atividade.getIdGrupoEstudo()));
+
+        atividadeRepository.simpleUpdate(atividade);
+
+        Encontro result = (Encontro) getAtividadeByUid(dto.id());
 
         return EncontroDTO.from(atividade, grupoEstudo.getUid());
     }
