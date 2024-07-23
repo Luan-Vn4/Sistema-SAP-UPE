@@ -164,7 +164,7 @@ class JdbiAtendimentoGrupoRepository implements AtendimentoGrupoRepository {
     @Override
     public List<AtendimentoGrupo> findByGrupoTerapeutico(Integer idGrupoTerapeutico) {
         final String QUERY = """
-                SELECT atendimentos_grupo.id_grupo_terapeutico, %s
+                SELECT atendimentos_grupo.id_grupo_terapeutico AS idGrupoTerapeutico, %s
                 FROM atendimentos_grupo
                 INNER JOIN atividades ON atendimentos_grupo.id = atividades.id
                 WHERE atendimentos_grupo.id_grupo_terapeutico = :id_grupo_terapeutico

@@ -51,7 +51,7 @@ class JdbiEncontroRepository implements EncontroRepository {
     @Override
     public List<Encontro> findByGrupoEstudo(Integer idGrupoEstudo) {
         final String QUERY = """
-                SELECT encontros.id_grupo_estudo, %s
+                SELECT encontros.id_grupo_estudo AS idGrupoEstudo, %s
                 FROM encontros
                 INNER JOIN atividades ON encontros.id = atividades.id
                 WHERE encontros.id_grupo_estudo = :id_grupo_estudo
